@@ -1,0 +1,20 @@
+[package]
+name = "fpdec-macros"
+version = "0.0.0"
+edition = "2018"
+authors = ["Michael Amrhein <michael@adrhinum.de>"]
+description = "Macros supporting decimal fixed-point arithmetic."
+readme = "README.md"
+homepage = "https://github.com/mamrhein/fpdec.rs"
+repository = "https://github.com/mamrhein/fpdec.rs"
+documentation = "https://docs.rs/fpdec/"
+license-file = "../LICENSE.TXT"
+keywords = ["number", "decimal", "fixed-point", "arithmetics"]
+categories = ["data-structures", "mathematics"]
+
+[dependencies]
+fpdec-core = { path = "../fpdec-core", version = "0.0.0" }
+quote = "1.0"
+
+[lib]
+proc-macro = true

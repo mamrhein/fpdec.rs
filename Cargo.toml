@@ -1,0 +1,2 @@
+[workspace]
+members = ["fpdec", "fpdec-core", "fpdec-macros", "fpdec-traits"]

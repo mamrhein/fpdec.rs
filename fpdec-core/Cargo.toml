@@ -1,0 +1,15 @@
+[package]
+name = "fpdec-core"
+version = "0.0.0"
+edition = "2018"
+authors = ["Michael Amrhein <michael@adrhinum.de>"]
+description = "Common constants and functions for crate fpdec."
+readme = "README.md"
+homepage = "https://github.com/mamrhein/fpdec.rs"
+repository = "https://github.com/mamrhein/fpdec.rs"
+documentation = "https://docs.rs/fpdec/"
+license-file = "../LICENSE.TXT"
+keywords = ["number", "decimal", "fixed-point", "arithmetics"]
+categories = ["data-structures", "mathematics"]
+
+[dependencies]
