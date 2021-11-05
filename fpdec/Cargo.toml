@@ -16,3 +16,6 @@ categories = ["data-structures", "mathematics"]
 fpdec-core = { path = "../fpdec-core", version = "0.0.0" }
 fpdec-macros = { path = "../fpdec-macros", version = "0.0.0" }
 fpdec-traits = { path = "../fpdec-traits", version = "0.0.0" }
+
+[features]
+packed = []
