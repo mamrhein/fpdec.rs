@@ -26,7 +26,7 @@ pub enum ParseDecimalError {
     PrecLimitExceeded,
     /// The given decimal literal would exceed the internal representation of
     /// `Decimal`.
-    InternalOveflow,
+    InternalOverflow,
 }
 
 impl ParseDecimalError {
@@ -38,7 +38,7 @@ impl ParseDecimalError {
             ParseDecimalError::PrecLimitExceeded => {
                 "Too many fractional digits."
             }
-            ParseDecimalError::InternalOveflow => {
+            ParseDecimalError::InternalOverflow => {
                 "Internal representation exceeded."
             }
         }
@@ -207,7 +207,7 @@ pub fn dec_repr_from_str(
     let mut coeff: i128 = if parts.int_part.len() > 0 {
         match parts.int_part.parse() {
             Err(_) => {
-                return Err(ParseDecimalError::InternalOveflow);
+                return Err(ParseDecimalError::InternalOverflow);
             }
             Ok(i) => i,
         }
@@ -216,7 +216,7 @@ pub fn dec_repr_from_str(
     };
     if n_frac_digits > 0 {
         match checked_mul_pow_ten(coeff, n_frac_digits as u8) {
-            None => return Result::Err(ParseDecimalError::InternalOveflow),
+            None => return Result::Err(ParseDecimalError::InternalOverflow),
             Some(val) => coeff = val,
         }
         coeff += parts.frac_part.parse::<i128>().unwrap();
@@ -230,8 +230,9 @@ pub fn dec_repr_from_str(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::dec_repr_from_str;
+
+    use super::*;
 
     #[test]
     fn test_parse_int_lit() {
@@ -319,7 +320,7 @@ mod tests {
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::InternalOveflow);
+        assert_eq!(err, ParseDecimalError::InternalOverflow);
     }
 
     #[test]
@@ -329,6 +330,6 @@ mod tests {
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::InternalOveflow);
+        assert_eq!(err, ParseDecimalError::InternalOverflow);
     }
 }

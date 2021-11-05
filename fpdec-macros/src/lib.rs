@@ -8,7 +8,9 @@
 // $Revision$
 
 use ::proc_macro::TokenStream;
+
 use ::quote::quote;
+
 use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_PRECISION};
 
 /// Macro used to convert a number literal into a `Decimal`.
@@ -54,11 +56,11 @@ pub fn Dec(input: TokenStream) -> TokenStream {
             }
             if exponent > 38 {
                 // 10 ^ 39 > int128::MAX
-                panic!("{}", ParseDecimalError::InternalOveflow);
+                panic!("{}", ParseDecimalError::InternalOverflow);
             }
             if exponent > 0 {
                 match coeff.checked_mul(10i128.pow(exponent as u32)) {
-                    None => panic!("{}", ParseDecimalError::InternalOveflow),
+                    None => panic!("{}", ParseDecimalError::InternalOverflow),
                     Some(val) => {
                         coeff = val;
                     }
