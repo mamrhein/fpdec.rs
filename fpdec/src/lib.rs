@@ -19,12 +19,13 @@ pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
 pub use fpdec_macros::Dec;
 
 mod errors;
+mod from_str;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
 /// precision (`u8`) specifying the number of fractional decimal digits.
 ///
 /// The precision can be in the range 0 .. [`MAX_PRECISION`].
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,
