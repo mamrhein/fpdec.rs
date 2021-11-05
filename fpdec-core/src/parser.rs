@@ -24,9 +24,9 @@ pub enum ParseDecimalError {
     /// The given decimal literal has more fractional digits than specified by
     /// `MAX_PRECISION`.
     PrecLimitExceeded,
-    /// The given decimal literal would exceed the maximum value representable
-    /// by the type.
-    MaxValueExceeded,
+    /// The given decimal literal would exceed the internal representation of
+    /// `Decimal`.
+    InternalOveflow,
 }
 
 impl ParseDecimalError {
@@ -38,8 +38,8 @@ impl ParseDecimalError {
             ParseDecimalError::PrecLimitExceeded => {
                 "Too many fractional digits."
             }
-            ParseDecimalError::MaxValueExceeded => {
-                "Maximum representable value exceeded."
+            ParseDecimalError::InternalOveflow => {
+                "Internal representation exceeded."
             }
         }
     }
@@ -207,7 +207,7 @@ pub fn dec_repr_from_str(
     let mut coeff: i128 = if parts.int_part.len() > 0 {
         match parts.int_part.parse() {
             Err(_) => {
-                return Err(ParseDecimalError::MaxValueExceeded);
+                return Err(ParseDecimalError::InternalOveflow);
             }
             Ok(i) => i,
         }
@@ -216,7 +216,7 @@ pub fn dec_repr_from_str(
     };
     if n_frac_digits > 0 {
         match checked_mul_pow_ten(coeff, n_frac_digits as u8) {
-            None => return Result::Err(ParseDecimalError::MaxValueExceeded),
+            None => return Result::Err(ParseDecimalError::InternalOveflow),
             Some(val) => coeff = val,
         }
         coeff += parts.frac_part.parse::<i128>().unwrap();
@@ -319,7 +319,7 @@ mod tests {
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::MaxValueExceeded);
+        assert_eq!(err, ParseDecimalError::InternalOveflow);
     }
 
     #[test]
@@ -329,6 +329,6 @@ mod tests {
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::MaxValueExceeded);
+        assert_eq!(err, ParseDecimalError::InternalOveflow);
     }
 }
