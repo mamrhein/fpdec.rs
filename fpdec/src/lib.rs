@@ -12,9 +12,13 @@
 #![warn(missing_docs)]
 
 #[doc(inline)]
+pub use errors::*;
+#[doc(inline)]
 pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
+
+mod errors;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
 /// precision (`u8`) specifying the number of fractional decimal digits.
