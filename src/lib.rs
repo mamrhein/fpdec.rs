@@ -17,9 +17,12 @@ pub use errors::*;
 pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
+#[doc(inline)]
+pub use rounding::{Round, RoundingMode};
 
 mod errors;
 mod from_str;
+mod rounding;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
 /// precision (`u8`) specifying the number of fractional decimal digits.

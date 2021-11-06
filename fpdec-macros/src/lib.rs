@@ -69,7 +69,7 @@ pub fn Dec(input: TokenStream) -> TokenStream {
             }
             let prec = -exponent as u8;
             quote!(
-                fpdec::Decimal::new_raw(#coeff, #prec)
+                ::fpdec::Decimal::new_raw(#coeff, #prec)
             )
             .into()
         }
