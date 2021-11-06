@@ -22,6 +22,7 @@ pub use rounding::{Round, RoundingMode};
 
 mod errors;
 mod format;
+mod from_int;
 mod from_str;
 mod rounding;
 
