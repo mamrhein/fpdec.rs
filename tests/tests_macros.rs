@@ -7,11 +7,9 @@
 // $Source$
 // $Revision$
 
-use fpdec::Dec;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use fpdec::{Dec, Decimal};
 
     #[test]
     fn test_from_int_lit() {
