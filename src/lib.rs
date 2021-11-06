@@ -21,6 +21,7 @@ pub use fpdec_macros::Dec;
 pub use rounding::{Round, RoundingMode};
 
 mod errors;
+mod format;
 mod from_str;
 mod rounding;
 
@@ -28,7 +29,7 @@ mod rounding;
 /// precision (`u8`) specifying the number of fractional decimal digits.
 ///
 /// The precision can be in the range 0 .. [`MAX_PRECISION`].
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,
