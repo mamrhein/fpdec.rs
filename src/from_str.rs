@@ -39,7 +39,7 @@ impl FromStr for Decimal {
     ///
     /// # Examples:
     ///
-    /// ```ignore
+    /// ```rust
     /// # use fpdec::{Decimal, ParseDecimalError};
     /// # use std::str::FromStr;
     /// # fn main() -> Result<(), ParseDecimalError> {

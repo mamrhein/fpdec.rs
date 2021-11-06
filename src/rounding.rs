@@ -82,17 +82,17 @@ impl Round for Decimal {
     ///
     /// # Examples
     ///
-    /// ```ignore
-    /// # use fpdec::{Dec, Round};
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, Round};
     /// let d = Dec!(28.27093);
     /// let r = d.round(4);
-    /// assert_eq!(r.to_string(), "28.27090");
+    /// assert_eq!(r.to_string(), "28.2709");
     /// let r = d.round(1);
-    /// assert_eq!(r.to_string(), "28.30000");
+    /// assert_eq!(r.to_string(), "28.3");
     /// let r = d.round(0);
-    /// assert_eq!(r.to_string(), "28.00000");
+    /// assert_eq!(r.to_string(), "28");
     /// let r = d.round(-1);
-    /// assert_eq!(r.to_string(), "30.00000");
+    /// assert_eq!(r.to_string(), "30");
     fn round(self, n_frac_digits: i8) -> Self {
         if n_frac_digits >= self.n_frac_digits as i8 {
             self.clone()
@@ -125,7 +125,7 @@ impl Round for Decimal {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```rust
     /// # use fpdec::{Dec, Decimal, Round};
     /// # fn main() {
     /// # fn f() -> Option<Decimal> {
@@ -134,9 +134,9 @@ impl Round for Decimal {
     /// assert_eq!(r.to_string(), "28.2709");
     /// let r = d.checked_round(0)?;
     /// assert_eq!(r.to_string(), "28");
-    /// let d = Dec!(170141183460469231731687303715884105.727);
-    /// let r = d.checked_round(0);
-    /// assert_eq!(r, None);
+    /// let d = Dec!(170141183460469231731687303715884105727);
+    /// let r = d.checked_round(-3);
+    /// assert!(r.is_none());
     /// # Option::None
     /// # } f();}
     fn checked_round(self, n_frac_digits: i8) -> Option<Self> {
