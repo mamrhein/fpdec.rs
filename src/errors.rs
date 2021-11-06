@@ -12,13 +12,13 @@ use std::fmt::{Debug, Display, Formatter};
 /// An error which can be returned from converting numbers to `Decimal` or from
 /// binary operators on `Decimal`.
 ///
-/// This error is used as the error type for the [`TryFrom`] implementation of
+/// This error is used as the error type for the `TryFrom` implementation of
 /// `Decimal`. It is also used when the implementations of the numerical
 /// operators panic.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DecimalError {
-    /// The precise result would have more than [crate::MAX_PRECISION]
-    /// fractional decimal digits.
+    /// The precise result would have more than
+    /// [MAX_PRECISION](crate::MAX_PRECISION) fractional decimal digits.
     PrecLimitExceeded,
     /// The result would exceed the internal representation of `Decimal`.
     InternalOverflow,
