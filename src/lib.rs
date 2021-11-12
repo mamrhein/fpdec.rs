@@ -25,6 +25,7 @@ mod format;
 mod from_int;
 mod from_str;
 mod rounding;
+mod unops;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
 /// precision (`u8`) specifying the number of fractional decimal digits.
