@@ -20,6 +20,7 @@ pub use fpdec_macros::Dec;
 #[doc(inline)]
 pub use rounding::{Round, RoundingMode};
 
+mod binops;
 mod errors;
 mod format;
 mod from_int;
