@@ -175,3 +175,4 @@ macro_rules! forward_op_assign {
 }
 
 mod add_sub;
+mod mul;
