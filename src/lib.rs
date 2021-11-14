@@ -26,6 +26,8 @@ mod format;
 mod from_int;
 mod from_str;
 mod rounding;
+#[cfg(feature = "num-traits")]
+mod traits;
 mod unops;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a

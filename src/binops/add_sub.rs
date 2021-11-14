@@ -12,41 +12,9 @@ use std::{
     ops::{Add, AddAssign, Sub, SubAssign},
 };
 
-#[cfg(feature = "num-traits")]
-use ::num_traits::Zero;
-
 use fpdec_core::mul_pow_ten;
 
 use crate::Decimal;
-
-#[cfg(feature = "num-traits")]
-impl Zero for Decimal
-where
-    Decimal: Add<Output = Decimal>,
-{
-    #[inline(always)]
-    fn zero() -> Self {
-        Self::ZERO
-    }
-
-    #[inline(always)]
-    fn is_zero(&self) -> bool {
-        self.coeff.is_zero()
-    }
-}
-
-#[cfg(feature = "num-traits")]
-#[cfg(test)]
-mod zero_tests {
-    use super::*;
-
-    #[test]
-    fn test_zero() {
-        assert!(Decimal::is_zero(&Decimal::zero()));
-        assert!(Decimal::is_zero(&Decimal::new_raw(0, 7)));
-        assert!(!Decimal::is_zero(&Decimal::new_raw(1, 27)));
-    }
-}
 
 macro_rules! impl_add_sub_decimal {
     (impl $imp:ident, $method:ident) => {
