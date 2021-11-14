@@ -34,7 +34,7 @@ mod unops;
 /// precision (`u8`) specifying the number of fractional decimal digits.
 ///
 /// The precision can be in the range 0 .. [`MAX_PRECISION`].
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, Ord)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,
