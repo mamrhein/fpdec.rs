@@ -44,8 +44,6 @@ impl TryFrom<u128> for Decimal {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
-
     use super::*;
 
     fn check_from_int<T>(numbers: &[T])
@@ -105,7 +103,7 @@ mod tests {
         for n in numbers {
             match Decimal::try_from(n) {
                 Err(_) => panic!("Misconfigured test case!"),
-                Ok(d) => match (n).try_into() {
+                Ok(d) => match i128::try_from(n) {
                     Err(_) => panic!("Should never happen!"),
                     Ok(i) => {
                         assert_eq!(d.coeff, i);
