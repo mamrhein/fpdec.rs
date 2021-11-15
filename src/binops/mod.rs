@@ -48,37 +48,43 @@ macro_rules! forward_ref_binop {
 }
 
 // Same for ops giving rounded result.
-// macro_rules! forward_ref_binop_rounded {
-//     (impl $imp:ident, $method:ident) => {
-//         impl<'a> $imp<Decimal> for &'a Decimal
-//         where
-//             Decimal: $imp<Decimal>,
-//         {
-//             #[inline(always)]
-//             fn $method(self, other: Decimal, prec_limit: u8) -> Decimal {
-//                 $imp::$method(*self, other, prec_limit)
-//             }
-//         }
-//         impl $imp<&Decimal> for Decimal
-//         where
-//             Decimal: $imp<Decimal>,
-//         {
-//             #[inline(always)]
-//             fn $method(self, other: &Decimal, prec_limit: u8) -> Decimal {
-//                 $imp::$method(self, *other, prec_limit)
-//             }
-//         }
-//         impl $imp<&Decimal> for &Decimal
-//         where
-//             Decimal: $imp<Decimal>,
-//         {
-//             #[inline(always)]
-//             fn $method(self, other: &Decimal, prec_limit: u8) -> Decimal {
-//                 $imp::$method(*self, *other, prec_limit)
-//             }
-//         }
-//     };
-// }
+macro_rules! forward_ref_binop_rounded {
+    (impl $imp:ident, $method:ident) => {
+        impl<'a> $imp<Decimal> for &'a Decimal
+        where
+            Decimal: $imp<Decimal>,
+        {
+            type Output = <Decimal as $imp<Decimal>>::Output;
+
+            #[inline(always)]
+            fn $method(self, other: Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(*self, other, n_frac_digits)
+            }
+        }
+        impl $imp<&Decimal> for Decimal
+        where
+            Decimal: $imp<Decimal>,
+        {
+            type Output = <Decimal as $imp<Decimal>>::Output;
+
+            #[inline(always)]
+            fn $method(self, other: &Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(self, *other, n_frac_digits)
+            }
+        }
+        impl $imp<&Decimal> for &Decimal
+        where
+            Decimal: $imp<Decimal>,
+        {
+            type Output = <Decimal as $imp<Decimal>>::Output;
+
+            #[inline(always)]
+            fn $method(self, other: &Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(*self, *other, n_frac_digits)
+            }
+        }
+    };
+}
 
 // Implements binary operators "&T op U", "T op &U", "&T op &U"
 // based on "T op U" where T = Decimal and U is a native int
@@ -177,3 +183,4 @@ macro_rules! forward_op_assign {
 mod add_sub;
 mod cmp;
 mod mul;
+mod mul_rounded;
