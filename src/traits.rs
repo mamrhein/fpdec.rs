@@ -9,7 +9,7 @@
 
 use std::ops::Add;
 
-use num_traits::Zero;
+use num_traits::{One, Zero};
 
 use crate::Decimal;
 
@@ -37,5 +37,31 @@ mod zero_tests {
         assert!(Decimal::is_zero(&Decimal::zero()));
         assert!(Decimal::is_zero(&Decimal::new_raw(0, 7)));
         assert!(!Decimal::is_zero(&Decimal::new_raw(1, 27)));
+    }
+}
+
+impl One for Decimal {
+    /// Returns the multiplicative identity element of Self, Self::ONE.
+    #[inline(always)]
+    fn one() -> Self {
+        Self::ONE
+    }
+
+    /// Returns true if self is equal to the multiplicative identity.
+    #[inline(always)]
+    fn is_one(&self) -> bool {
+        self.eq_one()
+    }
+}
+
+#[cfg(test)]
+mod one_tests {
+    use super::*;
+
+    #[test]
+    fn test_one() {
+        assert!(Decimal::is_one(&Decimal::one()));
+        assert!(Decimal::is_one(&Decimal::new_raw(1000, 3)));
+        assert!(!Decimal::is_one(&Decimal::new_raw(1, 1)));
     }
 }
