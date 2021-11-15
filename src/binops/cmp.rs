@@ -158,13 +158,6 @@ mod cmp_decimals_tests {
     }
 }
 
-// Implementing the symmetric comparison using the following macros also for
-// `u8` causes a compiler error[E0391]:
-// cycle detected when building an abstract representation for the const
-// argument ...
-// So for now it's left out.
-// TODO: check with next rustc version!
-
 macro_rules! impl_decimal_eq_uint {
     () => {
         impl_decimal_eq_uint!(u8, u16, u32, u64);
