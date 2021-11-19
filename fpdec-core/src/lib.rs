@@ -53,3 +53,11 @@ pub fn div_mod_floor(x: i128, y: i128) -> (i128, i128) {
         (q, r)
     }
 }
+
+#[doc(hidden)]
+#[inline]
+pub fn magnitude(i: i128) -> u8 {
+    // TODO: change after feature(int_log) got stable:
+    // i.log(10).trunc() as u8
+    (i as f64).log10().trunc() as u8
+}

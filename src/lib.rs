@@ -13,6 +13,7 @@
 
 #[doc(inline)]
 pub use errors::*;
+use fpdec_core::magnitude;
 #[doc(inline)]
 pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
 #[doc(inline)]
@@ -54,7 +55,7 @@ impl Decimal {
 
     /// Coefficient of `self`.
     #[inline(always)]
-    pub fn coefficient(self) -> i128 {
+    pub const fn coefficient(self) -> i128 {
         self.coeff
     }
 
@@ -62,6 +63,25 @@ impl Decimal {
     #[inline(always)]
     pub const fn precision(self) -> u8 {
         self.n_frac_digits
+    }
+
+    /// Positional index of most significant decimal digit of `self`.
+    ///
+    /// Special case: Decimal::ZERO.magnitude() returns 0.
+    ///
+    /// # Examples:
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal};
+    /// let d = Dec!(123);
+    /// assert_eq!(d.magnitude(), 2);
+    /// let d = Dec!(0.00123);
+    /// assert_eq!(d.magnitude(), -3);
+    /// let d = Decimal::ZERO;
+    /// assert_eq!(d.magnitude(), 0);
+    #[inline(always)]
+    pub fn magnitude(self) -> i8 {
+        magnitude(self.coeff) as i8 - self.n_frac_digits as i8
     }
 
     /// Additive identity
