@@ -65,9 +65,10 @@ impl Decimal {
         self.n_frac_digits
     }
 
-    /// Positional index of most significant decimal digit of `self`.
+    /// Returns the positional index of the most significant decimal digit of
+    /// `self`.
     ///
-    /// Special case: Decimal::ZERO.magnitude() returns 0.
+    /// Special case: for a value equal to 0 `magnitude()` returns 0.
     ///
     /// # Examples:
     ///
