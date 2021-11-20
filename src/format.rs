@@ -36,9 +36,8 @@ impl fmt::Debug for Decimal {
 
 #[cfg(test)]
 mod test_fmt_debug {
-    use crate::Dec;
-
     use super::*;
+    use crate::Dec;
 
     #[test]
     fn test_fmt() {
@@ -114,9 +113,8 @@ impl fmt::Display for Decimal {
 
 #[cfg(test)]
 mod test_fmt_display {
-    use crate::Dec;
-
     use super::*;
+    use crate::Dec;
 
     #[test]
     fn test_fmt_integral_decimal() {

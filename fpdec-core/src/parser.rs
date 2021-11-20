@@ -230,9 +230,8 @@ pub fn dec_repr_from_str(
 
 #[cfg(test)]
 mod tests {
-    use crate::dec_repr_from_str;
-
     use super::*;
+    use crate::dec_repr_from_str;
 
     #[test]
     fn test_parse_int_lit() {

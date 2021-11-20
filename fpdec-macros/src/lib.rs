@@ -8,9 +8,7 @@
 // $Revision$
 
 use ::proc_macro::TokenStream;
-
 use ::quote::quote;
-
 use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_PRECISION};
 
 /// Macro used to convert a number literal into a `Decimal`.
