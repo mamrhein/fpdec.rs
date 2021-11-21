@@ -20,8 +20,9 @@ const MAGN_I128_MAX: i8 = 38;
 
 #[inline]
 fn normalize(coeff: &mut i128, exp: &mut i8) {
-    // pre-condition: coeff != 0
-    if *exp > 0 {
+    if *coeff == 0 {
+        *exp = 0;
+    } else if *exp > 0 {
         // shift coeff
         *coeff *= ten_pow(*exp as u8);
         *exp = 0;
@@ -83,11 +84,7 @@ impl Div<Decimal> for Decimal {
         let mut coeff = self.coeff / other.coeff;
         let mut rem = self.coeff % other.coeff;
         if rem == 0 {
-            if coeff == 0 {
-                exp = 0;
-            } else {
-                normalize(&mut coeff, &mut exp);
-            }
+            normalize(&mut coeff, &mut exp);
         } else {
             calc_fraction(&mut rem, &other.coeff, &mut coeff, &mut exp);
         }
@@ -215,11 +212,7 @@ macro_rules! impl_div_decimal_and_int {
                 let mut coeff = self.coeff / other as i128;
                 let mut rem = self.coeff % other as i128;
                 if rem == 0 {
-                    if coeff == 0 {
-                        exp = 0;
-                    } else {
-                        normalize(&mut coeff, &mut exp);
-                    }
+                    normalize(&mut coeff, &mut exp);
                 } else {
                     calc_fraction(&mut rem, &(other as i128), &mut coeff, &mut exp);
                 }
@@ -247,11 +240,7 @@ macro_rules! impl_div_decimal_and_int {
                 let mut coeff = self as i128 / other.coeff;
                 let mut rem = self as i128 % other.coeff;
                 if rem == 0 {
-                    if coeff == 0 {
-                        exp = 0;
-                    } else {
-                        normalize(&mut coeff, &mut exp);
-                    }
+                    normalize(&mut coeff, &mut exp);
                 } else {
                     calc_fraction(&mut rem, &other.coeff, &mut coeff, &mut exp);
                 }
