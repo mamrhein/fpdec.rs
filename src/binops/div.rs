@@ -14,26 +14,9 @@ use std::{
 
 use fpdec_core::{magnitude, ten_pow};
 
-use crate::{Decimal, DecimalError, MAX_PRECISION};
+use crate::{normalize, Decimal, DecimalError, MAX_PRECISION};
 
 const MAGN_I128_MAX: i8 = 38;
-
-#[inline]
-fn normalize(coeff: &mut i128, exp: &mut i8) {
-    if *coeff == 0 {
-        *exp = 0;
-    } else if *exp > 0 {
-        // shift coeff
-        *coeff *= ten_pow(*exp as u8);
-        *exp = 0;
-    } else {
-        // eliminate trailing zeros in coeff
-        while *coeff % 10 == 0 && *exp < 0 {
-            *coeff /= 10;
-            *exp += 1;
-        }
-    }
-}
 
 #[inline]
 fn calc_fraction(
