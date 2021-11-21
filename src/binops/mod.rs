@@ -185,3 +185,4 @@ mod cmp;
 mod div;
 mod mul;
 mod mul_rounded;
+mod rem;
