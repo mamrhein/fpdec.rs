@@ -64,13 +64,7 @@ fn div_rounded(
                 }
                 coeff *= ten_pow(step_shift);
                 rem *= ten_pow(step_shift);
-                coeff += div_rounded(
-                    rem,
-                    divident_prec,
-                    divisor,
-                    divident_prec,
-                    n_frac_digits,
-                );
+                coeff += div_i128_rounded(rem, divisor, None);
                 coeff
             }
         }
@@ -396,6 +390,16 @@ mod div_rounded_decimal_by_int_tests {
         5,
         1249999988734375
     );
+
+    // corner case: shifting divident overflows, stepwise algorithm must be used
+    #[test]
+    fn test_div_rounded_stepwise() {
+        let x = Decimal::new_raw(i128::MAX, 0);
+        let y = Decimal::new_raw(20, 0);
+        let z = x.div_rounded(y, 1);
+        assert_eq!(z.coeff, (i128::MAX / 20) * 10 + 4);
+        assert_eq!(z.n_frac_digits, 1);
+    }
 }
 
 #[cfg(test)]
