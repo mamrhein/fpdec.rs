@@ -1,0 +1,26 @@
+[package]
+name = "order"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+fpdec = { path = "../..", version = "0.0.0" }
+rust_decimal = "1.17"
+rust_decimal_macros = "1.17"
+
+[workspace]
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "fpdec_bench"
+harness = false
+
+[[bench]]
+name = "f64_bench"
+harness = false
+
+[[bench]]
+name = "rdec_bench"
+harness = false
