@@ -120,11 +120,11 @@ mod div_rounded_decimal_tests {
         let z = x.div_rounded(y, 2);
         assert_eq!(z.coeff, -846);
         assert_eq!(z.n_frac_digits, 2);
-        let x = Decimal::new_raw(17, 8);
+        let x = Decimal::new_raw(17654321, 8);
         let y = Decimal::new_raw(204, 3);
-        let z = x.div_rounded(y, 8);
-        assert_eq!(z.coeff, 83);
-        assert_eq!(z.n_frac_digits, 8);
+        let z = x.div_rounded(y, 2);
+        assert_eq!(z.coeff, 87);
+        assert_eq!(z.n_frac_digits, 2);
         let x = Decimal::new_raw(12345678901234567890, 2);
         let y = Decimal::new_raw(244140625, 6);
         let z = x.div_rounded(y, 9);
