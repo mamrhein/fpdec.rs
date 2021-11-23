@@ -13,7 +13,7 @@
 
 #[doc(inline)]
 pub use errors::*;
-use fpdec_core::{magnitude, ten_pow};
+use fpdec_core::magnitude;
 #[doc(inline)]
 pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
 #[doc(inline)]
@@ -143,18 +143,14 @@ impl Default for Decimal {
 }
 
 #[inline]
-pub(crate) fn normalize(coeff: &mut i128, exp: &mut i8) {
+pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
     if *coeff == 0 {
-        *exp = 0;
-    } else if *exp > 0 {
-        // shift coeff
-        *coeff *= ten_pow(*exp as u8);
-        *exp = 0;
+        *n_frac_digits = 0;
     } else {
         // eliminate trailing zeros in coeff
-        while *coeff % 10 == 0 && *exp < 0 {
+        while *coeff % 10 == 0 && *n_frac_digits > 0 {
             *coeff /= 10;
-            *exp += 1;
+            *n_frac_digits -= 1;
         }
     }
 }

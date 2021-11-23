@@ -8,49 +8,59 @@
 // $Revision$
 
 use std::{
-    cmp::max,
+    cmp::Ordering,
     ops::{Div, DivAssign},
 };
 
-use fpdec_core::{magnitude, ten_pow};
+use fpdec_core::ten_pow;
 
 use crate::{normalize, Decimal, DecimalError, MAX_PRECISION};
 
-const MAGN_I128_MAX: i8 = 38;
+const MAGN_I128_MAX: u8 = 38;
 
 #[inline]
-fn calc_fraction(
-    numer: &mut i128,
-    denom: &i128,
-    coeff: &mut i128,
-    exp: &mut i8,
-) {
-    // pre-condition:
-    // numer < denom
-    // 2 limits to be kept:
-    // magnitude(coeff) <= MAGN_I128_MAX
-    // exp >= -MAX_PRECISION
-    let exp_min: i8 = max(
-        magnitude(*coeff) as i8 - MAGN_I128_MAX + *exp,
-        -(MAX_PRECISION as i8),
-    );
-    while *numer != 0 && *exp > exp_min {
-        // numer < denom
-        *numer *= 10;
-        // numer < 10 * denom
-        let quot = *numer / *denom;
-        // quot < 10
-        *numer %= *denom;
-        *exp -= 1;
-        *coeff = *coeff * 10 + quot;
+fn div(
+    divident: i128,
+    divident_prec: u8,
+    divisor: i128,
+    divisor_prec: u8,
+) -> (i128, u8) {
+    let (mut n_frac_digits, shift) = match divident_prec.cmp(&divisor_prec) {
+        Ordering::Equal => (0, 0),
+        Ordering::Less => (0, divisor_prec - divident_prec),
+        _ => (divident_prec - divisor_prec, 0),
+    };
+    let mut coeff = divident / divisor;
+    let mut rem = divident % divisor;
+    if rem == 0 {
+        if shift > 0 {
+            coeff *= ten_pow(shift);
+        } else if n_frac_digits > 0 {
+            normalize(&mut coeff, &mut n_frac_digits);
+        }
+    } else {
+        if shift > 0 {
+            let ten_pow_shift = ten_pow(shift);
+            coeff *= ten_pow_shift;
+            rem *= ten_pow_shift;
+            coeff += rem / divisor;
+            rem %= divisor;
+        }
+        while rem != 0 && n_frac_digits < MAX_PRECISION {
+            // rem < divisor
+            rem *= 10;
+            // rem < 10 * divisor
+            let quot = rem / divisor;
+            // quot < 10
+            rem %= divisor;
+            n_frac_digits += 1;
+            coeff = coeff * 10 + quot;
+        }
+        if rem != 0 {
+            panic!("{}", DecimalError::PrecLimitExceeded);
+        }
     }
-    if *numer != 0 {
-        panic!("{}", DecimalError::PrecLimitExceeded);
-    }
-    if *exp > 0 {
-        *coeff *= ten_pow(*exp as u8);
-        *exp = 0;
-    }
+    (coeff, n_frac_digits)
 }
 
 impl Div<Decimal> for Decimal {
@@ -60,20 +70,21 @@ impl Div<Decimal> for Decimal {
         if other.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }
+        if self.eq_zero() {
+            return Self::ZERO;
+        }
         if other.eq_one() {
             return self;
         }
-        let mut exp = other.n_frac_digits as i8 - self.n_frac_digits as i8;
-        let mut coeff = self.coeff / other.coeff;
-        let mut rem = self.coeff % other.coeff;
-        if rem == 0 {
-            normalize(&mut coeff, &mut exp);
-        } else {
-            calc_fraction(&mut rem, &other.coeff, &mut coeff, &mut exp);
-        }
+        let (coeff, n_frac_digits) = div(
+            self.coeff,
+            self.n_frac_digits,
+            other.coeff,
+            other.n_frac_digits,
+        );
         Self::Output {
             coeff,
-            n_frac_digits: -exp as u8,
+            n_frac_digits,
         }
     }
 }
@@ -188,21 +199,19 @@ macro_rules! impl_div_decimal_and_int {
                 if other == 0 {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
+                if self.eq_zero() {
+                    return Self::ZERO;
+                }
                 if other == 1 {
                     return self;
                 }
-                let mut exp = -(self.n_frac_digits as i8);
-                let mut coeff = self.coeff / other as i128;
-                let mut rem = self.coeff % other as i128;
-                if rem == 0 {
-                    normalize(&mut coeff, &mut exp);
-                } else {
-                    calc_fraction(&mut rem, &(other as i128), &mut coeff, &mut exp);
-                }
-                Self::Output {
-                    coeff,
-                    n_frac_digits: -exp as u8,
-                }
+                let (coeff, n_frac_digits) = div(
+                    self.coeff,
+                    self.n_frac_digits,
+                    other as i128,
+                    0,
+                );
+                Self::Output { coeff, n_frac_digits, }
             }
         }
 
@@ -213,24 +222,22 @@ macro_rules! impl_div_decimal_and_int {
                 if other.eq_zero() {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
+                if self == 0 {
+                    return Decimal::ZERO;
+                }
                 if other.eq_one() {
                     return Self::Output {
                         coeff: self as i128,
                         n_frac_digits: 0,
                     };
                 }
-                let mut exp = other.n_frac_digits as i8;
-                let mut coeff = self as i128 / other.coeff;
-                let mut rem = self as i128 % other.coeff;
-                if rem == 0 {
-                    normalize(&mut coeff, &mut exp);
-                } else {
-                    calc_fraction(&mut rem, &other.coeff, &mut coeff, &mut exp);
-                }
-                Self::Output {
-                    coeff,
-                    n_frac_digits: -exp as u8,
-                }
+                let (coeff, n_frac_digits) = div(
+                    self as i128,
+                    0,
+                    other.coeff,
+                    other.n_frac_digits,
+                );
+                Self::Output { coeff, n_frac_digits, }
             }
         }
         )*
@@ -286,6 +293,24 @@ mod div_integer_tests {
     );
     gen_div_integer_tests!(test_div_i64, i64, 244140625, 2, -488281250, 2, -2);
     gen_div_integer_tests!(test_div_i128, i128, 5005, 4, 2002, 5, 4);
+
+    #[test]
+    fn test_div_decimal_zero_by_int() {
+        let x = Decimal::new_raw(0, 3);
+        let y = 123_i64;
+        let z = x / y;
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
+    }
+
+    #[test]
+    fn test_div_int_zero_by_decimal() {
+        let x = 0_u32;
+        let y = Decimal::new_raw(1234567, 3);
+        let z = x / y;
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
+    }
 
     #[test]
     fn test_div_decimal_by_int_one() {
