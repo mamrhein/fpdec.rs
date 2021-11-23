@@ -130,6 +130,23 @@ mod div_rounded_decimal_tests {
         let z = x.div_rounded(y, 9);
         assert_eq!(z.coeff, 505679007794567900774400);
         assert_eq!(z.n_frac_digits, 9);
+        let x = Decimal::new_raw(1234567, 5);
+        let y = Decimal::new_raw(625, 2);
+        let z = x.div_rounded(y, 3);
+        assert_eq!(z.coeff, 1975);
+        assert_eq!(z.n_frac_digits, 3);
+    }
+
+    #[test]
+    fn test_div_zero_rounded() {
+        let x = Decimal::new_raw(0, 5);
+        let y = Decimal::new_raw(17, 1);
+        let z = x.div_rounded(y, 3);
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
+        let z = x.div_rounded(y, 29);
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
     }
 
     #[test]
@@ -153,18 +170,6 @@ mod div_rounded_decimal_tests {
         let z = x.div_rounded(y, 10);
         assert_eq!(z.coeff, 65000000000000000000000000000000000000);
         assert_eq!(z.n_frac_digits, 10);
-    }
-
-    #[test]
-    fn test_div_zero_rounded() {
-        let x = Decimal::new_raw(0, 5);
-        let y = Decimal::new_raw(17, 1);
-        let z = x.div_rounded(y, 3);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
-        let z = x.div_rounded(y, 29);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
     }
 
     #[test]
@@ -391,6 +396,55 @@ mod div_rounded_decimal_by_int_tests {
         1249999988734375
     );
 
+    #[test]
+    fn test_div_rounded_decimal_zero_by_int() {
+        let x = Decimal::new_raw(0, 3);
+        let y = 123_i64;
+        let z = x.div_rounded(y, 2);
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
+    }
+
+    #[test]
+    fn test_div_rounded_int_zero_by_decimal() {
+        let x = 0_u32;
+        let y = Decimal::new_raw(1234567, 3);
+        let z = x.div_rounded(y, 13);
+        assert_eq!(z.coeff, 0);
+        assert_eq!(z.n_frac_digits, 0);
+    }
+
+    #[test]
+    fn test_div_rounded_decimal_by_int_one() {
+        let x = Decimal::new_raw(17, 5);
+        let y = 1_i64;
+        let z = x.div_rounded(y, 5);
+        assert_eq!(z.coeff, 17);
+        assert_eq!(z.n_frac_digits, 5);
+        let y = 1_u8;
+        let z = x.div_rounded(y, 7);
+        assert_eq!(z.coeff, 1700);
+        assert_eq!(z.n_frac_digits, 7);
+        let y = 1_i32;
+        let z = x.div_rounded(y, 4);
+        assert_eq!(z.coeff, 2);
+        assert_eq!(z.n_frac_digits, 4);
+    }
+
+    #[test]
+    fn test_div_rounded_int_by_decimal_one() {
+        let x = 17;
+        let y = Decimal::ONE;
+        let z: Decimal = x.div_rounded(y, 0);
+        assert_eq!(z.coeff, 17);
+        assert_eq!(z.n_frac_digits, 0);
+        let x = 1_u64;
+        let y = Decimal::new_raw(1000, 3);
+        let z = x.div_rounded(y, 2);
+        assert_eq!(z.coeff, 100);
+        assert_eq!(z.n_frac_digits, 2);
+    }
+
     // corner case: shifting divident overflows, stepwise algorithm must be used
     #[test]
     fn test_div_rounded_stepwise() {
@@ -399,6 +453,14 @@ mod div_rounded_decimal_by_int_tests {
         let z = x.div_rounded(y, 1);
         assert_eq!(z.coeff, (i128::MAX / 20) * 10 + 4);
         assert_eq!(z.n_frac_digits, 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_div_rounded_decimal_by_int_zero() {
+        let x = Decimal::new_raw(17, 3);
+        let y = 0_i64;
+        let _z = x.div_rounded(y, 5);
     }
 }
 
@@ -469,4 +531,20 @@ mod div_rounded_int_by_decimal_tests {
         1,
         8000000081
     );
+
+    #[test]
+    #[should_panic]
+    fn test_div_rounded_int_by_decimal_zero() {
+        let x = 17_u16;
+        let y = Decimal::ZERO;
+        let _z = x.div_rounded(y, 5);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_div_rounded_int_by_decimal_non_normalized_zero() {
+        let x = -729_i32;
+        let y = Decimal::new_raw(0, 3);
+        let _z = x.div_rounded(y, 5);
+    }
 }
