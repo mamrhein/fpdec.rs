@@ -13,6 +13,9 @@ rust_decimal_macros = "1.17"
 [dev-dependencies]
 criterion = "0.3"
 
+[profile.release]
+debug = true
+
 [[bench]]
 name = "fpdec_bench"
 harness = false
