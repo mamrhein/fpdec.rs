@@ -67,7 +67,7 @@ mod add_sub_decimal_tests {
     use super::*;
 
     #[test]
-    fn test_add_same_prec() {
+    fn test_add_same_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x + x;
         assert_eq!(y.coeff, 2 * x.coeff);
@@ -78,7 +78,7 @@ mod add_sub_decimal_tests {
     }
 
     #[test]
-    fn test_add_different_prec() {
+    fn test_add_different_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x + y;
@@ -108,7 +108,7 @@ mod add_sub_decimal_tests {
 
     #[test]
     #[allow(clippy::eq_op)]
-    fn test_sub_same_prec() {
+    fn test_sub_same_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x - x;
         assert_eq!(y.coeff, 0);
@@ -119,7 +119,7 @@ mod add_sub_decimal_tests {
     }
 
     #[test]
-    fn test_sub_different_prec() {
+    fn test_sub_different_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 2);
         let y = Decimal::new_raw(890, 1);
         let z = x - y;
@@ -240,19 +240,22 @@ mod add_sub_integer_tests {
     use super::*;
 
     macro_rules! gen_add_integer_tests {
-        ($func:ident, $t:ty, $prec:expr, $coeff:expr) => {
+        ($func:ident, $t:ty, $n_frac_digits:expr, $coeff:expr) => {
             #[test]
             fn $func() {
-                let d = Decimal::new_raw($coeff, $prec);
+                let d = Decimal::new_raw($coeff, $n_frac_digits);
                 let i = <$t>::MAX;
                 let r = d + i;
-                assert_eq!(r.precision(), d.precision());
-                assert_eq!(r.coeff, i as i128 * ten_pow($prec) + $coeff);
+                assert_eq!(r.n_frac_digits(), d.n_frac_digits());
+                assert_eq!(
+                    r.coeff,
+                    i as i128 * ten_pow($n_frac_digits) + $coeff
+                );
                 assert_eq!(r.coeff, (&d + i).coeff);
                 assert_eq!(r.coeff, (d + &i).coeff);
                 assert_eq!(r.coeff, (&d + &i).coeff);
                 let z = i + d;
-                assert_eq!(z.precision(), r.precision());
+                assert_eq!(z.n_frac_digits(), r.n_frac_digits());
                 assert_eq!(z.coeff, r.coeff);
                 assert_eq!(z.coeff, (&i + d).coeff);
                 assert_eq!(z.coeff, (i + &d).coeff);
@@ -280,7 +283,7 @@ mod add_sub_integer_tests {
         assert_eq!(r.coeff, (d + &i).coeff);
         assert_eq!(r.coeff, (&d + &i).coeff);
         let z = i + d;
-        assert_eq!(z.precision(), r.precision());
+        assert_eq!(z.n_frac_digits(), r.n_frac_digits());
         assert_eq!(z.coeff, r.coeff);
         assert_eq!(z.coeff, (&i + d).coeff);
         assert_eq!(z.coeff, (i + &d).coeff);
@@ -288,20 +291,26 @@ mod add_sub_integer_tests {
     }
 
     macro_rules! gen_sub_integer_tests {
-        ($func:ident, $t:ty, $prec:expr, $coeff:expr) => {
+        ($func:ident, $t:ty, $n_frac_digits:expr, $coeff:expr) => {
             #[test]
             fn $func() {
-                let d = Decimal::new_raw($coeff, $prec);
+                let d = Decimal::new_raw($coeff, $n_frac_digits);
                 let i = <$t>::MAX;
                 let r = d - i;
-                assert_eq!(r.precision(), d.precision());
-                assert_eq!(r.coeff, $coeff - i as i128 * ten_pow($prec));
+                assert_eq!(r.n_frac_digits(), d.n_frac_digits());
+                assert_eq!(
+                    r.coeff,
+                    $coeff - i as i128 * ten_pow($n_frac_digits)
+                );
                 assert_eq!(r.coeff, (&d - i).coeff);
                 assert_eq!(r.coeff, (d - &i).coeff);
                 assert_eq!(r.coeff, (&d - &i).coeff);
                 let z = i - d;
-                assert_eq!(z.precision(), r.precision());
-                assert_eq!(z.coeff, i as i128 * ten_pow($prec) - $coeff);
+                assert_eq!(z.n_frac_digits(), r.n_frac_digits());
+                assert_eq!(
+                    z.coeff,
+                    i as i128 * ten_pow($n_frac_digits) - $coeff
+                );
                 assert_eq!(z.coeff, (&i - d).coeff);
                 assert_eq!(z.coeff, (i - &d).coeff);
                 assert_eq!(z.coeff, (&i - &d).coeff);

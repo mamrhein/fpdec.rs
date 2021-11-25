@@ -14,24 +14,26 @@ use std::{
 
 use fpdec_core::ten_pow;
 
-use crate::{normalize, Decimal, DecimalError, MAX_PRECISION};
+use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 const MAGN_I128_MAX: u8 = 38;
 
 #[inline]
 fn div(
-    divident: i128,
-    divident_prec: u8,
-    divisor: i128,
-    divisor_prec: u8,
+    divident_coeff: i128,
+    divident_n_frac_digits: u8,
+    divisor_coeff: i128,
+    divisor_n_frac_digits: u8,
 ) -> (i128, u8) {
-    let (mut n_frac_digits, shift) = match divident_prec.cmp(&divisor_prec) {
+    let (mut n_frac_digits, shift) = match divident_n_frac_digits
+        .cmp(&divisor_n_frac_digits)
+    {
         Ordering::Equal => (0, 0),
-        Ordering::Less => (0, divisor_prec - divident_prec),
-        _ => (divident_prec - divisor_prec, 0),
+        Ordering::Less => (0, divisor_n_frac_digits - divident_n_frac_digits),
+        _ => (divident_n_frac_digits - divisor_n_frac_digits, 0),
     };
-    let mut coeff = divident / divisor;
-    let mut rem = divident % divisor;
+    let mut coeff = divident_coeff / divisor_coeff;
+    let mut rem = divident_coeff % divisor_coeff;
     if rem == 0 {
         if shift > 0 {
             coeff *= ten_pow(shift);
@@ -43,21 +45,21 @@ fn div(
             let ten_pow_shift = ten_pow(shift);
             coeff *= ten_pow_shift;
             rem *= ten_pow_shift;
-            coeff += rem / divisor;
-            rem %= divisor;
+            coeff += rem / divisor_coeff;
+            rem %= divisor_coeff;
         }
-        while rem != 0 && n_frac_digits < MAX_PRECISION {
+        while rem != 0 && n_frac_digits < MAX_N_FRAC_DIGITS {
             // rem < divisor
             rem *= 10;
             // rem < 10 * divisor
-            let quot = rem / divisor;
+            let quot = rem / divisor_coeff;
             // quot < 10
-            rem %= divisor;
+            rem %= divisor_coeff;
             n_frac_digits += 1;
             coeff = coeff * 10 + quot;
         }
         if rem != 0 {
-            panic!("{}", DecimalError::PrecLimitExceeded);
+            panic!("{}", DecimalError::FracDigitLimitExceeded);
         }
     }
     (coeff, n_frac_digits)
@@ -153,7 +155,7 @@ mod div_decimal_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_prec_limit_exceeded() {
+    fn test_div_frac_limit_exceeded() {
         let x = Decimal::new_raw(3, 0);
         let y = Decimal::new_raw(17, 9);
         let _z = x / y;
@@ -263,7 +265,7 @@ mod div_integer_tests {
                 let i: $t = $den;
                 let r = d / i;
                 assert_eq!(r.coeff, $quot);
-                assert_eq!(r.precision(), $q);
+                assert_eq!(r.n_frac_digits(), $q);
                 assert_eq!(r.coeff, (&d / i).coeff);
                 assert_eq!(r.coeff, (d / &i).coeff);
                 assert_eq!(r.coeff, (&d / &i).coeff);
@@ -357,7 +359,7 @@ mod div_integer_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_decimal_by_int_prec_limit_exceeded() {
+    fn test_div_decimal_by_int_frac_limit_exceeded() {
         let x = Decimal::new_raw(17, 2);
         let y = 3;
         let _z = x / y;
@@ -365,7 +367,7 @@ mod div_integer_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_int_by_decimal_prec_limit_exceeded() {
+    fn test_div_int_by_decimal_frac_limit_exceeded() {
         let x = 3;
         let y = Decimal::new_raw(17, 2);
         let _z = x / y;
@@ -418,7 +420,7 @@ mod div_assign_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_assign_decimal_by_int_prec_limit_exceeded() {
+    fn test_div_assign_decimal_by_int_frac_limit_exceeded() {
         let mut x = Decimal::new_raw(17, 9);
         let y = 3;
         x /= y;
@@ -426,7 +428,7 @@ mod div_assign_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_assign_decimal_by_decimal_prec_limit_exceeded() {
+    fn test_div_assign_decimal_by_decimal_frac_limit_exceeded() {
         let mut x = Decimal::new_raw(17, 9);
         let y = Decimal::new_raw(3, 4);
         x /= y;

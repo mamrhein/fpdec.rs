@@ -17,7 +17,7 @@ pub use binops::{div_rounded::DivRounded, mul_rounded::MulRounded};
 pub use errors::*;
 use fpdec_core::magnitude;
 #[doc(inline)]
-pub use fpdec_core::{ParseDecimalError, MAX_PRECISION};
+pub use fpdec_core::{ParseDecimalError, MAX_N_FRAC_DIGITS};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
 #[doc(inline)]
@@ -34,9 +34,10 @@ mod traits;
 mod unops;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
-/// precision (`u8`) specifying the number of fractional decimal digits.
+/// value (`u8`) specifying the number of fractional decimal digits.
 ///
-/// The precision can be in the range 0 .. [`MAX_PRECISION`].
+/// The number of fractional digits can be in the range 0 ..
+/// [`MAX_N_FRAC_DIGITS`].
 #[derive(Copy, Clone, Eq, Ord)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
@@ -63,7 +64,7 @@ impl Decimal {
 
     /// Number of fractional decimal digits of `self`.
     #[inline(always)]
-    pub const fn precision(self) -> u8 {
+    pub const fn n_frac_digits(self) -> u8 {
         self.n_frac_digits
     }
 
@@ -132,7 +133,7 @@ impl Decimal {
     /// Smallest absolute difference between two non-equal values of `Decimal`
     pub const DELTA: Decimal = Decimal {
         coeff: 1i128,
-        n_frac_digits: MAX_PRECISION,
+        n_frac_digits: MAX_N_FRAC_DIGITS,
     };
 }
 

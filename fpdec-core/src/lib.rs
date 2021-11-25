@@ -16,11 +16,11 @@ mod parser;
 mod powers_of_ten;
 
 /// The maximum number of fractional decimal digits supported by `Decimal`.
-pub const MAX_PRECISION: u8 = 38;
+pub const MAX_N_FRAC_DIGITS: u8 = 38;
 
 #[doc(hidden)]
 #[inline]
-pub fn adjust_prec(x: i128, p: u8, y: i128, q: u8) -> (i128, i128) {
+pub fn adjust_coeffs(x: i128, p: u8, y: i128, q: u8) -> (i128, i128) {
     match p.cmp(&q) {
         Ordering::Equal => (x, y),
         Ordering::Greater => (x, mul_pow_ten(y, p - q)),
@@ -30,7 +30,7 @@ pub fn adjust_prec(x: i128, p: u8, y: i128, q: u8) -> (i128, i128) {
 
 #[doc(hidden)]
 #[inline]
-pub fn checked_adjust_prec(
+pub fn checked_adjust_coeffs(
     x: i128,
     p: u8,
     y: i128,

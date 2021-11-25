@@ -14,7 +14,7 @@ use std::{
 
 use fpdec_core::{div_mod_floor, ten_pow};
 
-use crate::{rounding::div_i128_rounded, Decimal, MAX_PRECISION};
+use crate::{rounding::div_i128_rounded, Decimal, MAX_N_FRAC_DIGITS};
 
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -53,8 +53,9 @@ mod test_fmt_debug {
 impl fmt::Display for Decimal {
     /// Formats the value using the given formatter.
     ///
-    /// If the format specifies less fractional digits than `self.precision()`,
-    /// the value gets rounded according to the default rounding mode.
+    /// If the format specifies less fractional digits than
+    /// `self.n_frac_digits()`, the value gets rounded according to the
+    /// default rounding mode.
     ///
     /// # Examples:
     ///
@@ -69,7 +70,7 @@ impl fmt::Display for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         let tmp: String;
         let prec = match form.precision() {
-            Some(prec) => min(prec, MAX_PRECISION as usize),
+            Some(prec) => min(prec, MAX_N_FRAC_DIGITS as usize),
             None => self.n_frac_digits as usize,
         };
         if self.n_frac_digits == 0 {

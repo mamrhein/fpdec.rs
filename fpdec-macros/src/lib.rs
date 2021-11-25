@@ -9,7 +9,7 @@
 
 use ::proc_macro::TokenStream;
 use ::quote::quote;
-use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_PRECISION};
+use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_N_FRAC_DIGITS};
 
 /// Macro used to convert a number literal into a `Decimal`.
 ///
@@ -17,13 +17,15 @@ use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_PRECISION};
 /// \[+|-]\<int\>\[.\<frac\>]\[<e|E>\[+|-]\<exp\>] or
 /// \[+|-].\<frac\>\[<e|E>\[+|-]\<exp\>].
 ///
-/// The precision is determined by the number of fractional digits minus the
-/// value of the signed exponent.
+/// The resulting number of fractional digits is determined by the number of
+/// digits in the fractional part of the literal minus the value of the signed
+/// exponent.
 ///
 /// The resulting value must not exceed the limits given by the internal
 /// representaion of `Decimal`:
 /// * The coefficient must fit into an `i128`.
-/// * The precision must not exceed the constant `MAX_PRECISION`.
+/// * The number of fractional digits must not exceed the constant
+///   `MAX_N_FRAC_DIGITS`.
 ///
 /// # Panics
 ///
@@ -49,8 +51,8 @@ pub fn Dec(input: TokenStream) -> TokenStream {
     match dec_repr_from_str(&src) {
         Err(e) => panic!("{}", e),
         Ok((mut coeff, mut exponent)) => {
-            if -exponent > (MAX_PRECISION as isize) {
-                panic!("{}", ParseDecimalError::PrecLimitExceeded)
+            if -exponent > (MAX_N_FRAC_DIGITS as isize) {
+                panic!("{}", ParseDecimalError::FracDigitLimitExceeded)
             }
             if exponent > 38 {
                 // 10 ^ 39 > int128::MAX
@@ -65,9 +67,9 @@ pub fn Dec(input: TokenStream) -> TokenStream {
                 }
                 exponent = 0;
             }
-            let prec = -exponent as u8;
+            let n_frac_digits = -exponent as u8;
             quote!(
-                Decimal::new_raw(#coeff, #prec)
+                Decimal::new_raw(#coeff, #n_frac_digits)
             )
             .into()
         }

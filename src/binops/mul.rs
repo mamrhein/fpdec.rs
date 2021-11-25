@@ -16,7 +16,7 @@ impl Mul<Decimal> for Decimal {
 
     #[inline(always)]
     fn mul(self, other: Decimal) -> Self::Output {
-        // TODO: handle self.n_frac_digits + other.n_frac_digits > MAX_PRECISION
+        // TODO: handle self.n_frac_digits + other.n_frac_digits > MAX_N_FRAC_DIGITS
         Self::Output {
             coeff: self.coeff * other.coeff,
             n_frac_digits: self.n_frac_digits + other.n_frac_digits,
@@ -31,25 +31,25 @@ mod mul_decimal_tests {
     use super::*;
 
     #[test]
-    fn test_mul_same_prec() {
+    fn test_mul_same_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 4);
         let y = x * x;
-        assert_eq!(y.precision(), 2 * x.precision());
+        assert_eq!(y.n_frac_digits(), 2 * x.n_frac_digits());
         assert_eq!(y.coeff, x.coeff * x.coeff);
     }
 
     #[test]
-    fn test_mul_different_prec() {
+    fn test_mul_different_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x * y;
-        assert_eq!(z.precision(), 6);
+        assert_eq!(z.n_frac_digits(), 6);
         assert_eq!(z.coeff, x.coeff * y.coeff);
         let z = y * x;
-        assert_eq!(z.precision(), 6);
+        assert_eq!(z.n_frac_digits(), 6);
         assert_eq!(z.coeff, x.coeff * y.coeff);
         let z = x * Decimal::NEG_ONE;
-        assert_eq!(z.precision(), x.precision());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         assert_eq!(z.coeff, -x.coeff);
     }
 
@@ -127,19 +127,19 @@ mod mul_integer_tests {
     use super::*;
 
     macro_rules! gen_mul_integer_tests {
-        ($func:ident, $t:ty, $prec:expr, $coeff:expr) => {
+        ($func:ident, $t:ty, $n_frac_digits:expr, $coeff:expr) => {
             #[test]
             fn $func() {
-                let d = Decimal::new_raw($coeff, $prec);
+                let d = Decimal::new_raw($coeff, $n_frac_digits);
                 let i = <$t>::MAX;
                 let r = d * i;
-                assert_eq!(r.precision(), d.precision());
+                assert_eq!(r.n_frac_digits(), d.n_frac_digits());
                 assert_eq!(r.coeff, i as i128 * $coeff);
                 assert_eq!(r.coeff, (&d * i).coeff);
                 assert_eq!(r.coeff, (d * &i).coeff);
                 assert_eq!(r.coeff, (&d * &i).coeff);
                 let z = i * d;
-                assert_eq!(z.precision(), r.precision());
+                assert_eq!(z.n_frac_digits(), r.n_frac_digits());
                 assert_eq!(z.coeff, r.coeff);
                 assert_eq!(z.coeff, (&i * d).coeff);
                 assert_eq!(z.coeff, (i * &d).coeff);
@@ -163,13 +163,13 @@ mod mul_integer_tests {
         let d = Decimal::new_raw(coeff, 2);
         let i = 12345_i128;
         let r = d * i;
-        assert_eq!(r.precision(), d.precision());
+        assert_eq!(r.n_frac_digits(), d.n_frac_digits());
         assert_eq!(r.coeff, i * coeff);
         assert_eq!(r.coeff, (&d * i).coeff);
         assert_eq!(r.coeff, (d * &i).coeff);
         assert_eq!(r.coeff, (&d * &i).coeff);
         let z = i * d;
-        assert_eq!(z.precision(), r.precision());
+        assert_eq!(z.n_frac_digits(), r.n_frac_digits());
         assert_eq!(z.coeff, r.coeff);
         assert_eq!(z.coeff, (&i * d).coeff);
         assert_eq!(z.coeff, (i * &d).coeff);

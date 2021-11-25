@@ -18,8 +18,8 @@ use std::fmt::{Debug, Display, Formatter};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DecimalError {
     /// The precise result would have more than
-    /// [MAX_PRECISION](crate::MAX_PRECISION) fractional decimal digits.
-    PrecLimitExceeded,
+    /// [MAX_N_FRAC_DIGITS](crate::MAX_N_FRAC_DIGITS) fractional decimal digits.
+    FracDigitLimitExceeded,
     /// The result would exceed the internal representation of `Decimal`.
     InternalOverflow,
     /// Attempt to convert an infinite value to `Decimal`.
@@ -34,8 +34,8 @@ impl DecimalError {
     #[doc(hidden)]
     pub fn _description(&self) -> &str {
         match self {
-            DecimalError::PrecLimitExceeded => {
-                "Result exceeds the precision limit."
+            DecimalError::FracDigitLimitExceeded => {
+                "Result exceeds the maximum number of fractional digits."
             }
             DecimalError::InternalOverflow => {
                 "Internal representation exceeded."

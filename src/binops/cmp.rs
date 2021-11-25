@@ -9,14 +9,14 @@
 
 use std::cmp::Ordering;
 
-use fpdec_core::{checked_adjust_prec, checked_mul_pow_ten, ten_pow};
+use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
 use crate::Decimal;
 
 impl PartialEq<Decimal> for Decimal {
     #[inline]
     fn eq(&self, other: &Decimal) -> bool {
-        match checked_adjust_prec(
+        match checked_adjust_coeffs(
             self.coeff,
             self.n_frac_digits,
             other.coeff,
@@ -31,7 +31,7 @@ impl PartialEq<Decimal> for Decimal {
 impl PartialOrd<Decimal> for Decimal {
     #[inline]
     fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
-        match checked_adjust_prec(
+        match checked_adjust_coeffs(
             self.coeff,
             self.n_frac_digits,
             other.coeff,
@@ -93,7 +93,7 @@ mod cmp_decimals_tests {
     use super::*;
 
     #[test]
-    fn test_eq_same_prec() {
+    fn test_eq_same_n_frac_digits() {
         let x = Decimal::new_raw(178, 1);
         assert!(x.eq(&x));
         let y = x.clone();
@@ -104,7 +104,7 @@ mod cmp_decimals_tests {
     }
 
     #[test]
-    fn test_eq_different_prec() {
+    fn test_eq_different_n_frac_digits() {
         let x = Decimal::new_raw(178, 1);
         let y = Decimal::new_raw(178000, 4);
         assert!(x.eq(&y));
@@ -114,7 +114,7 @@ mod cmp_decimals_tests {
     }
 
     #[test]
-    fn test_ne_same_prec() {
+    fn test_ne_same_n_frac_digits() {
         let x = Decimal::new_raw(-178000, 7);
         let y = Decimal::new_raw(178000, 7);
         assert_ne!(x, y);
@@ -125,7 +125,7 @@ mod cmp_decimals_tests {
     }
 
     #[test]
-    fn test_ne_different_prec() {
+    fn test_ne_different_n_frac_digits() {
         let x = Decimal::new_raw(178001, 7);
         let y = Decimal::new_raw(178, 4);
         assert_ne!(x, y);

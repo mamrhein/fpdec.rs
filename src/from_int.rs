@@ -54,7 +54,7 @@ mod tests {
         for n in numbers {
             let d = Decimal::from(*n);
             assert_eq!(d.coeff, (*n).into());
-            assert_eq!(d.precision(), 0);
+            assert_eq!(d.n_frac_digits(), 0);
         }
     }
 
@@ -107,7 +107,7 @@ mod tests {
                     Err(_) => panic!("Should never happen!"),
                     Ok(i) => {
                         assert_eq!(d.coeff, i);
-                        assert_eq!(d.precision(), 0);
+                        assert_eq!(d.n_frac_digits(), 0);
                     }
                 },
             }
@@ -126,11 +126,11 @@ mod tests {
         let si = -358_i32;
         let dsi = Decimal::from(si);
         assert_eq!(dsi.coeff, si as i128);
-        assert_eq!(dsi.precision(), 0);
+        assert_eq!(dsi.n_frac_digits(), 0);
         let ui = 38_u64.pow(12);
         let dui = Decimal::from(ui);
         assert_eq!(dui.coeff, ui as i128);
-        assert_eq!(dui.precision(), 0);
+        assert_eq!(dui.n_frac_digits(), 0);
     }
 
     #[test]
@@ -138,10 +138,10 @@ mod tests {
         let ui = 38_u8;
         let dui: Decimal = ui.into();
         assert_eq!(dui.coeff, ui as i128);
-        assert_eq!(dui.precision(), 0);
+        assert_eq!(dui.n_frac_digits(), 0);
         let si = -1234567890123456789_i64;
         let dsi: Decimal = si.into();
         assert_eq!(dsi.coeff, si as i128);
-        assert_eq!(dsi.precision(), 0);
+        assert_eq!(dsi.n_frac_digits(), 0);
     }
 }

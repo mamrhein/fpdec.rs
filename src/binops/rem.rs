@@ -55,7 +55,7 @@ mod rem_decimal_tests {
     use super::*;
 
     #[test]
-    fn test_rem_same_prec() {
+    fn test_rem_same_n_frac_digits() {
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(300, 2);
         let r = x % y;
@@ -71,7 +71,7 @@ mod rem_decimal_tests {
     }
 
     #[test]
-    fn test_rem_diff_prec() {
+    fn test_rem_diff_n_frac_digits() {
         let x = Decimal::new_raw(702, 3);
         let y = Decimal::new_raw(300, 2);
         let r = x % y;
@@ -168,13 +168,13 @@ mod rem_integer_tests {
                 let i: $t = 127;
                 let c = mul_pow_ten(i as i128, $p);
                 let r = d % i;
-                assert_eq!(r.precision(), $p);
+                assert_eq!(r.n_frac_digits(), $p);
                 assert_eq!(r.coeff, $coeff - c * ($coeff / c));
                 assert_eq!(r.coeff, (&d % i).coeff);
                 assert_eq!(r.coeff, (d % &i).coeff);
                 assert_eq!(r.coeff, (&d % &i).coeff);
                 let z = i % d;
-                assert_eq!(z.precision(), $p);
+                assert_eq!(z.n_frac_digits(), $p);
                 assert_eq!(z.coeff, c - $coeff * (c / $coeff));
                 assert_eq!(z.coeff, (&i % d).coeff);
                 assert_eq!(z.coeff, (i % &d).coeff);

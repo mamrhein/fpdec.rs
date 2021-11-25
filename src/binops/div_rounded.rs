@@ -27,56 +27,66 @@ pub trait DivRounded<Rhs = Self> {
 
 #[inline]
 fn div_rounded(
-    divident: i128,
-    divident_prec: u8,
-    divisor: i128,
-    divisor_prec: u8,
+    divident_coeff: i128,
+    divident_n_frac_digits: u8,
+    divisor_coeff: i128,
+    divisor_n_frac_digits: u8,
     n_frac_digits: u8,
 ) -> i128 {
-    let mut shift = n_frac_digits + divisor_prec;
-    match divident_prec.cmp(&shift) {
-        Ordering::Equal => div_i128_rounded(divident, divisor, None),
+    let mut shift = n_frac_digits + divisor_n_frac_digits;
+    match divident_n_frac_digits.cmp(&shift) {
+        Ordering::Equal => {
+            div_i128_rounded(divident_coeff, divisor_coeff, None)
+        }
         Ordering::Less => {
-            // divident needs to be shifted
-            shift -= divident_prec;
-            if let Some(shifted_divident) = checked_mul_pow_ten(divident, shift)
+            // divident coeff needs to be shifted
+            shift -= divident_n_frac_digits;
+            if let Some(shifted_divident) =
+                checked_mul_pow_ten(divident_coeff, shift)
             {
-                div_i128_rounded(shifted_divident, divisor, None)
+                div_i128_rounded(shifted_divident, divisor_coeff, None)
             } else {
-                let magn_divident = magnitude(divident);
+                let magn_divident = magnitude(divident_coeff);
                 let magn_shifted_divident = magn_divident + shift;
-                if (magn_shifted_divident - magnitude(divisor)) > MAGN_I128_MAX
+                if (magn_shifted_divident - magnitude(divisor_coeff))
+                    > MAGN_I128_MAX
                 {
                     panic!("{}", DecimalError::InternalOverflow);
                 }
-                let mut coeff = divident / divisor;
-                let mut rem = divident % divisor;
+                let mut coeff = divident_coeff / divisor_coeff;
+                let mut rem = divident_coeff % divisor_coeff;
                 let mut rem_shift = shift;
                 let mut step_shift =
                     min(rem_shift, MAGN_I128_MAX - magnitude(rem));
                 while step_shift < rem_shift {
                     coeff *= ten_pow(step_shift);
                     rem *= ten_pow(step_shift);
-                    coeff += rem / divisor;
-                    rem %= divisor;
+                    coeff += rem / divisor_coeff;
+                    rem %= divisor_coeff;
                     rem_shift -= step_shift;
                     step_shift = min(rem_shift, MAGN_I128_MAX - magnitude(rem));
                 }
                 coeff *= ten_pow(step_shift);
                 rem *= ten_pow(step_shift);
-                coeff += div_i128_rounded(rem, divisor, None);
+                coeff += div_i128_rounded(rem, divisor_coeff, None);
                 coeff
             }
         }
         Ordering::Greater => {
-            // divisor needs to be shifted
-            // divident_prec > shift
-            shift = divident_prec - shift;
-            // shift < divident_prec => shift < 38 => ten_pow(shift) is safe
-            // if let Some(shifted_divisor) = checked_mul_pow_ten(divisor,
-            // shift) {     div_i128_rounded(divident,
-            // shifted_divisor, None) }
-            div_i128_rounded(divident / divisor, ten_pow(shift), None)
+            // divisor coeff needs to be shifted, but instead of calculating
+            // divident / (divisor * 10 ^ shift)
+            // we can calculate
+            // (divident / divisor) / 10 ^ shift
+            // thus avoiding i128 overflow.
+            // divident_n_frac_digits > shift
+            shift = divident_n_frac_digits - shift;
+            // shift < divident_n_frac_digits => shift < 38 => ten_pow(shift)
+            // is safe
+            div_i128_rounded(
+                divident_coeff / divisor_coeff,
+                ten_pow(shift),
+                None,
+            )
         }
     }
 }

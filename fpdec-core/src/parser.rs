@@ -22,8 +22,8 @@ pub enum ParseDecimalError {
     /// The given string is not a valid decimal literal.
     Invalid,
     /// The given decimal literal has more fractional digits than specified by
-    /// `MAX_PRECISION`.
-    PrecLimitExceeded,
+    /// `MAX_N_FRAC_DIGITS`.
+    FracDigitLimitExceeded,
     /// The given decimal literal would exceed the internal representation of
     /// `Decimal`.
     InternalOverflow,
@@ -35,7 +35,7 @@ impl ParseDecimalError {
         match self {
             ParseDecimalError::Empty => "Empty string.",
             ParseDecimalError::Invalid => "Invalid decimal string literal.",
-            ParseDecimalError::PrecLimitExceeded => {
+            ParseDecimalError::FracDigitLimitExceeded => {
                 "Too many fractional digits."
             }
             ParseDecimalError::InternalOverflow => {
@@ -189,7 +189,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
 pub fn dec_repr_from_str(
     lit: &str,
 ) -> Result<(i128, isize), ParseDecimalError> {
-    let max_prec = crate::MAX_PRECISION as isize;
+    let max_n_frac_digits = crate::MAX_N_FRAC_DIGITS as isize;
     let parts = parse_decimal_literal(lit)?;
     let exp: isize = if parts.exp_part.len() > 0 {
         if parts.exp_sign == "-" {
@@ -201,8 +201,8 @@ pub fn dec_repr_from_str(
         0
     };
     let n_frac_digits = parts.frac_part.len() as isize;
-    if n_frac_digits - exp > max_prec {
-        return Result::Err(ParseDecimalError::PrecLimitExceeded);
+    if n_frac_digits - exp > max_n_frac_digits {
+        return Result::Err(ParseDecimalError::FracDigitLimitExceeded);
     }
     let mut coeff: i128 = if parts.int_part.len() > 0 {
         match parts.int_part.parse() {
@@ -295,20 +295,20 @@ mod tests {
     }
 
     #[test]
-    fn test_prec_limit_exceeded() {
+    fn test_frac_limit_exceeded() {
         let res =
             dec_repr_from_str("0.172958873900163775420093721180000722643");
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::PrecLimitExceeded);
+        assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);
     }
 
     #[test]
-    fn test_prec_limit_exceeded_with_exp() {
+    fn test_frac_limit_exceeded_with_exp() {
         let res = dec_repr_from_str("17.493e-36");
         assert!(res.is_err());
         let err = res.unwrap_err();
-        assert_eq!(err, ParseDecimalError::PrecLimitExceeded);
+        assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);
     }
 
     #[test]

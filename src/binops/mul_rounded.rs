@@ -54,7 +54,7 @@ mod mul_rounded_decimal_tests {
     use super::*;
 
     #[test]
-    fn test_mul_rounded_less_prec() {
+    fn test_mul_rounded_less_n_frac_digits() {
         let x = Decimal::new_raw(12345, 2);
         let z = x.mul_rounded(x, 2);
         assert_eq!(z.coeff, 1523990);
