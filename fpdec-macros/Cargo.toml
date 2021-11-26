@@ -1,6 +1,6 @@
 [package]
 name = "fpdec-macros"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Macros supporting decimal fixed-point arithmetic."
@@ -13,7 +13,7 @@ keywords = ["number", "decimal", "fixed-point", "arithmetics"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
-fpdec-core = { path = "../fpdec-core", version = "0.0.0" }
+fpdec-core = { path = "../fpdec-core", version = "0.1.0" }
 quote = "1.0"
 
 [lib]

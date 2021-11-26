@@ -1,4 +1,4 @@
-This crate strives to provide a fast implementation of `Decimal` fixed-point 
+This crate provides a fast implementation of `Decimal` fixed-point 
 arithmetics.
 It is targeted at typical business applications, dealing with numbers 
 representing quantities, money and the like, not at scientific computations,
