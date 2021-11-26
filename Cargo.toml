@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/mamrhein/fpdec.rs"
 repository = "https://github.com/mamrhein/fpdec.rs"
 documentation = "https://docs.rs/fpdec/"
-license-file = "../LICENSE.TXT"
+license-file = "LICENSE.TXT"
 keywords = ["number", "decimal", "fixed-point", "arithmetics"]
 categories = ["data-structures", "mathematics"]
 
