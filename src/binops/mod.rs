@@ -182,7 +182,7 @@ macro_rules! forward_op_assign {
 
 mod add_sub;
 mod cmp;
-mod div;
+pub(crate) mod div;
 pub(crate) mod div_rounded;
 mod mul;
 pub(crate) mod mul_rounded;

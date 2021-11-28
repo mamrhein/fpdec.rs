@@ -18,13 +18,33 @@ use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 const MAGN_I128_MAX: u8 = 38;
 
+#[inline(always)]
+fn try_add(a: i128, b: i128) -> Result<i128, DecimalError> {
+    match a.checked_add(b) {
+        Some(val) => {
+            return Ok(val);
+        }
+        None => return Err(DecimalError::InternalOverflow),
+    }
+}
+
+#[inline(always)]
+fn try_mul(a: i128, b: i128) -> Result<i128, DecimalError> {
+    match a.checked_mul(b) {
+        Some(val) => {
+            return Ok(val);
+        }
+        None => return Err(DecimalError::InternalOverflow),
+    }
+}
+
 #[inline]
-fn div(
+pub(crate) fn div(
     divident_coeff: i128,
     divident_n_frac_digits: u8,
     divisor_coeff: i128,
     divisor_n_frac_digits: u8,
-) -> (i128, u8) {
+) -> Result<(i128, u8), DecimalError> {
     let (mut n_frac_digits, shift) = match divident_n_frac_digits
         .cmp(&divisor_n_frac_digits)
     {
@@ -36,33 +56,33 @@ fn div(
     let mut rem = divident_coeff % divisor_coeff;
     if rem == 0 {
         if shift > 0 {
-            coeff *= ten_pow(shift);
+            coeff = try_mul(coeff, ten_pow(shift))?;
         } else if n_frac_digits > 0 {
             normalize(&mut coeff, &mut n_frac_digits);
         }
     } else {
         if shift > 0 {
             let ten_pow_shift = ten_pow(shift);
-            coeff *= ten_pow_shift;
-            rem *= ten_pow_shift;
-            coeff += rem / divisor_coeff;
+            coeff = try_mul(coeff, ten_pow_shift)?;
+            rem = try_mul(rem, ten_pow_shift)?;
+            coeff = try_add(coeff, rem / divisor_coeff)?;
             rem %= divisor_coeff;
         }
         while rem != 0 && n_frac_digits < MAX_N_FRAC_DIGITS {
             // rem < divisor
-            rem *= 10;
+            rem = try_mul(rem, 10)?;
             // rem < 10 * divisor
             let quot = rem / divisor_coeff;
             // quot < 10
             rem %= divisor_coeff;
             n_frac_digits += 1;
-            coeff = coeff * 10 + quot;
+            coeff = try_add(try_mul(coeff, 10)?, quot)?;
         }
         if rem != 0 {
-            panic!("{}", DecimalError::FracDigitLimitExceeded);
+            return Err(DecimalError::FracDigitLimitExceeded);
         }
     }
-    (coeff, n_frac_digits)
+    Ok((coeff, n_frac_digits))
 }
 
 impl Div<Decimal> for Decimal {
@@ -78,15 +98,17 @@ impl Div<Decimal> for Decimal {
         if other.eq_one() {
             return self;
         }
-        let (coeff, n_frac_digits) = div(
+        match div(
             self.coeff,
             self.n_frac_digits,
             other.coeff,
             other.n_frac_digits,
-        );
-        Self::Output {
-            coeff,
-            n_frac_digits,
+        ) {
+            Ok((coeff, n_frac_digits)) => Self::Output {
+                coeff,
+                n_frac_digits,
+            },
+            Err(error) => panic!("{}", error),
         }
     }
 }
@@ -207,13 +229,18 @@ macro_rules! impl_div_decimal_and_int {
                 if other == 1 {
                     return self;
                 }
-                let (coeff, n_frac_digits) = div(
+                match div(
                     self.coeff,
                     self.n_frac_digits,
                     other as i128,
                     0,
-                );
-                Self::Output { coeff, n_frac_digits, }
+                ) {
+                    Ok((coeff, n_frac_digits)) => Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    },
+                    Err(error) => panic!("{}", error),
+                }
             }
         }
 
@@ -233,13 +260,18 @@ macro_rules! impl_div_decimal_and_int {
                         n_frac_digits: 0,
                     };
                 }
-                let (coeff, n_frac_digits) = div(
+                match div(
                     self as i128,
                     0,
                     other.coeff,
                     other.n_frac_digits,
-                );
-                Self::Output { coeff, n_frac_digits, }
+                ) {
+                    Ok((coeff, n_frac_digits)) => Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    },
+                    Err(error) => panic!("{}", error),
+                }
             }
         }
         )*
