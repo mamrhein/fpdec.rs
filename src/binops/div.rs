@@ -16,8 +16,6 @@ use fpdec_core::ten_pow;
 
 use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
-const MAGN_I128_MAX: u8 = 38;
-
 #[inline(always)]
 fn try_add(a: i128, b: i128) -> Result<i128, DecimalError> {
     match a.checked_add(b) {
