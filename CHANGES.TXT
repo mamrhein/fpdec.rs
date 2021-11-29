@@ -1,0 +1,5 @@
+Version   Changes
+--------  --------------------------------------------------------------------
+0.2.0     Added conversion from `f32` and `f64` to `Decimal`.
+
+0.1.0     First public version.

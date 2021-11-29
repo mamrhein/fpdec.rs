@@ -25,7 +25,7 @@ Add `fpdec` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fpdec = "0.1"
+fpdec = "0.2"
 ```
 
 ## Usage
@@ -40,12 +40,20 @@ let d = Dec!(-17.5);
 assert_eq!(d.to_string(), "-17.5");
 ```
 
-Alternatively you can convert an integer or a string to a `Decimal`:
+Alternatively you can convert an integer, a float or a string to a `Decimal`:
 
 ```rust
 # use fpdec::Decimal;
 let d = Decimal::from(297_i32);
 assert_eq!(d.to_string(), "297");
+```
+
+```rust
+# use fpdec::{Decimal, DecimalError};
+# use std::convert::TryFrom;
+let d = Decimal::try_from(83.25_f64)?;
+assert_eq!(d.to_string(), "83.25");
+# Ok::<(), DecimalError>(())
 ```
 
 ```rust
