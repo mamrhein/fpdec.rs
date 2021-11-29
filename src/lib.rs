@@ -26,6 +26,7 @@ pub use rounding::{Round, RoundingMode};
 mod binops;
 mod errors;
 mod format;
+mod from_float;
 mod from_int;
 mod from_str;
 mod rounding;
