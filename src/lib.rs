@@ -12,7 +12,10 @@
 #![warn(missing_docs)]
 
 #[doc(inline)]
-pub use binops::{div_rounded::DivRounded, mul_rounded::MulRounded};
+pub use binops::{
+    checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub,
+    div_rounded::DivRounded, mul_rounded::MulRounded,
+};
 #[doc(inline)]
 pub use errors::*;
 use fpdec_core::magnitude;

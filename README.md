@@ -119,7 +119,9 @@ assert_eq!(z.to_string(), "2.5");
 ```
 
 All these binary numeric operators panic if the result is not representable as 
-a `Decimal` according to the constraints stated above. 
+a `Decimal` according to the constraints stated above. In addition, there are
+functions implementing "checked" variants of the operators which return
+`Option::None` instead of panicking.
 
 For Multiplication and Division there are also functions which return a result
 rounded to a given number of fractional digits:

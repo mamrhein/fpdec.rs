@@ -181,6 +181,7 @@ macro_rules! forward_op_assign {
 }
 
 mod add_sub;
+pub(crate) mod checked_add_sub;
 mod cmp;
 pub(crate) mod div;
 pub(crate) mod div_rounded;
