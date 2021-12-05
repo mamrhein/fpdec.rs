@@ -25,7 +25,7 @@ Add `fpdec` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fpdec = "0.3"
+fpdec = "0.3.1"
 ```
 
 ## Usage
