@@ -14,8 +14,8 @@
 #[doc(inline)]
 pub use binops::{
     checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub,
-    checked_div::CheckedDiv, checked_mul::CheckedMul, div_rounded::DivRounded,
-    mul_rounded::MulRounded,
+    checked_div::CheckedDiv, checked_mul::CheckedMul, checked_rem::CheckedRem,
+    div_rounded::DivRounded, mul_rounded::MulRounded,
 };
 #[doc(inline)]
 pub use errors::*;

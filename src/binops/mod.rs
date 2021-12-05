@@ -184,6 +184,7 @@ mod add_sub;
 pub(crate) mod checked_add_sub;
 pub(crate) mod checked_div;
 pub(crate) mod checked_mul;
+pub(crate) mod checked_rem;
 mod cmp;
 pub(crate) mod div;
 pub(crate) mod div_rounded;
