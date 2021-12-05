@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.3.0     Added "checked" variants of Add, Div, Mul, Rem and Sub as well as
+          corresponding implementations.
+
 0.2.0     Added conversion from `f32` and `f64` to `Decimal`.
 
 0.1.0     First public version.
