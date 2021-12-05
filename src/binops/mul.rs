@@ -9,14 +9,17 @@
 
 use std::ops::{Mul, MulAssign};
 
-use crate::Decimal;
+use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 impl Mul<Decimal> for Decimal {
     type Output = Self;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, other: Decimal) -> Self::Output {
-        // TODO: handle self.n_frac_digits + other.n_frac_digits > MAX_N_FRAC_DIGITS
+        let n_frac_ditits = self.n_frac_digits + other.n_frac_digits;
+        if n_frac_ditits > MAX_N_FRAC_DIGITS {
+            panic!("{}", DecimalError::FracDigitLimitExceeded)
+        }
         Self::Output {
             coeff: self.coeff * other.coeff,
             n_frac_digits: self.n_frac_digits + other.n_frac_digits,
@@ -72,6 +75,14 @@ mod mul_decimal_tests {
     fn test_mul_neg_overflow() {
         let x = Decimal::new_raw(i128::MIN / 2 - 1, 3);
         let _y = x * Decimal::TWO;
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_mul_frac_limit_exceeded() {
+        let x = Decimal::new_raw(1, 23);
+        let y = Decimal::new_raw(1, 16);
+        let _z = x * y;
     }
 
     #[test]

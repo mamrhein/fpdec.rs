@@ -27,7 +27,6 @@ impl CheckedMul<Decimal> for Decimal {
     fn checked_mul(self, rhs: Decimal) -> Self::Output {
         let n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
         if n_frac_digits > MAX_N_FRAC_DIGITS {
-            // TODO: try normalized operands
             return None;
         }
         Some(Self {
