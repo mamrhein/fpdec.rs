@@ -12,38 +12,77 @@ use std::{
     ops::{Rem, RemAssign},
 };
 
-use fpdec_core::mul_pow_ten;
+use fpdec_core::checked_mul_pow_ten;
 
 use crate::{Decimal, DecimalError};
+
+#[inline]
+pub(crate) fn rem(
+    divident_coeff: i128,
+    divident_n_frac_digits: u8,
+    divisor_coeff: i128,
+    divisor_n_frac_digits: u8,
+) -> Result<(i128, u8), DecimalError> {
+    match divident_n_frac_digits.cmp(&divisor_n_frac_digits) {
+        Ordering::Equal => {
+            Ok((divident_coeff % divisor_coeff, divident_n_frac_digits))
+        }
+        Ordering::Greater => match checked_mul_pow_ten(
+            divisor_coeff,
+            divident_n_frac_digits - divisor_n_frac_digits,
+        ) {
+            Some(shifted_divisor_coeff) => Ok((
+                divident_coeff % shifted_divisor_coeff,
+                divident_n_frac_digits,
+            )),
+            None => Ok((divident_coeff, divident_n_frac_digits)),
+        },
+        Ordering::Less => {
+            let mut shift = divisor_n_frac_digits - divident_n_frac_digits;
+            match checked_mul_pow_ten(divident_coeff, shift) {
+                Some(shifted_divident_coeff) => Ok((
+                    shifted_divident_coeff % divisor_coeff,
+                    divisor_n_frac_digits,
+                )),
+                None => {
+                    let mut rem = divident_coeff % divisor_coeff;
+                    while rem != 0 && shift > 0 {
+                        match rem.checked_mul(10) {
+                            Some(shifted_rem) => {
+                                rem = shifted_rem % divisor_coeff;
+                            }
+                            None => return Err(DecimalError::InternalOverflow),
+                        }
+                        shift -= 1;
+                    }
+                    Ok((rem, divisor_n_frac_digits))
+                }
+            }
+        }
+    }
+}
 
 impl Rem<Decimal> for Decimal {
     type Output = Decimal;
 
     #[inline(always)]
-    fn rem(self, other: Decimal) -> Self::Output {
-        if other.eq_zero() {
+    fn rem(self, rhs: Decimal) -> Self::Output {
+        if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }
-        match self.n_frac_digits.cmp(&other.n_frac_digits) {
-            Ordering::Equal => Self::Output {
-                coeff: self.coeff % other.coeff,
-                n_frac_digits: self.n_frac_digits,
+        if self.eq_zero() {
+            return Self::ZERO;
+        }
+        if rhs.eq_one() {
+            return self.fract();
+        }
+        match rem(self.coeff, self.n_frac_digits, rhs.coeff, rhs.n_frac_digits)
+        {
+            Ok((coeff, n_frac_digits)) => Self::Output {
+                coeff,
+                n_frac_digits,
             },
-            Ordering::Greater => Self::Output {
-                coeff: self.coeff
-                    % mul_pow_ten(
-                        other.coeff,
-                        self.n_frac_digits - other.n_frac_digits,
-                    ),
-                n_frac_digits: self.n_frac_digits,
-            },
-            Ordering::Less => Self::Output {
-                coeff: mul_pow_ten(
-                    self.coeff,
-                    other.n_frac_digits - self.n_frac_digits,
-                ) % other.coeff,
-                n_frac_digits: other.n_frac_digits,
-            },
+            Err(error) => panic!("{}", error),
         }
     }
 }
@@ -92,10 +131,38 @@ mod rem_decimal_tests {
         let y = Decimal::ONE;
         let r = x % y;
         assert_eq!(r.coeff, x.fract().coeff);
+        assert_eq!(r.n_frac_digits, x.n_frac_digits);
         let x = Decimal::new_raw(70389032, 4);
         let y = Decimal::new_raw(100000, 5);
         let r = x % y;
-        assert_eq!(r.coeff, x.fract().coeff * 10);
+        assert_eq!(r.coeff, x.fract().coeff);
+        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+    }
+
+    #[test]
+    fn test_rem_rhs_shift_ovfl() {
+        let x = Decimal::new_raw(i128::MAX, 2);
+        let y = Decimal::new_raw(i128::MAX / 5, 1);
+        let r = x % y;
+        assert_eq!(r.coeff, x.coeff);
+        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+    }
+
+    #[test]
+    fn test_rem_lhs_shift_ovfl() {
+        let x = Decimal::new_raw(i128::MAX / 30, 1);
+        let y = Decimal::new_raw(i128::MAX / 500, 3);
+        let r = x % y;
+        assert_eq!(r.coeff, 226854911280625642308916404954512874_i128);
+        assert_eq!(r.n_frac_digits, y.n_frac_digits);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_rem_panic_ovfl() {
+        let x = Decimal::new_raw(i128::MAX / 3, 1);
+        let y = Decimal::new_raw(i128::MAX / 5, 3);
+        let _r = x % y;
     }
 }
 
@@ -108,21 +175,27 @@ macro_rules! impl_rem_decimal_and_int {
         impl Rem<$t> for Decimal {
             type Output = Decimal;
 
-            fn rem(self, other: $t) -> Self::Output {
-                if other == 0 {
+            fn rem(self, rhs: $t) -> Self::Output {
+                if rhs == 0 {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
-                if self.n_frac_digits == 0 {
-                    Self::Output {
-                        coeff: self.coeff % other as i128,
-                        n_frac_digits: 0,
-                    }
-                } else {
-                    Self::Output {
-                        coeff: self.coeff
-                            % mul_pow_ten(other as i128, self.n_frac_digits),
-                        n_frac_digits: self.n_frac_digits,
-                    }
+                if self.eq_zero() {
+                    return Self::ZERO;
+                }
+                if rhs == 1 {
+                    return self.fract();
+                }
+                match rem(
+                    self.coeff,
+                    self.n_frac_digits,
+                    rhs as i128,
+                    0,
+                ) {
+                    Ok((coeff, n_frac_digits)) => Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    },
+                    Err(error) => panic!("{}", error),
                 }
             }
         }
@@ -130,21 +203,24 @@ macro_rules! impl_rem_decimal_and_int {
         impl Rem<Decimal> for $t {
             type Output = Decimal;
 
-            fn rem(self, other: Decimal) -> Self::Output {
-                if other.eq_zero() {
+            fn rem(self, rhs: Decimal) -> Self::Output {
+                if rhs.eq_zero() {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
-                if other.n_frac_digits == 0 {
-                    Self::Output {
-                        coeff: self as i128 % other.coeff,
-                        n_frac_digits: 0,
-                    }
-                } else {
-                    Self::Output {
-                        coeff: mul_pow_ten(self as i128, other.n_frac_digits)
-                            % other.coeff,
-                        n_frac_digits: other.n_frac_digits,
-                    }
+                if self == 0 || rhs.eq_one(){
+                    return Decimal::ZERO;
+                }
+                match rem(
+                    self as i128,
+                    0,
+                    rhs.coeff,
+                    rhs.n_frac_digits,
+                ) {
+                    Ok((coeff, n_frac_digits)) => Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    },
+                    Err(error) => panic!("{}", error),
                 }
             }
         }
@@ -159,6 +235,7 @@ forward_ref_binop_decimal_int!(impl Rem, rem);
 #[allow(clippy::neg_multiply)]
 mod rem_integer_tests {
     use super::*;
+    use fpdec_core::mul_pow_ten;
 
     macro_rules! gen_rem_integer_tests {
         ($func:ident, $t:ty, $p:expr, $coeff:expr) => {
@@ -229,6 +306,32 @@ mod rem_integer_tests {
         let x = 25;
         let y = Decimal::ZERO;
         let _z = x % y;
+    }
+
+    #[test]
+    fn test_rem_rhs_shift_ovfl() {
+        let x = Decimal::new_raw(i128::MAX, 2);
+        let y = i128::MAX / 5;
+        let r = x % y;
+        assert_eq!(r.coeff, x.coeff);
+        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+    }
+
+    #[test]
+    fn test_rem_lhs_shift_ovfl() {
+        let x = i128::MAX / 30;
+        let y = Decimal::new_raw(i128::MAX / 500, 2);
+        let r = x % y;
+        assert_eq!(r.coeff, 226854911280625642308916404954512874_i128);
+        assert_eq!(r.n_frac_digits, y.n_frac_digits);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_rem_panic_ovfl() {
+        let x = i128::MAX / 3;
+        let y = Decimal::new_raw(i128::MAX / 5, 3);
+        let _r = x % y;
     }
 }
 
