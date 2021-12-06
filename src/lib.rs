@@ -12,6 +12,8 @@
 #![warn(missing_docs)]
 
 #[doc(inline)]
+pub use as_integer_ratio::AsIntegerRatio;
+#[doc(inline)]
 pub use binops::{
     checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub,
     checked_div::CheckedDiv, checked_mul::CheckedMul, checked_rem::CheckedRem,
@@ -27,6 +29,7 @@ pub use fpdec_macros::Dec;
 #[doc(inline)]
 pub use rounding::{Round, RoundingMode};
 
+mod as_integer_ratio;
 mod binops;
 mod errors;
 mod format;
