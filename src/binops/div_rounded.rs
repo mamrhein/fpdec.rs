@@ -148,6 +148,22 @@ mod div_rounded_decimal_tests {
     }
 
     #[test]
+    fn test_div_rounded_to_int() {
+        let x = Decimal::new_raw(17, 0);
+        let y = Decimal::new_raw(200, 2);
+        let z = x.div_rounded(y, 0);
+        assert_eq!(z.coeff, 8);
+        assert_eq!(z.n_frac_digits, 0);
+        let y = Decimal::new_raw(3, 0);
+        let z = x.div_rounded(y, 0);
+        assert_eq!(z.coeff, 6);
+        let x = Decimal::new_raw(170000, 4);
+        let y = Decimal::new_raw(3, 0);
+        let z = x.div_rounded(y, 0);
+        assert_eq!(z.coeff, 6);
+    }
+
+    #[test]
     fn test_div_zero_rounded() {
         let x = Decimal::new_raw(0, 5);
         let y = Decimal::new_raw(17, 1);
@@ -555,6 +571,144 @@ mod div_rounded_int_by_decimal_tests {
     fn test_div_rounded_int_by_decimal_non_normalized_zero() {
         let x = -729_i32;
         let y = Decimal::new_raw(0, 3);
+        let _z = x.div_rounded(y, 5);
+    }
+}
+
+macro_rules! impl_div_rounded_int_and_int {
+    () => {
+        impl_div_rounded_int_and_int!(
+            u8, i8, u16, i16, u32, i32, u64, i64, i128
+        );
+    };
+    ($($t:ty),*) => {
+        $(
+        impl DivRounded<$t> for $t {
+            type Output = Decimal;
+
+            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
+                if other == 0 {
+                    panic!("{}", DecimalError::DivisionByZero);
+                }
+                if self == 0 {
+                    return Decimal::ZERO;
+                }
+                let coeff = div_rounded(
+                    self as i128,
+                    0_u8,
+                    other as i128,
+                    0_u8,
+                    n_frac_digits,
+                );
+                Self::Output {
+                    coeff,
+                    n_frac_digits,
+                }
+            }
+        }
+
+        impl<'a> DivRounded<$t> for &'a $t
+        where
+            $t: DivRounded<$t>,
+        {
+            type Output = <$t as DivRounded<$t>>::Output;
+
+            #[inline(always)]
+            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, other, n_frac_digits)
+            }
+        }
+
+        impl DivRounded<&$t> for $t
+        where
+            $t: DivRounded<$t>,
+        {
+            type Output = <$t as DivRounded<$t>>::Output;
+
+            #[inline(always)]
+            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(self, *other, n_frac_digits)
+            }
+        }
+
+        impl DivRounded<&$t> for &$t
+        where
+            $t: DivRounded<$t>,
+        {
+            type Output = <$t as DivRounded<$t>>::Output;
+
+            #[inline(always)]
+            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, *other, n_frac_digits)
+            }
+        }
+        )*
+    }
+}
+
+impl_div_rounded_int_and_int!();
+
+#[cfg(test)]
+#[allow(clippy::neg_multiply)]
+mod div_rounded_int_by_int_tests {
+    use super::*;
+
+    macro_rules! gen_div_rounded_int_by_int_tests {
+        ($func:ident, $i:expr, $j:expr, $r:expr,
+         $res_coeff:expr) => {
+            #[test]
+            fn $func() {
+                let i = $i;
+                let j = $j;
+                let r = i.div_rounded(j, $r);
+                assert_eq!(r.coeff, $res_coeff);
+                assert_eq!(r.n_frac_digits, $r);
+                let r = (&i).div_rounded(j, $r);
+                assert_eq!(r.coeff, $res_coeff);
+                assert_eq!(r.n_frac_digits, $r);
+                let r = i.div_rounded(&j, $r);
+                assert_eq!(r.coeff, $res_coeff);
+                assert_eq!(r.n_frac_digits, $r);
+                let r = (&i).div_rounded(&j, $r);
+                assert_eq!(r.coeff, $res_coeff);
+                assert_eq!(r.n_frac_digits, $r);
+            }
+        };
+    }
+
+    gen_div_rounded_int_by_int_tests!(test_u8, 44_u8, 3_u8, 5, 1466667);
+    gen_div_rounded_int_by_int_tests!(test_i8, -12_i8, -3_i8, 4, 40000);
+    gen_div_rounded_int_by_int_tests!(test_u16, 17_u16, 4_u16, 3, 4250);
+    gen_div_rounded_int_by_int_tests!(test_i16, -22, -13_i16, 7, 16923077);
+    gen_div_rounded_int_by_int_tests!(test_u32, u32::MAX, 10_u32, 0, 429496730);
+    gen_div_rounded_int_by_int_tests!(test_i32, 12345_i32, -328_i32, 1, -376);
+    gen_div_rounded_int_by_int_tests!(
+        test_u64,
+        1_u64,
+        4294967295_u64,
+        32,
+        23283064370807973754315
+    );
+    gen_div_rounded_int_by_int_tests!(
+        test_i64,
+        i64::MIN,
+        u32::MAX as i64,
+        2,
+        -214748364850
+    );
+    gen_div_rounded_int_by_int_tests!(
+        test_i128,
+        987654321987654321_i128,
+        1234567890_i128,
+        1,
+        8000000081
+    );
+
+    #[test]
+    #[should_panic]
+    fn test_div_rounded_int_by_int_zero() {
+        let x = 17_u16;
+        let y = 0_u16;
         let _z = x.div_rounded(y, 5);
     }
 }
