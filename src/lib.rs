@@ -27,6 +27,8 @@ pub use fpdec_core::{ParseDecimalError, MAX_N_FRAC_DIGITS};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
 #[doc(inline)]
+pub use quantize::Quantize;
+#[doc(inline)]
 pub use rounding::{Round, RoundingMode};
 
 mod as_integer_ratio;
@@ -36,6 +38,7 @@ mod format;
 mod from_float;
 mod from_int;
 mod from_str;
+mod quantize;
 mod rounding;
 #[cfg(feature = "num-traits")]
 mod traits;
