@@ -1,5 +1,9 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.4.0     Added impls of trait DivRounded for native integers.
+          Added traits AsIntegerRatio and Quantize as well as corresponding
+          implementations for Decimal and native ints.
+
 0.3.1     Check resulting n_frac_digits > MAX_N_FRAC_DIGITS in fn mul.
 
 0.3.0     Added "checked" variants of Add, Div, Mul, Rem and Sub as well as
