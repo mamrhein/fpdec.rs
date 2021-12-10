@@ -100,6 +100,18 @@ fn gcd_special(numer: i128, denom_exp: u32) -> i128 {
 }
 
 impl AsIntegerRatio for Decimal {
+    /// Returns the pair of integers with the smallest positive denominator
+    /// from those with a ratio equal to `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, AsIntegerRatio};
+    /// let d = Dec!(12345);
+    /// assert_eq!(d.as_integer_ratio(), (12345, 1));
+    /// let d = Dec!(28.27095);
+    /// assert_eq!(d.as_integer_ratio(), (565419, 20000));
+    /// ```
     fn as_integer_ratio(self) -> (i128, i128) {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer
@@ -109,6 +121,18 @@ impl AsIntegerRatio for Decimal {
         (self.coeff / gcd, self.denominator())
     }
 
+    /// Returns the numerator from the pair of integers with the smallest
+    /// positive denominator from those with a ratio equal to `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, AsIntegerRatio};
+    /// let d = Dec!(12345.0);
+    /// assert_eq!(d.numerator(), 12345);
+    /// let d = Dec!(28.27095);
+    /// assert_eq!(d.numerator(), 565419);
+    /// ```
     fn numerator(self) -> i128 {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer
@@ -118,6 +142,18 @@ impl AsIntegerRatio for Decimal {
         self.coeff / gcd
     }
 
+    /// Returns the smallest positive denominator from the pairs of integers
+    /// with a ratio equal to `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, AsIntegerRatio};
+    /// let d = Dec!(12345.00);
+    /// assert_eq!(d.denominator(), 1);
+    /// let d = Dec!(28.27095);
+    /// assert_eq!(d.denominator(), 20000);
+    /// ```
     fn denominator(self) -> i128 {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer

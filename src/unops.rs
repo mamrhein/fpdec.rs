@@ -15,29 +15,29 @@ use crate::Decimal;
 
 // TODO: remove this trait when feature(int_roundings) got stable
 trait DivModInt: Sized {
-    fn divmod(&self, other: &Self) -> (Self, Self);
-    fn div_floor(&self, other: &Self) -> Self;
-    fn div_ceil(&self, other: &Self) -> Self;
+    fn divmod(&self, rhs: &Self) -> (Self, Self);
+    fn div_floor(&self, rhs: &Self) -> Self;
+    fn div_ceil(&self, rhs: &Self) -> Self;
 }
 
 impl DivModInt for i128 {
     #[inline(always)]
-    fn divmod(&self, other: &Self) -> (Self, Self) {
-        (*self / *other, *self % other)
+    fn divmod(&self, rhs: &Self) -> (Self, Self) {
+        (*self / *rhs, *self % *rhs)
     }
     #[inline]
-    fn div_floor(&self, other: &Self) -> Self {
-        let (q, r) = self.divmod(other);
-        if (r > 0 && *other < 0) || (r < 0 && *other > 0) {
+    fn div_floor(&self, rhs: &Self) -> Self {
+        let (q, r) = self.divmod(rhs);
+        if (r > 0 && *rhs < 0) || (r < 0 && *rhs > 0) {
             q - 1
         } else {
             q
         }
     }
     #[inline]
-    fn div_ceil(&self, other: &Self) -> Self {
-        let (q, r) = self.divmod(other);
-        if (r > 0 && *other > 0) || (r < 0 && *other < 0) {
+    fn div_ceil(&self, rhs: &Self) -> Self {
+        let (q, r) = self.divmod(rhs);
+        if (r > 0 && *rhs > 0) || (r < 0 && *rhs < 0) {
             q + 1
         } else {
             q

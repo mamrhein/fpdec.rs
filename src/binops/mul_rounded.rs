@@ -19,7 +19,7 @@ pub trait MulRounded<Rhs = Self> {
     /// The resulting type after applying `mul_rounded`.
     type Output;
 
-    /// Returns `self` * `other`, rounded to `n_frac_digits`.
+    /// Returns `self` * `rhs`, rounded to `n_frac_digits`.
     fn mul_rounded(self, rhs: Rhs, n_frac_digits: u8) -> Self::Output;
 }
 
@@ -27,12 +27,12 @@ impl MulRounded<Decimal> for Decimal {
     type Output = Self;
 
     #[inline]
-    fn mul_rounded(self, other: Decimal, n_frac_digits: u8) -> Self::Output {
-        let max_n_frac_digits = self.n_frac_digits + other.n_frac_digits;
+    fn mul_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+        let max_n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
         match n_frac_digits.cmp(&(max_n_frac_digits)) {
             Ordering::Less => Self::Output {
                 coeff: div_i128_rounded(
-                    self.coeff * other.coeff,
+                    self.coeff * rhs.coeff,
                     ten_pow(max_n_frac_digits - n_frac_digits),
                     None,
                 ),
@@ -40,7 +40,7 @@ impl MulRounded<Decimal> for Decimal {
             },
             // no need for rounding
             _ => Self::Output {
-                coeff: self.coeff * other.coeff,
+                coeff: self.coeff * rhs.coeff,
                 n_frac_digits: max_n_frac_digits,
             },
         }

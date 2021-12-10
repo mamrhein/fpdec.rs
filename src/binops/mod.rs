@@ -18,8 +18,8 @@ macro_rules! forward_ref_binop {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: Decimal) -> Self::Output {
-                $imp::$method(*self, other)
+            fn $method(self, rhs: Decimal) -> Self::Output {
+                $imp::$method(*self, rhs)
             }
         }
         impl $imp<&Decimal> for Decimal
@@ -29,8 +29,8 @@ macro_rules! forward_ref_binop {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal) -> Self::Output {
-                $imp::$method(self, *other)
+            fn $method(self, rhs: &Decimal) -> Self::Output {
+                $imp::$method(self, *rhs)
             }
         }
         impl $imp<&Decimal> for &Decimal
@@ -40,8 +40,8 @@ macro_rules! forward_ref_binop {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal) -> Self::Output {
-                $imp::$method(*self, *other)
+            fn $method(self, rhs: &Decimal) -> Self::Output {
+                $imp::$method(*self, *rhs)
             }
         }
     };
@@ -57,8 +57,8 @@ macro_rules! forward_ref_binop_rounded {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: Decimal, n_frac_digits: u8) -> Decimal {
-                $imp::$method(*self, other, n_frac_digits)
+            fn $method(self, rhs: Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(*self, rhs, n_frac_digits)
             }
         }
         impl $imp<&Decimal> for Decimal
@@ -68,8 +68,8 @@ macro_rules! forward_ref_binop_rounded {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal, n_frac_digits: u8) -> Decimal {
-                $imp::$method(self, *other, n_frac_digits)
+            fn $method(self, rhs: &Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(self, *rhs, n_frac_digits)
             }
         }
         impl $imp<&Decimal> for &Decimal
@@ -79,8 +79,8 @@ macro_rules! forward_ref_binop_rounded {
             type Output = <Decimal as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal, n_frac_digits: u8) -> Decimal {
-                $imp::$method(*self, *other, n_frac_digits)
+            fn $method(self, rhs: &Decimal, n_frac_digits: u8) -> Decimal {
+                $imp::$method(*self, *rhs, n_frac_digits)
             }
         }
     };
@@ -103,8 +103,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <Decimal as $imp<$t>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: $t) -> Self::Output {
-                $imp::$method(*self, other)
+            fn $method(self, rhs: $t) -> Self::Output {
+                $imp::$method(*self, rhs)
             }
         }
         impl $imp<&$t> for Decimal
@@ -114,8 +114,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <Decimal as $imp<$t>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &$t) -> Self::Output {
-                $imp::$method(self, *other)
+            fn $method(self, rhs: &$t) -> Self::Output {
+                $imp::$method(self, *rhs)
             }
         }
         impl $imp<&$t> for &Decimal
@@ -125,8 +125,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <Decimal as $imp<$t>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &$t) -> Self::Output {
-                $imp::$method(*self, *other)
+            fn $method(self, rhs: &$t) -> Self::Output {
+                $imp::$method(*self, *rhs)
             }
         }
         impl<'a> $imp<Decimal> for &'a $t
@@ -136,8 +136,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <$t as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: Decimal) -> Self::Output {
-                $imp::$method(*self, other)
+            fn $method(self, rhs: Decimal) -> Self::Output {
+                $imp::$method(*self, rhs)
             }
         }
         impl $imp<&Decimal> for $t
@@ -147,8 +147,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <$t as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal) -> Self::Output {
-                $imp::$method(self, *other)
+            fn $method(self, rhs: &Decimal) -> Self::Output {
+                $imp::$method(self, *rhs)
             }
         }
         impl $imp<&Decimal> for &$t
@@ -158,8 +158,8 @@ macro_rules! forward_ref_binop_decimal_int {
             type Output = <$t as $imp<Decimal>>::Output;
 
             #[inline(always)]
-            fn $method(self, other: &Decimal) -> Self::Output {
-                $imp::$method(*self, *other)
+            fn $method(self, rhs: &Decimal) -> Self::Output {
+                $imp::$method(*self, *rhs)
             }
         }
         )*
@@ -173,8 +173,8 @@ macro_rules! forward_op_assign {
             Decimal: $base_imp<T, Output = Self>,
         {
             #[inline(always)]
-            fn $method(&mut self, other: T) {
-                *self = $base_imp::$base_method(*self, other);
+            fn $method(&mut self, rhs: T) {
+                *self = $base_imp::$base_method(*self, rhs);
             }
         }
     };

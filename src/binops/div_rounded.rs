@@ -21,7 +21,30 @@ pub trait DivRounded<Rhs = Self> {
     /// The resulting type after applying `div_rounded`.
     type Output;
 
-    /// Returns `self` / `other`, rounded to `n_frac_digits`.
+    /// Returns `self` / `rhs`, rounded to `n_frac_digits`, according to the
+    /// current [RoundingMode](crate::RoundingMode).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `rhs` equals zero or the resulting value can not be
+    /// represented by `Self::Output`!
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, DivRounded};
+    /// let divident = -322_i32;
+    /// let divisor = 3_i32;
+    /// let res = divident.div_rounded(divisor, 0);
+    /// assert_eq!(res.to_string(), "-107");
+    /// let d = Dec!(28.27093);
+    /// let q = 5_u32;
+    /// let r = d.div_rounded(q, 4);
+    /// assert_eq!(r.to_string(), "5.6542");
+    /// let q = Dec!(0.03);
+    /// let r = d.div_rounded(q, 3);
+    /// assert_eq!(r.to_string(), "942.364");
+    /// ```
     fn div_rounded(self, rhs: Rhs, n_frac_digits: u8) -> Self::Output;
 }
 
@@ -94,8 +117,8 @@ fn div_rounded(
 impl DivRounded<Decimal> for Decimal {
     type Output = Self;
 
-    fn div_rounded(self, other: Decimal, n_frac_digits: u8) -> Self::Output {
-        if other.eq_zero() {
+    fn div_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+        if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }
         if self.eq_zero() {
@@ -104,8 +127,8 @@ impl DivRounded<Decimal> for Decimal {
         let coeff = div_rounded(
             self.coeff,
             self.n_frac_digits,
-            other.coeff,
-            other.n_frac_digits,
+            rhs.coeff,
+            rhs.n_frac_digits,
             n_frac_digits,
         );
         Self::Output {
@@ -239,8 +262,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
         impl DivRounded<$t> for Decimal {
             type Output = Self;
 
-            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
-                if other == 0 {
+            fn div_rounded(self, rhs: $t, n_frac_digits: u8) -> Self::Output {
+                if rhs == 0 {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
                 if self.eq_zero() {
@@ -249,7 +272,7 @@ macro_rules! impl_div_rounded_decimal_and_int {
                 let coeff = div_rounded(
                     self.coeff,
                     self.n_frac_digits,
-                    other as i128,
+                    rhs as i128,
                     0_u8,
                     n_frac_digits,
                 );
@@ -267,8 +290,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <Decimal as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, other, n_frac_digits)
+            fn div_rounded(self, rhs: $t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, rhs, n_frac_digits)
             }
         }
 
@@ -279,8 +302,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <Decimal as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(self, *rhs, n_frac_digits)
             }
         }
 
@@ -291,16 +314,16 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <Decimal as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, *rhs, n_frac_digits)
             }
         }
 
         impl DivRounded<Decimal> for $t {
             type Output = Decimal;
 
-            fn div_rounded(self, other: Decimal, n_frac_digits: u8) -> Self::Output {
-                if other.eq_zero() {
+            fn div_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+                if rhs.eq_zero() {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
                 if self == 0 {
@@ -309,8 +332,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
                 let coeff = div_rounded(
                     self as i128,
                     0_u8,
-                    other.coeff,
-                    other.n_frac_digits,
+                    rhs.coeff,
+                    rhs.n_frac_digits,
                     n_frac_digits,
                 );
                 Self::Output {
@@ -327,8 +350,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <$t as DivRounded<Decimal>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: Decimal, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, other, n_frac_digits)
+            fn div_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, rhs, n_frac_digits)
             }
         }
 
@@ -339,8 +362,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <$t as DivRounded<Decimal>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &Decimal, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &Decimal, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(self, *rhs, n_frac_digits)
             }
         }
 
@@ -351,8 +374,8 @@ macro_rules! impl_div_rounded_decimal_and_int {
             type Output = <$t as DivRounded<Decimal>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &Decimal, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &Decimal, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, *rhs, n_frac_digits)
             }
         }
         )*
@@ -586,8 +609,8 @@ macro_rules! impl_div_rounded_int_and_int {
         impl DivRounded<$t> for $t {
             type Output = Decimal;
 
-            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
-                if other == 0 {
+            fn div_rounded(self, rhs: $t, n_frac_digits: u8) -> Self::Output {
+                if rhs == 0 {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
                 if self == 0 {
@@ -596,7 +619,7 @@ macro_rules! impl_div_rounded_int_and_int {
                 let coeff = div_rounded(
                     self as i128,
                     0_u8,
-                    other as i128,
+                    rhs as i128,
                     0_u8,
                     n_frac_digits,
                 );
@@ -614,8 +637,8 @@ macro_rules! impl_div_rounded_int_and_int {
             type Output = <$t as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: $t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, other, n_frac_digits)
+            fn div_rounded(self, rhs: $t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, rhs, n_frac_digits)
             }
         }
 
@@ -626,8 +649,8 @@ macro_rules! impl_div_rounded_int_and_int {
             type Output = <$t as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(self, *rhs, n_frac_digits)
             }
         }
 
@@ -638,8 +661,8 @@ macro_rules! impl_div_rounded_int_and_int {
             type Output = <$t as DivRounded<$t>>::Output;
 
             #[inline(always)]
-            fn div_rounded(self, other: &$t, n_frac_digits: u8) -> Self::Output {
-                DivRounded::div_rounded(*self, *other, n_frac_digits)
+            fn div_rounded(self, rhs: &$t, n_frac_digits: u8) -> Self::Output {
+                DivRounded::div_rounded(*self, *rhs, n_frac_digits)
             }
         }
         )*

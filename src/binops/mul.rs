@@ -15,14 +15,14 @@ impl Mul<Decimal> for Decimal {
     type Output = Self;
 
     #[inline]
-    fn mul(self, other: Decimal) -> Self::Output {
-        let n_frac_ditits = self.n_frac_digits + other.n_frac_digits;
+    fn mul(self, rhs: Decimal) -> Self::Output {
+        let n_frac_ditits = self.n_frac_digits + rhs.n_frac_digits;
         if n_frac_ditits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::FracDigitLimitExceeded)
         }
         Self::Output {
-            coeff: self.coeff * other.coeff,
-            n_frac_digits: self.n_frac_digits + other.n_frac_digits,
+            coeff: self.coeff * rhs.coeff,
+            n_frac_digits: self.n_frac_digits + rhs.n_frac_digits,
         }
     }
 }
@@ -106,9 +106,9 @@ macro_rules! impl_mul_decimal_and_int {
             type Output = Decimal;
 
             #[inline(always)]
-            fn mul(self, other: $t) -> Self::Output {
+            fn mul(self, rhs: $t) -> Self::Output {
                 Self::Output{
-                    coeff: self.coeff * other as i128,
+                    coeff: self.coeff * rhs as i128,
                     n_frac_digits: self.n_frac_digits,
                 }
             }
@@ -118,10 +118,10 @@ macro_rules! impl_mul_decimal_and_int {
             type Output = Decimal;
 
             #[inline(always)]
-            fn mul(self, other: Decimal) -> Self::Output {
+            fn mul(self, rhs: Decimal) -> Self::Output {
                 Self::Output{
-                    coeff: self as i128 * other.coeff,
-                    n_frac_digits: other.n_frac_digits,
+                    coeff: self as i128 * rhs.coeff,
+                    n_frac_digits: rhs.n_frac_digits,
                 }
             }
         }

@@ -86,22 +86,18 @@ pub(crate) fn div(
 impl Div<Decimal> for Decimal {
     type Output = Decimal;
 
-    fn div(self, other: Decimal) -> Self::Output {
-        if other.eq_zero() {
+    fn div(self, rhs: Decimal) -> Self::Output {
+        if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }
         if self.eq_zero() {
             return Self::ZERO;
         }
-        if other.eq_one() {
+        if rhs.eq_one() {
             return self;
         }
-        match div(
-            self.coeff,
-            self.n_frac_digits,
-            other.coeff,
-            other.n_frac_digits,
-        ) {
+        match div(self.coeff, self.n_frac_digits, rhs.coeff, rhs.n_frac_digits)
+        {
             Ok((coeff, n_frac_digits)) => Self::Output {
                 coeff,
                 n_frac_digits,
@@ -217,20 +213,20 @@ macro_rules! impl_div_decimal_and_int {
         impl Div<$t> for Decimal {
             type Output = Decimal;
 
-            fn div(self, other: $t) -> Self::Output {
-                if other == 0 {
+            fn div(self, rhs: $t) -> Self::Output {
+                if rhs == 0 {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
                 if self.eq_zero() {
                     return Self::ZERO;
                 }
-                if other == 1 {
+                if rhs == 1 {
                     return self;
                 }
                 match div(
                     self.coeff,
                     self.n_frac_digits,
-                    other as i128,
+                    rhs as i128,
                     0,
                 ) {
                     Ok((coeff, n_frac_digits)) => Self::Output {
@@ -245,14 +241,14 @@ macro_rules! impl_div_decimal_and_int {
         impl Div<Decimal> for $t {
             type Output = Decimal;
 
-            fn div(self, other: Decimal) -> Self::Output {
-                if other.eq_zero() {
+            fn div(self, rhs: Decimal) -> Self::Output {
+                if rhs.eq_zero() {
                     panic!("{}", DecimalError::DivisionByZero);
                 }
                 if self == 0 {
                     return Decimal::ZERO;
                 }
-                if other.eq_one() {
+                if rhs.eq_one() {
                     return Self::Output {
                         coeff: self as i128,
                         n_frac_digits: 0,
@@ -261,8 +257,8 @@ macro_rules! impl_div_decimal_and_int {
                 match div(
                     self as i128,
                     0,
-                    other.coeff,
-                    other.n_frac_digits,
+                    rhs.coeff,
+                    rhs.n_frac_digits,
                 ) {
                     Ok((coeff, n_frac_digits)) => Self::Output {
                         coeff,

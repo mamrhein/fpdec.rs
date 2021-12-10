@@ -15,8 +15,31 @@ pub trait Quantize<Rhs = Self> {
     /// The resulting type after applying `quantize`.
     type Output;
 
-    /// Returns the integer multiple of `quant` nearest to `self`, according
-    /// to the current [RoundingMode](crate::RoundingMode).
+    /// Returns an instance of `Self::Output` with its value set to the integer
+    /// multiple of `quant` nearest to `self`, according to the current
+    /// [RoundingMode](crate::RoundingMode).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `quant` equals zero or the resulting value can not be
+    /// represented by `Self::Output`!
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use fpdec::{Dec, Decimal, Quantize};
+    /// let i = -322_i32;
+    /// let q = 3_i32;
+    /// let r = i.quantize(q);
+    /// assert_eq!(r.to_string(), "-321");
+    /// let d = Dec!(28.27093);
+    /// let q = 5_u32;
+    /// let r = d.quantize(q);
+    /// assert_eq!(r.to_string(), "30");
+    /// let q = Dec!(0.05);
+    /// let r = d.quantize(q);
+    /// assert_eq!(r.to_string(), "28.25");
+    /// ```
     fn quantize(self, quant: Rhs) -> Self::Output;
 }
 

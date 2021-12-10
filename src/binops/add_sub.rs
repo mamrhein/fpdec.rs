@@ -22,18 +22,18 @@ macro_rules! impl_add_sub_decimal {
             type Output = Self;
 
             #[inline]
-            fn $method(self, other: Decimal) -> Self::Output {
-                match self.n_frac_digits.cmp(&other.n_frac_digits) {
+            fn $method(self, rhs: Decimal) -> Self::Output {
+                match self.n_frac_digits.cmp(&rhs.n_frac_digits) {
                     Ordering::Equal => Self::Output {
-                        coeff: $imp::$method(self.coeff, other.coeff),
+                        coeff: $imp::$method(self.coeff, rhs.coeff),
                         n_frac_digits: self.n_frac_digits,
                     },
                     Ordering::Greater => Self::Output {
                         coeff: $imp::$method(
                             self.coeff,
                             mul_pow_ten(
-                                other.coeff,
-                                self.n_frac_digits - other.n_frac_digits,
+                                rhs.coeff,
+                                self.n_frac_digits - rhs.n_frac_digits,
                             ),
                         ),
                         n_frac_digits: self.n_frac_digits,
@@ -42,11 +42,11 @@ macro_rules! impl_add_sub_decimal {
                         coeff: $imp::$method(
                             mul_pow_ten(
                                 self.coeff,
-                                other.n_frac_digits - self.n_frac_digits,
+                                rhs.n_frac_digits - self.n_frac_digits,
                             ),
-                            other.coeff,
+                            rhs.coeff,
                         ),
-                        n_frac_digits: other.n_frac_digits,
+                        n_frac_digits: rhs.n_frac_digits,
                     },
                 }
             }
@@ -182,17 +182,17 @@ macro_rules! impl_add_sub_decimal_and_int {
             type Output = Decimal;
 
             #[inline(always)]
-            fn $method(self, other: $t) -> Self::Output {
+            fn $method(self, rhs: $t) -> Self::Output {
                 if self.n_frac_digits == 0 {
                     Self::Output{
-                        coeff: $imp::$method(self.coeff, other as i128),
+                        coeff: $imp::$method(self.coeff, rhs as i128),
                         n_frac_digits: 0,
                     }
                 } else {
                     Self::Output{
                         coeff: $imp::$method(self.coeff,
                                              mul_pow_ten(
-                                                other as i128,
+                                                rhs as i128,
                                                 self.n_frac_digits)),
                         n_frac_digits: self.n_frac_digits,
                     }
@@ -206,19 +206,19 @@ macro_rules! impl_add_sub_decimal_and_int {
             type Output = Decimal;
 
             #[inline(always)]
-            fn $method(self, other: Decimal) -> Self::Output {
-                if other.n_frac_digits == 0 {
+            fn $method(self, rhs: Decimal) -> Self::Output {
+                if rhs.n_frac_digits == 0 {
                     Self::Output{
-                        coeff: $imp::$method(self as i128, other.coeff),
+                        coeff: $imp::$method(self as i128, rhs.coeff),
                         n_frac_digits: 0,
                     }
                 } else {
                     Self::Output{
                         coeff: $imp::$method(mul_pow_ten(
                                                 self as i128,
-                                                other.n_frac_digits),
-                                             other.coeff),
-                        n_frac_digits: other.n_frac_digits,
+                                                rhs.n_frac_digits),
+                                             rhs.coeff),
+                        n_frac_digits: rhs.n_frac_digits,
                     }
                 }
             }

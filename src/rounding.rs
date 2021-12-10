@@ -43,6 +43,9 @@ thread_local!(
 
 impl Default for RoundingMode {
     /// Returns the default RoundingMode set for the current thread.
+    ///
+    /// It is initially set to [RoundingMode::RoundHalfEven], but can be changed
+    /// using the fn [RoundingMode::set_default].
     fn default() -> Self {
         DFLT_ROUNDING_MODE.with(|m| *m.borrow())
     }
@@ -55,8 +58,7 @@ impl RoundingMode {
     }
 }
 
-/// Types providing methods to round their values to a given number of
-/// fractional digits.
+/// Rounding a number to a given number of fractional digits.
 pub trait Round
 where
     Self: Sized,
@@ -93,6 +95,7 @@ impl Round for Decimal {
     /// assert_eq!(r.to_string(), "28");
     /// let r = d.round(-1);
     /// assert_eq!(r.to_string(), "30");
+    /// ```
     fn round(self, n_frac_digits: i8) -> Self {
         if n_frac_digits >= self.n_frac_digits as i8 {
             self.clone()
@@ -139,6 +142,7 @@ impl Round for Decimal {
     /// assert!(r.is_none());
     /// # Option::None
     /// # } f();}
+    /// ```
     fn checked_round(self, n_frac_digits: i8) -> Option<Self> {
         if n_frac_digits >= self.n_frac_digits as i8 {
             Some(self.clone())
