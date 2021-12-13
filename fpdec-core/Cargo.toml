@@ -13,3 +13,7 @@ keywords = ["number", "decimal", "fixed-point", "arithmetics"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
+
+[features]
+default = ["std"]
+std = []

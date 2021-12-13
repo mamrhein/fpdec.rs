@@ -8,9 +8,9 @@
 // $Revision$
 
 use crate::Decimal;
+use core::cmp::min;
+use core::mem;
 use fpdec_core::ten_pow;
-use std::cmp::min;
-use std::mem;
 
 /// Conversion of a number into an equivalent ratio of integers.
 pub trait AsIntegerRatio: Copy + Sized {

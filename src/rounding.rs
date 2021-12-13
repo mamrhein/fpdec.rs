@@ -7,7 +7,8 @@
 // $Source$
 // $Revision$
 
-use std::cell::RefCell;
+#[cfg(feature = "std")]
+use core::cell::RefCell;
 
 use fpdec_core::{div_mod_floor, ten_pow};
 
@@ -36,11 +37,13 @@ pub enum RoundingMode {
     RoundUp,
 }
 
+#[cfg(feature = "std")]
 thread_local!(
     static DFLT_ROUNDING_MODE: RefCell<RoundingMode> =
         RefCell::new(RoundingMode::RoundHalfEven)
 );
 
+#[cfg(feature = "std")]
 impl Default for RoundingMode {
     /// Returns the default RoundingMode set for the current thread.
     ///
@@ -51,10 +54,25 @@ impl Default for RoundingMode {
     }
 }
 
+#[cfg(feature = "std")]
 impl RoundingMode {
     /// Sets the default RoundingMode for the current thread.
     pub fn set_default(mode: RoundingMode) {
         DFLT_ROUNDING_MODE.with(|m| *m.borrow_mut() = mode)
+    }
+}
+
+#[cfg(not(feature = "std"))]
+static DFLT_ROUNDING_MODE: RoundingMode = RoundingMode::RoundHalfEven;
+
+#[cfg(not(feature = "std"))]
+impl Default for RoundingMode {
+    /// Returns the current default RoundingMode.
+    ///
+    /// It is initially set to [RoundingMode::RoundHalfEven], but can be changed
+    /// using the fn [RoundingMode::set_default].
+    fn default() -> Self {
+        DFLT_ROUNDING_MODE
     }
 }
 
@@ -266,6 +284,7 @@ pub(crate) fn div_i128_rounded(
     quot
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod rounding_mode_tests {
     use super::*;

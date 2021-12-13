@@ -18,6 +18,8 @@ fpdec-macros = { path = "fpdec-macros", version = "0.3.0" }
 num-traits = { version = "0.2.0", optional = true }
 
 [features]
+default = ["std"]
+std = []
 packed = []
 
 [workspace]

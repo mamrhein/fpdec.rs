@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::{convert::TryFrom, str::FromStr};
+use core::{convert::TryFrom, str::FromStr};
 
 use fpdec_core::{checked_mul_pow_ten, dec_repr_from_str};
 
@@ -41,7 +41,7 @@ impl FromStr for Decimal {
     ///
     /// ```rust
     /// # use fpdec::{Decimal, ParseDecimalError};
-    /// # use std::str::FromStr;
+    /// # use core::str::FromStr;
     /// # fn main() -> Result<(), ParseDecimalError> {
     /// let d = Decimal::from_str("38.207")?;
     /// assert_eq!(d.to_string(), "38.207");
@@ -175,10 +175,8 @@ mod tests {
 
     #[test]
     fn test_int_lit_max_val_exceeded() {
-        let i = i128::MIN;
-        let mut s = format!("{}", i);
-        s.remove(0);
-        let res = Decimal::from_str(&s);
+        let lit = "170141183460469231731687303715884105728"; // 2 ^ 127
+        let res = Decimal::from_str(&lit);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);

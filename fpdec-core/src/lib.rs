@@ -7,7 +7,9 @@
 // $Source$
 // $Revision$
 
-use std::cmp::Ordering;
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use core::cmp::Ordering;
 
 pub use parser::{dec_repr_from_str, ParseDecimalError};
 pub use powers_of_ten::{checked_mul_pow_ten, mul_pow_ten, ten_pow};

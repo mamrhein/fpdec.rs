@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::fmt::{Debug, Display, Formatter};
+use core::fmt::{Debug, Display, Formatter};
 
 /// An error which can be returned from converting numbers to `Decimal` or from
 /// binary operators on `Decimal`.
@@ -50,9 +50,10 @@ impl DecimalError {
 }
 
 impl Display for DecimalError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         Display::fmt(self._description(), f)
     }
 }
 
+#[cfg(feature = "std")]
 impl std::error::Error for DecimalError {}

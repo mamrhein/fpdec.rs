@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::ops::Neg;
+use core::ops::Neg;
 
 use fpdec_core::ten_pow;
 

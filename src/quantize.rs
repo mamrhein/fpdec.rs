@@ -8,7 +8,7 @@
 // $Revision$
 
 use crate::DivRounded;
-use std::ops::Mul;
+use core::ops::Mul;
 
 /// Rounding a number to the nearest integer multiple of a given quantum.
 pub trait Quantize<Rhs = Self> {

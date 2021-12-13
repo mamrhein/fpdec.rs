@@ -7,8 +7,8 @@
 // $Source$
 // $Revision$
 
+use core::convert::TryFrom;
 use fpdec_core::{magnitude, MAX_N_FRAC_DIGITS};
-use std::convert::TryFrom;
 
 use crate::{normalize, Decimal, DecimalError};
 
@@ -128,7 +128,7 @@ impl TryFrom<f32> for Decimal {
     ///
     /// ```rust
     /// # use fpdec::{Decimal, DecimalError};
-    /// # use std::convert::TryFrom;
+    /// # use core::convert::TryFrom;
     /// # fn main() -> Result<(), DecimalError> {
     /// let d = Decimal::try_from(-289.5_f32)?;
     /// assert_eq!(d.to_string(), "-289.5");
@@ -185,7 +185,7 @@ impl TryFrom<f64> for Decimal {
     ///
     /// ```rust
     /// # use fpdec::{Decimal, DecimalError};
-    /// # use std::convert::TryFrom;
+    /// # use core::convert::TryFrom;
     /// # fn main() -> Result<(), DecimalError> {
     /// let d = Decimal::try_from(-289.5_f64)?;
     /// assert_eq!(d.to_string(), "-289.5");

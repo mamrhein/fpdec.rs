@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::{
+use core::{
     cmp::Ordering,
     ops::{Add, AddAssign, Sub, SubAssign},
 };

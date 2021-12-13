@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::convert::TryFrom;
+use core::convert::TryFrom;
 
 use crate::{Decimal, DecimalError};
 

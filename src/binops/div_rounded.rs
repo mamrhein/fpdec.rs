@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::cmp::{min, Ordering};
+use core::cmp::{min, Ordering};
 
 use fpdec_core::{checked_mul_pow_ten, magnitude, ten_pow};
 

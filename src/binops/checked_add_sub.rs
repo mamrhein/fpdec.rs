@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 use fpdec_core::checked_mul_pow_ten;
 

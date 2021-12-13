@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::ops::{Mul, MulAssign};
+use core::ops::{Mul, MulAssign};
 
 use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 

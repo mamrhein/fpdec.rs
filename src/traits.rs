@@ -7,8 +7,8 @@
 // $Source$
 // $Revision$
 
-use std::ops::Add;
-use std::str::FromStr;
+use core::ops::Add;
+use core::str::FromStr;
 
 use num_traits::{Num, One, Zero};
 

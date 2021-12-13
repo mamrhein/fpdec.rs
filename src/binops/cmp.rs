@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
@@ -86,7 +86,7 @@ impl Decimal {
 
 #[cfg(test)]
 mod cmp_decimals_tests {
-    use std::cmp::{max, min};
+    use core::cmp::{max, min};
 
     use fpdec_core::ten_pow;
 
@@ -334,7 +334,7 @@ impl_uint_cmp_decimal!();
 
 #[cfg(test)]
 mod cmp_decimals_and_ints_tests {
-    use std::cmp::Ordering;
+    use core::cmp::Ordering;
 
     use crate::Decimal;
 
