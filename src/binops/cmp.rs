@@ -28,6 +28,8 @@ impl PartialEq<Decimal> for Decimal {
     }
 }
 
+impl Eq for Decimal {}
+
 impl PartialOrd<Decimal> for Decimal {
     #[inline]
     fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
@@ -55,6 +57,13 @@ impl PartialOrd<Decimal> for Decimal {
             // Should never happen:
             (None, None) => None,
         }
+    }
+}
+
+impl Ord for Decimal {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
 
@@ -135,6 +144,30 @@ mod cmp_decimals_tests {
     }
 
     #[test]
+    fn test_ne_lhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        let x = Decimal::new_raw(coeff, 4);
+        let y = Decimal::new_raw(coeff, 5);
+        assert_ne!(x, y);
+        assert_eq!(x.partial_cmp(&y), Some(Ordering::Greater));
+        assert_eq!(x.cmp(&y), Ordering::Greater);
+        assert!(x > y);
+        assert!(y < x);
+    }
+
+    #[test]
+    fn test_ne_rhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        let x = Decimal::new_raw(coeff, 4);
+        let y = Decimal::new_raw(coeff, 3);
+        assert_ne!(x, y);
+        assert_eq!(x.partial_cmp(&y), Some(Ordering::Less));
+        assert_eq!(x.cmp(&y), Ordering::Less);
+        assert!(x < y);
+        assert!(y > x);
+    }
+
+    #[test]
     fn test_min_max() {
         let x = Decimal::new_raw(12345, 2);
         let y = Decimal::new_raw(12344, 2);
@@ -142,6 +175,24 @@ mod cmp_decimals_tests {
         assert_eq!(min(x, x), x);
         assert_eq!(max(x, y), x);
         assert_eq!(max(x, x), x);
+    }
+
+    #[test]
+    fn test_min_max_lhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 7;
+        let x = Decimal::new_raw(coeff, 1);
+        let y = Decimal::new_raw(coeff, 2);
+        assert_eq!(min(x, y), y);
+        assert_eq!(max(x, y), x);
+    }
+
+    #[test]
+    fn test_min_max_rhs_adj_coeff_overflow() {
+        let coeff = i128::MIN + 7;
+        let x = Decimal::new_raw(coeff, 1);
+        let y = Decimal::new_raw(coeff, 0);
+        assert_eq!(min(x, y), y);
+        assert_eq!(max(x, y), x);
     }
 
     #[test]
