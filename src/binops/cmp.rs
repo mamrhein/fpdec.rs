@@ -14,7 +14,6 @@ use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 use crate::Decimal;
 
 impl PartialEq<Decimal> for Decimal {
-    #[inline]
     fn eq(&self, other: &Decimal) -> bool {
         match checked_adjust_coeffs(
             self.coeff,
@@ -31,7 +30,6 @@ impl PartialEq<Decimal> for Decimal {
 impl Eq for Decimal {}
 
 impl PartialOrd<Decimal> for Decimal {
-    #[inline]
     fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
         match checked_adjust_coeffs(
             self.coeff,
