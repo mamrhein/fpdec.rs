@@ -67,11 +67,11 @@ mod div_rounded_int_by_int_tests {
         let i = 42_i32;
         let j = 15_i32;
         let q = i.quantize(j);
-        assert_eq!(q.coeff, 45);
-        assert_eq!(q.n_frac_digits, 0);
-        assert_eq!(q.coeff, i.quantize(&j).coeff);
-        assert_eq!(q.coeff, (&i).quantize(j).coeff);
-        assert_eq!(q.coeff, (&i).quantize(&j).coeff);
+        assert_eq!(q.coefficient(), 45);
+        assert_eq!(q.n_frac_digits(), 0);
+        assert_eq!(q.coefficient(), i.quantize(&j).coefficient());
+        assert_eq!(q.coefficient(), (&i).quantize(j).coefficient());
+        assert_eq!(q.coefficient(), (&i).quantize(&j).coefficient());
     }
 
     #[test]
@@ -79,11 +79,11 @@ mod div_rounded_int_by_int_tests {
         let i = 43_u8;
         let d = Decimal::new_raw(75, 2);
         let q = i.quantize(d);
-        assert_eq!(q.coeff, 4275);
-        assert_eq!(q.n_frac_digits, d.n_frac_digits);
-        assert_eq!(q.coeff, i.quantize(&d).coeff);
-        assert_eq!(q.coeff, (&i).quantize(d).coeff);
-        assert_eq!(q.coeff, (&i).quantize(&d).coeff);
+        assert_eq!(q.coefficient(), 4275);
+        assert_eq!(q.n_frac_digits(), d.n_frac_digits());
+        assert_eq!(q.coefficient(), i.quantize(&d).coefficient());
+        assert_eq!(q.coefficient(), (&i).quantize(d).coefficient());
+        assert_eq!(q.coefficient(), (&i).quantize(&d).coefficient());
     }
 
     #[test]
@@ -91,11 +91,11 @@ mod div_rounded_int_by_int_tests {
         let d = Decimal::new_raw(75327, 2);
         let i = 413_u64;
         let q = d.quantize(i);
-        assert_eq!(q.coeff, 826);
-        assert_eq!(q.n_frac_digits, 0);
-        assert_eq!(q.coeff, d.quantize(&i).coeff);
-        assert_eq!(q.coeff, (&d).quantize(i).coeff);
-        assert_eq!(q.coeff, (&d).quantize(&i).coeff);
+        assert_eq!(q.coefficient(), 826);
+        assert_eq!(q.n_frac_digits(), 0);
+        assert_eq!(q.coefficient(), d.quantize(&i).coefficient());
+        assert_eq!(q.coefficient(), (&d).quantize(i).coefficient());
+        assert_eq!(q.coefficient(), (&d).quantize(&i).coefficient());
     }
 
     #[test]
@@ -103,15 +103,15 @@ mod div_rounded_int_by_int_tests {
         let x = Decimal::new_raw(4375, 2);
         let y = Decimal::new_raw(125, 1);
         let q = x.quantize(y);
-        assert_eq!(q.coeff, 500);
-        assert_eq!(q.n_frac_digits, y.n_frac_digits);
+        assert_eq!(q.coefficient(), 500);
+        assert_eq!(q.n_frac_digits(), y.n_frac_digits());
         let x = Decimal::new_raw(437499, 4);
         let y = Decimal::new_raw(125, 1);
         let q = x.quantize(y);
-        assert_eq!(q.coeff, 375);
-        assert_eq!(q.n_frac_digits, y.n_frac_digits);
-        assert_eq!(q.coeff, x.quantize(&y).coeff);
-        assert_eq!(q.coeff, (&x).quantize(y).coeff);
-        assert_eq!(q.coeff, (&x).quantize(&y).coeff);
+        assert_eq!(q.coefficient(), 375);
+        assert_eq!(q.n_frac_digits(), y.n_frac_digits());
+        assert_eq!(q.coefficient(), x.quantize(&y).coefficient());
+        assert_eq!(q.coefficient(), (&x).quantize(y).coefficient());
+        assert_eq!(q.coefficient(), (&x).quantize(&y).coefficient());
     }
 }

@@ -20,7 +20,7 @@ use crate::{rounding::div_i128_rounded, MAX_N_FRAC_DIGITS};
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.n_frac_digits == 0 {
-            write!(form, "Dec!({})", self.coeff)
+            write!(form, "Dec!({})", self.coefficient())
         } else {
             let (int, frac) =
                 div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));

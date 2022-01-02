@@ -91,50 +91,50 @@ mod tests {
     #[test]
     fn test_from_int_lit() {
         let d = Decimal::from_str("1957945").unwrap();
-        assert_eq!(d.coeff, 1957945);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 1957945);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
     fn test_from_dec_lit() {
         let d = Decimal::from_str("-17.5").unwrap();
-        assert_eq!(d.coeff, -175);
-        assert_eq!(d.n_frac_digits, 1);
+        assert_eq!(d.coefficient(), -175);
+        assert_eq!(d.n_frac_digits(), 1);
     }
 
     #[test]
     fn test_from_frac_only_lit() {
         let d = Decimal::from_str("+.75").unwrap();
-        assert_eq!(d.coeff, 75);
-        assert_eq!(d.n_frac_digits, 2);
+        assert_eq!(d.coefficient(), 75);
+        assert_eq!(d.n_frac_digits(), 2);
     }
 
     #[test]
     fn test_from_int_lit_neg_exp() {
         let d = Decimal::from_str("17e-5").unwrap();
-        assert_eq!(d.coeff, 17);
-        assert_eq!(d.n_frac_digits, 5);
+        assert_eq!(d.coefficient(), 17);
+        assert_eq!(d.n_frac_digits(), 5);
     }
 
     #[test]
     fn test_from_int_lit_pos_exp() {
         let d = Decimal::from_str("+217e3").unwrap();
-        assert_eq!(d.coeff, 217000);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 217000);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
     fn test_from_dec_lit_neg_exp() {
         let d = Decimal::from_str("-533.7e-2").unwrap();
-        assert_eq!(d.coeff, -5337);
-        assert_eq!(d.n_frac_digits, 3);
+        assert_eq!(d.coefficient(), -5337);
+        assert_eq!(d.n_frac_digits(), 3);
     }
 
     #[test]
     fn test_from_dec_lit_pos_exp() {
         let d = Decimal::from_str("700004.002E13").unwrap();
-        assert_eq!(d.coeff, 7000040020000000000);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 7000040020000000000);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
@@ -197,8 +197,8 @@ mod tests {
         let res = s.parse::<Decimal>();
         assert!(!res.is_err());
         let dec = res.unwrap();
-        assert_eq!(dec.coeff, 28700);
-        assert_eq!(dec.n_frac_digits, 3);
+        assert_eq!(dec.coefficient(), 28700);
+        assert_eq!(dec.n_frac_digits(), 3);
     }
 
     #[test]
@@ -216,8 +216,8 @@ mod tests {
         let res = Decimal::try_from(s);
         assert!(!res.is_err());
         let dec = res.unwrap();
-        assert_eq!(dec.coeff, -5340007080);
-        assert_eq!(dec.n_frac_digits, 4);
+        assert_eq!(dec.coefficient(), -5340007080);
+        assert_eq!(dec.n_frac_digits(), 4);
     }
 
     #[test]

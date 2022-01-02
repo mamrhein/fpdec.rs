@@ -38,7 +38,7 @@ mod mul_decimal_tests {
         let x = Decimal::new_raw(1234567890, 4);
         let y = x * x;
         assert_eq!(y.n_frac_digits(), 2 * x.n_frac_digits());
-        assert_eq!(y.coeff, x.coeff * x.coeff);
+        assert_eq!(y.coefficient(), x.coefficient() * x.coefficient());
     }
 
     #[test]
@@ -47,13 +47,13 @@ mod mul_decimal_tests {
         let y = Decimal::new_raw(890, 1);
         let z = x * y;
         assert_eq!(z.n_frac_digits(), 6);
-        assert_eq!(z.coeff, x.coeff * y.coeff);
+        assert_eq!(z.coefficient(), x.coefficient() * y.coefficient());
         let z = y * x;
         assert_eq!(z.n_frac_digits(), 6);
-        assert_eq!(z.coeff, x.coeff * y.coeff);
+        assert_eq!(z.coefficient(), x.coefficient() * y.coefficient());
         let z = x * Decimal::NEG_ONE;
         assert_eq!(z.n_frac_digits(), x.n_frac_digits());
-        assert_eq!(z.coeff, -x.coeff);
+        assert_eq!(z.coefficient(), -x.coefficient());
     }
 
     #[test]
@@ -90,9 +90,9 @@ mod mul_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x * y;
-        assert_eq!(z.coeff, (&x * y).coeff);
-        assert_eq!(z.coeff, (x * &y).coeff);
-        assert_eq!(z.coeff, (&x * &y).coeff);
+        assert_eq!(z.coefficient(), (&x * y).coefficient());
+        assert_eq!(z.coefficient(), (x * &y).coefficient());
+        assert_eq!(z.coefficient(), (&x * &y).coefficient());
     }
 }
 
@@ -145,16 +145,16 @@ mod mul_integer_tests {
                 let i = <$t>::MAX;
                 let r = d * i;
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
-                assert_eq!(r.coeff, i as i128 * $coeff);
-                assert_eq!(r.coeff, (&d * i).coeff);
-                assert_eq!(r.coeff, (d * &i).coeff);
-                assert_eq!(r.coeff, (&d * &i).coeff);
+                assert_eq!(r.coefficient(), i as i128 * $coeff);
+                assert_eq!(r.coefficient(), (&d * i).coefficient());
+                assert_eq!(r.coefficient(), (d * &i).coefficient());
+                assert_eq!(r.coefficient(), (&d * &i).coefficient());
                 let z = i * d;
                 assert_eq!(z.n_frac_digits(), r.n_frac_digits());
-                assert_eq!(z.coeff, r.coeff);
-                assert_eq!(z.coeff, (&i * d).coeff);
-                assert_eq!(z.coeff, (i * &d).coeff);
-                assert_eq!(z.coeff, (&i * &d).coeff);
+                assert_eq!(z.coefficient(), r.coefficient());
+                assert_eq!(z.coefficient(), (&i * d).coefficient());
+                assert_eq!(z.coefficient(), (i * &d).coefficient());
+                assert_eq!(z.coefficient(), (&i * &d).coefficient());
             }
         };
     }
@@ -175,16 +175,16 @@ mod mul_integer_tests {
         let i = 12345_i128;
         let r = d * i;
         assert_eq!(r.n_frac_digits(), d.n_frac_digits());
-        assert_eq!(r.coeff, i * coeff);
-        assert_eq!(r.coeff, (&d * i).coeff);
-        assert_eq!(r.coeff, (d * &i).coeff);
-        assert_eq!(r.coeff, (&d * &i).coeff);
+        assert_eq!(r.coefficient(), i * coeff);
+        assert_eq!(r.coefficient(), (&d * i).coefficient());
+        assert_eq!(r.coefficient(), (d * &i).coefficient());
+        assert_eq!(r.coefficient(), (&d * &i).coefficient());
         let z = i * d;
         assert_eq!(z.n_frac_digits(), r.n_frac_digits());
-        assert_eq!(z.coeff, r.coeff);
-        assert_eq!(z.coeff, (&i * d).coeff);
-        assert_eq!(z.coeff, (i * &d).coeff);
-        assert_eq!(z.coeff, (&i * &d).coeff);
+        assert_eq!(z.coefficient(), r.coefficient());
+        assert_eq!(z.coefficient(), (&i * d).coefficient());
+        assert_eq!(z.coefficient(), (i * &d).coefficient());
+        assert_eq!(z.coefficient(), (&i * &d).coefficient());
     }
 }
 
@@ -199,19 +199,19 @@ mod mul_assign_tests {
         let mut x = Decimal::new_raw(123456, 2);
         let y = Decimal::TWO;
         x *= y;
-        assert_eq!(x.coeff, 123456_i128 * 2);
+        assert_eq!(x.coefficient(), 123456_i128 * 2);
         let z = &y;
         x *= z;
-        assert_eq!(x.coeff, 123456_i128 * 4);
+        assert_eq!(x.coefficient(), 123456_i128 * 4);
     }
 
     #[test]
     fn test_mul_assign_int() {
         let mut x = Decimal::new_raw(123456, 2);
         x *= 2_i8;
-        assert_eq!(x.coeff, 123456_i128 * 2);
+        assert_eq!(x.coefficient(), 123456_i128 * 2);
         x *= &-1234567890_i128;
-        assert_eq!(x.coeff, 123456_i128 * 2 * -1234567890_i128);
+        assert_eq!(x.coefficient(), 123456_i128 * 2 * -1234567890_i128);
     }
 
     #[test]

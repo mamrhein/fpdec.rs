@@ -97,15 +97,15 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(300, 2);
         let r = x % y;
-        assert_eq!(r.coeff, 102);
+        assert_eq!(r.coefficient(), 102);
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(-307, 2);
         let r = x % y;
-        assert_eq!(r.coeff, 88);
+        assert_eq!(r.coefficient(), 88);
         let x = Decimal::new_raw(-702, 2);
         let y = Decimal::new_raw(307, 2);
         let r = x % y;
-        assert_eq!(r.coeff, -88);
+        assert_eq!(r.coefficient(), -88);
     }
 
     #[test]
@@ -113,15 +113,15 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(702, 3);
         let y = Decimal::new_raw(300, 2);
         let r = x % y;
-        assert_eq!(r.coeff, 702);
+        assert_eq!(r.coefficient(), 702);
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(-307, 5);
         let r = x % y;
-        assert_eq!(r.coeff, 198);
+        assert_eq!(r.coefficient(), 198);
         let x = Decimal::new_raw(-702, 2);
         let y = Decimal::new_raw(307, 4);
         let r = x % y;
-        assert_eq!(r.coeff, -204);
+        assert_eq!(r.coefficient(), -204);
     }
 
     #[test]
@@ -129,13 +129,13 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::ONE;
         let r = x % y;
-        assert_eq!(r.coeff, x.fract().coeff);
-        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+        assert_eq!(r.coefficient(), x.fract().coefficient());
+        assert_eq!(r.n_frac_digits(), x.n_frac_digits());
         let x = Decimal::new_raw(70389032, 4);
         let y = Decimal::new_raw(100000, 5);
         let r = x % y;
-        assert_eq!(r.coeff, x.fract().coeff);
-        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+        assert_eq!(r.coefficient(), x.fract().coefficient());
+        assert_eq!(r.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -143,8 +143,8 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(i128::MAX, 2);
         let y = Decimal::new_raw(i128::MAX / 5, 1);
         let r = x % y;
-        assert_eq!(r.coeff, x.coeff);
-        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+        assert_eq!(r.coefficient(), x.coefficient());
+        assert_eq!(r.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -152,8 +152,8 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(i128::MAX / 30, 1);
         let y = Decimal::new_raw(i128::MAX / 500, 3);
         let r = x % y;
-        assert_eq!(r.coeff, 226854911280625642308916404954512874_i128);
-        assert_eq!(r.n_frac_digits, y.n_frac_digits);
+        assert_eq!(r.coefficient(), 226854911280625642308916404954512874_i128);
+        assert_eq!(r.n_frac_digits(), y.n_frac_digits());
     }
 
     #[test]
@@ -186,7 +186,7 @@ macro_rules! impl_rem_decimal_and_int {
                 }
                 match rem(
                     self.coeff,
-                    self.n_frac_digits,
+                    self.n_frac_digits(),
                     rhs as i128,
                     0,
                 ) {
@@ -213,7 +213,7 @@ macro_rules! impl_rem_decimal_and_int {
                     self as i128,
                     0,
                     rhs.coeff,
-                    rhs.n_frac_digits,
+                    rhs.n_frac_digits(),
                 ) {
                     Ok((coeff, n_frac_digits)) => Self::Output {
                         coeff,
@@ -245,16 +245,16 @@ mod rem_integer_tests {
                 let c = mul_pow_ten(i as i128, $p);
                 let r = d % i;
                 assert_eq!(r.n_frac_digits(), $p);
-                assert_eq!(r.coeff, $coeff - c * ($coeff / c));
-                assert_eq!(r.coeff, (&d % i).coeff);
-                assert_eq!(r.coeff, (d % &i).coeff);
-                assert_eq!(r.coeff, (&d % &i).coeff);
+                assert_eq!(r.coefficient(), $coeff - c * ($coeff / c));
+                assert_eq!(r.coefficient(), (&d % i).coefficient());
+                assert_eq!(r.coefficient(), (d % &i).coefficient());
+                assert_eq!(r.coefficient(), (&d % &i).coefficient());
                 let z = i % d;
                 assert_eq!(z.n_frac_digits(), $p);
-                assert_eq!(z.coeff, c - $coeff * (c / $coeff));
-                assert_eq!(z.coeff, (&i % d).coeff);
-                assert_eq!(z.coeff, (i % &d).coeff);
-                assert_eq!(z.coeff, (&i % &d).coeff);
+                assert_eq!(z.coefficient(), c - $coeff * (c / $coeff));
+                assert_eq!(z.coefficient(), (&i % d).coefficient());
+                assert_eq!(z.coefficient(), (i % &d).coefficient());
+                assert_eq!(z.coefficient(), (&i % &d).coefficient());
             }
         };
     }
@@ -274,10 +274,10 @@ mod rem_integer_tests {
         let x = Decimal::new_raw(17294738475, 5);
         let y = 1_i64;
         let z = x % y;
-        assert_eq!(z.coeff, x.fract().coeff);
+        assert_eq!(z.coefficient(), x.fract().coefficient());
         let y = 1_u8;
         let z = x % y;
-        assert_eq!(z.coeff, x.fract().coeff);
+        assert_eq!(z.coefficient(), x.fract().coefficient());
     }
 
     #[test]
@@ -285,10 +285,10 @@ mod rem_integer_tests {
         let x = 17_i32;
         let y = Decimal::new_raw(100000, 5);
         let z = x % y;
-        assert_eq!(z.coeff, 0);
+        assert_eq!(z.coefficient(), 0);
         let x = 1_u64;
         let z = x % y;
-        assert_eq!(z.coeff, 0);
+        assert_eq!(z.coefficient(), 0);
     }
 
     #[test]
@@ -312,8 +312,8 @@ mod rem_integer_tests {
         let x = Decimal::new_raw(i128::MAX, 2);
         let y = i128::MAX / 5;
         let r = x % y;
-        assert_eq!(r.coeff, x.coeff);
-        assert_eq!(r.n_frac_digits, x.n_frac_digits);
+        assert_eq!(r.coefficient(), x.coefficient());
+        assert_eq!(r.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -321,8 +321,8 @@ mod rem_integer_tests {
         let x = i128::MAX / 30;
         let y = Decimal::new_raw(i128::MAX / 500, 2);
         let r = x % y;
-        assert_eq!(r.coeff, 226854911280625642308916404954512874_i128);
-        assert_eq!(r.n_frac_digits, y.n_frac_digits);
+        assert_eq!(r.coefficient(), 226854911280625642308916404954512874_i128);
+        assert_eq!(r.n_frac_digits(), y.n_frac_digits());
     }
 
     #[test]
@@ -345,10 +345,10 @@ mod rem_assign_tests {
         let mut x = Decimal::new_raw(702, 3);
         let y = Decimal::new_raw(300, 2);
         x %= y;
-        assert_eq!(x.coeff, 702);
+        assert_eq!(x.coefficient(), 702);
         let z = Decimal::new_raw(-70, 2);
         x %= z;
-        assert_eq!(x.coeff, 2);
+        assert_eq!(x.coefficient(), 2);
     }
 
     #[test]
@@ -356,10 +356,10 @@ mod rem_assign_tests {
         let mut x = Decimal::new_raw(702, 1);
         let y = 7_u16;
         x %= y;
-        assert_eq!(x.coeff, 2);
+        assert_eq!(x.coefficient(), 2);
         let mut x = Decimal::new_raw(-7027702, 5);
         let y = -33_i64;
         x %= y;
-        assert_eq!(x.coeff, -427702);
+        assert_eq!(x.coefficient(), -427702);
     }
 }

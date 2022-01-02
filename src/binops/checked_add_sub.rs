@@ -87,17 +87,17 @@ mod checked_add_sub_decimal_tests {
     fn test_checked_add() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x.checked_add(x).unwrap();
-        assert_eq!(y.coeff, 2 * x.coeff);
+        assert_eq!(y.coefficient(), 2 * x.coefficient());
         let z = x.checked_add(Decimal::NEG_ONE).unwrap();
-        assert_eq!(z.coeff, x.coeff - 1000);
+        assert_eq!(z.coefficient(), x.coefficient() - 1000);
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x.checked_add(y).unwrap();
-        assert_eq!(z.coeff, x.coeff + y.coeff * 10000);
+        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
         let z = y.checked_add(x).unwrap();
-        assert_eq!(z.coeff, x.coeff + y.coeff * 10000);
+        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
         let z = x.checked_add(Decimal::NEG_ONE).unwrap();
-        assert_eq!(z.coeff, x.coeff - 100000);
+        assert_eq!(z.coefficient(), x.coefficient() - 100000);
     }
 
     #[test]
@@ -119,17 +119,17 @@ mod checked_add_sub_decimal_tests {
     fn test_checked_sub() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x.checked_sub(x).unwrap();
-        assert_eq!(y.coeff, 0);
+        assert_eq!(y.coefficient(), 0);
         let z = x.checked_sub(Decimal::NEG_ONE).unwrap();
-        assert_eq!(z.coeff, x.coeff + 1000);
+        assert_eq!(z.coefficient(), x.coefficient() + 1000);
         let x = Decimal::new_raw(1234567890, 2);
         let y = Decimal::new_raw(890, 1);
         let z = x.checked_sub(y).unwrap();
-        assert_eq!(z.coeff, x.coeff - y.coeff * 10);
+        assert_eq!(z.coefficient(), x.coefficient() - y.coefficient() * 10);
         let z = y.checked_sub(x).unwrap();
-        assert_eq!(z.coeff, y.coeff * 10 - x.coeff);
+        assert_eq!(z.coefficient(), y.coefficient() * 10 - x.coefficient());
         let z = x.checked_sub(Decimal::NEG_ONE).unwrap();
-        assert_eq!(z.coeff, x.coeff + 100);
+        assert_eq!(z.coefficient(), x.coefficient() + 100);
     }
 
     #[test]
@@ -151,9 +151,12 @@ mod checked_add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_add(y).unwrap();
-        assert_eq!(z.coeff, (&x).checked_add(y).unwrap().coeff);
-        assert_eq!(z.coeff, x.checked_add(&y).unwrap().coeff);
-        assert_eq!(z.coeff, (&x).checked_add(&y).unwrap().coeff);
+        assert_eq!(z.coefficient(), (&x).checked_add(y).unwrap().coefficient());
+        assert_eq!(z.coefficient(), x.checked_add(&y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_add(&y).unwrap().coefficient()
+        );
     }
 
     #[test]
@@ -161,9 +164,12 @@ mod checked_add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_sub(y).unwrap();
-        assert_eq!(z.coeff, (&x).checked_sub(y).unwrap().coeff);
-        assert_eq!(z.coeff, x.checked_sub(&y).unwrap().coeff);
-        assert_eq!(z.coeff, (&x).checked_sub(&y).unwrap().coeff);
+        assert_eq!(z.coefficient(), (&x).checked_sub(y).unwrap().coefficient());
+        assert_eq!(z.coefficient(), x.checked_sub(&y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_sub(&y).unwrap().coefficient()
+        );
     }
 }
 
@@ -231,23 +237,32 @@ mod checked_add_sub_integer_tests {
                 let i = <$t>::MAX;
                 let r = d.checked_add(i).unwrap();
                 assert_eq!(r.n_frac_digits, d.n_frac_digits);
-                assert_eq!(r.coeff, i as i128 * ten_pow($p) + $coeff);
-                assert_eq!(r.coeff, (&d).checked_add(i).unwrap().coeff);
-                assert_eq!(r.coeff, d.checked_add(&i).unwrap().coeff);
-                assert_eq!(r.coeff, (&d).checked_add(&i).unwrap().coeff);
+                assert_eq!(r.coefficient(), i as i128 * ten_pow($p) + $coeff);
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_add(i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    d.checked_add(&i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_add(&i).unwrap().coefficient()
+                );
                 let z = CheckedAdd::checked_add(i, d).unwrap();
-                assert_eq!(z.coeff, r.coeff);
+                assert_eq!(z.coefficient(), r.coefficient());
                 assert_eq!(
-                    z.coeff,
-                    CheckedAdd::checked_add(&i, d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedAdd::checked_add(&i, d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedAdd::checked_add(i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedAdd::checked_add(i, &d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedAdd::checked_add(&i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedAdd::checked_add(&i, &d).unwrap().coefficient()
                 );
                 let d = Decimal::new_raw(i128::MAX, $p);
                 let i: $t = 1;
@@ -276,15 +291,27 @@ mod checked_add_sub_integer_tests {
         let d = Decimal::new_raw(1, 2);
         let i = 12345_i128;
         let r = d.checked_add(i).unwrap();
-        assert_eq!(r.coeff, i * 100 + 1);
-        assert_eq!(r.coeff, (&d).checked_add(i).unwrap().coeff);
-        assert_eq!(r.coeff, d.checked_add(&i).unwrap().coeff);
-        assert_eq!(r.coeff, (&d).checked_add(&i).unwrap().coeff);
+        assert_eq!(r.coefficient(), i * 100 + 1);
+        assert_eq!(r.coefficient(), (&d).checked_add(i).unwrap().coefficient());
+        assert_eq!(r.coefficient(), d.checked_add(&i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_add(&i).unwrap().coefficient()
+        );
         let z = CheckedAdd::checked_add(i, d).unwrap();
-        assert_eq!(z.coeff, r.coeff);
-        assert_eq!(z.coeff, CheckedAdd::checked_add(&i, d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedAdd::checked_add(i, &d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedAdd::checked_add(&i, &d).unwrap().coeff);
+        assert_eq!(z.coefficient(), r.coefficient());
+        assert_eq!(
+            z.coefficient(),
+            CheckedAdd::checked_add(&i, d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedAdd::checked_add(i, &d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedAdd::checked_add(&i, &d).unwrap().coefficient()
+        );
     }
 
     macro_rules! gen_checked_sub_integer_tests {
@@ -294,23 +321,32 @@ mod checked_add_sub_integer_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = <$t>::MAX;
                 let r = d.checked_sub(i).unwrap();
-                assert_eq!(r.coeff, $coeff - i as i128 * ten_pow($p));
-                assert_eq!(r.coeff, (&d).checked_sub(i).unwrap().coeff);
-                assert_eq!(r.coeff, d.checked_sub(&i).unwrap().coeff);
-                assert_eq!(r.coeff, (&d).checked_sub(&i).unwrap().coeff);
+                assert_eq!(r.coefficient(), $coeff - i as i128 * ten_pow($p));
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_sub(i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    d.checked_sub(&i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_sub(&i).unwrap().coefficient()
+                );
                 let z = CheckedSub::checked_sub(i, d).unwrap();
-                assert_eq!(z.coeff, i as i128 * ten_pow($p) - $coeff);
+                assert_eq!(z.coefficient(), i as i128 * ten_pow($p) - $coeff);
                 assert_eq!(
-                    z.coeff,
-                    CheckedSub::checked_sub(&i, d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedSub::checked_sub(&i, d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedSub::checked_sub(i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedSub::checked_sub(i, &d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedSub::checked_sub(&i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedSub::checked_sub(&i, &d).unwrap().coefficient()
                 );
                 let d = Decimal::new_raw(i128::MIN, $p);
                 let i: $t = 1;
@@ -339,14 +375,26 @@ mod checked_add_sub_integer_tests {
         let d = Decimal::new_raw(501, 2);
         let i = 12345_i128;
         let r = d.checked_sub(i).unwrap();
-        assert_eq!(r.coeff, -i * 100 + 501);
-        assert_eq!(r.coeff, (&d).checked_sub(i).unwrap().coeff);
-        assert_eq!(r.coeff, d.checked_sub(&i).unwrap().coeff);
-        assert_eq!(r.coeff, (&d).checked_sub(&i).unwrap().coeff);
+        assert_eq!(r.coefficient(), -i * 100 + 501);
+        assert_eq!(r.coefficient(), (&d).checked_sub(i).unwrap().coefficient());
+        assert_eq!(r.coefficient(), d.checked_sub(&i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_sub(&i).unwrap().coefficient()
+        );
         let z = CheckedSub::checked_sub(i, d).unwrap();
-        assert_eq!(z.coeff, i * 100 - 501);
-        assert_eq!(z.coeff, CheckedSub::checked_sub(&i, d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedSub::checked_sub(i, &d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedSub::checked_sub(&i, &d).unwrap().coeff);
+        assert_eq!(z.coefficient(), i * 100 - 501);
+        assert_eq!(
+            z.coefficient(),
+            CheckedSub::checked_sub(&i, d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedSub::checked_sub(i, &d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedSub::checked_sub(&i, &d).unwrap().coefficient()
+        );
     }
 }

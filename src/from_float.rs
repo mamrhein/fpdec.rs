@@ -238,8 +238,8 @@ mod tests {
             match Decimal::try_from(*val) {
                 Err(_) => panic!("Mismatched test data: {}", coeff),
                 Ok(d) => {
-                    assert_eq!(d.coeff, *coeff);
-                    assert_eq!(d.n_frac_digits, *n_frac_digits);
+                    assert_eq!(d.coefficient(), *coeff);
+                    assert_eq!(d.n_frac_digits(), *n_frac_digits);
                 }
             }
         }

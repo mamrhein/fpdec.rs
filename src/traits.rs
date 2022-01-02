@@ -25,7 +25,7 @@ where
 
     #[inline(always)]
     fn is_zero(&self) -> bool {
-        self.coeff.is_zero()
+        self.eq_zero()
     }
 }
 
@@ -88,8 +88,8 @@ mod from_str_radix_tests {
     #[test]
     fn test_from_str_radix() {
         let d = Decimal::from_str_radix("-17.5", 10).unwrap();
-        assert_eq!(d.coeff, -175);
-        assert_eq!(d.n_frac_digits, 1);
+        assert_eq!(d.coefficient(), -175);
+        assert_eq!(d.n_frac_digits(), 1);
     }
 
     #[test]

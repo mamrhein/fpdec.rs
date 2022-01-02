@@ -286,7 +286,7 @@ macro_rules! impl_decimal_cmp_signed_int {
             fn partial_cmp(&self, other: &$t) -> Option<Ordering> {
                 match checked_mul_pow_ten((*other) as i128,
                                           self.n_frac_digits) {
-                    Some(coeff) => self.coeff.partial_cmp(&coeff),
+                    Some(coeff) => self.coefficient().partial_cmp(&coeff),
                     None => {
                         if *other >= 0 {
                             Some(Ordering::Less)
@@ -314,7 +314,7 @@ macro_rules! impl_signed_int_cmp_decimal {
             fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
                 match checked_mul_pow_ten((*self) as i128,
                                           other.n_frac_digits) {
-                    Some(coeff) => coeff.partial_cmp(&other.coeff),
+                    Some(coeff) => coeff.partial_cmp(&other.coefficient()),
                     None => {
                         if *self < 0 {
                             Some(Ordering::Less)
@@ -345,7 +345,7 @@ macro_rules! impl_decimal_cmp_uint {
                 }
                 match checked_mul_pow_ten((*other) as i128,
                                            self.n_frac_digits) {
-                    Some(coeff) => self.coeff.partial_cmp(&coeff),
+                    Some(coeff) => self.coefficient().partial_cmp(&coeff),
                     None => Some(Ordering::Less),
                 }
             }
@@ -370,7 +370,7 @@ macro_rules! impl_uint_cmp_decimal {
                 }
                 match checked_mul_pow_ten((*self) as i128,
                                           other.n_frac_digits) {
-                    Some(coeff) => coeff.partial_cmp(&other.coeff),
+                    Some(coeff) => coeff.partial_cmp(&other.coefficient()),
                     None => Some(Ordering::Greater),
                 }
             }

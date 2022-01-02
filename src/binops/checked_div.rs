@@ -58,18 +58,18 @@ mod checked_div_decimal_tests {
         let x = Decimal::new_raw(17, 0);
         let y = Decimal::new_raw(-200, 2);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, -85);
-        assert_eq!(z.n_frac_digits, 1);
+        assert_eq!(z.coefficient(), -85);
+        assert_eq!(z.n_frac_digits(), 1);
         let x = Decimal::new_raw(17, 31);
         let y = Decimal::new_raw(2, 0);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, 85);
-        assert_eq!(z.n_frac_digits, 32);
+        assert_eq!(z.coefficient(), 85);
+        assert_eq!(z.n_frac_digits(), 32);
         let x = Decimal::new_raw(12345678901234567890, 2);
         let y = Decimal::new_raw(244140625, 6);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, 5056790077945679007744);
-        assert_eq!(z.n_frac_digits, 7);
+        assert_eq!(z.coefficient(), 5056790077945679007744);
+        assert_eq!(z.n_frac_digits(), 7);
     }
 
     #[test]
@@ -77,10 +77,10 @@ mod checked_div_decimal_tests {
         let x = Decimal::new_raw(17, 5);
         let y = Decimal::ONE;
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, x.coeff);
+        assert_eq!(z.coefficient(), x.coefficient());
         let y = Decimal::new_raw(100000, 5);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, x.coeff);
+        assert_eq!(z.coefficient(), x.coefficient());
     }
 
     #[test]
@@ -112,9 +112,12 @@ mod checked_div_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, (&x).checked_div(y).unwrap().coeff);
-        assert_eq!(z.coeff, x.checked_div(&y).unwrap().coeff);
-        assert_eq!(z.coeff, (&x).checked_div(&y).unwrap().coeff);
+        assert_eq!(z.coefficient(), (&x).checked_div(y).unwrap().coefficient());
+        assert_eq!(z.coefficient(), x.checked_div(&y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_div(&y).unwrap().coefficient()
+        );
     }
 }
 
@@ -196,24 +199,33 @@ mod checked_div_integer_tests {
                 let d = Decimal::new_raw($num, $p);
                 let i: $t = $den;
                 let r = d.checked_div(i).unwrap();
-                assert_eq!(r.coeff, $quot);
+                assert_eq!(r.coefficient(), $quot);
                 assert_eq!(r.n_frac_digits(), $q);
-                assert_eq!(r.coeff, (&d).checked_div(i).unwrap().coeff);
-                assert_eq!(r.coeff, d.checked_div(&i).unwrap().coeff);
-                assert_eq!(r.coeff, (&d).checked_div(&i).unwrap().coeff);
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_div(i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    d.checked_div(&i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_div(&i).unwrap().coefficient()
+                );
                 let z = CheckedDiv::checked_div(i, d).unwrap();
                 assert_eq!(z, CheckedDiv::checked_div(1_u8, r).unwrap());
                 assert_eq!(
-                    z.coeff,
-                    CheckedDiv::checked_div(&i, d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedDiv::checked_div(&i, d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedDiv::checked_div(i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedDiv::checked_div(i, &d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedDiv::checked_div(&i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedDiv::checked_div(&i, &d).unwrap().coefficient()
                 );
             }
         };
@@ -274,12 +286,12 @@ mod checked_div_integer_tests {
         let x = Decimal::new_raw(17, 5);
         let y = 1_i64;
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, x.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let y = 1_u8;
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coeff, x.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -287,12 +299,12 @@ mod checked_div_integer_tests {
         let x = 17_i32;
         let y = Decimal::ONE;
         let z = CheckedDiv::checked_div(x, y).unwrap();
-        assert_eq!(z.coeff, 17);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 17);
+        assert_eq!(z.n_frac_digits(), 0);
         let x = 1_u64;
         let z = CheckedDiv::checked_div(x, y).unwrap();
-        assert_eq!(z.coeff, 1);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 1);
+        assert_eq!(z.n_frac_digits(), 0);
     }
 
     #[test]

@@ -151,23 +151,23 @@ mod div_rounded_decimal_tests {
         let x = Decimal::new_raw(17, 0);
         let y = Decimal::new_raw(-201, 2);
         let z = x.div_rounded(y, 2);
-        assert_eq!(z.coeff, -846);
-        assert_eq!(z.n_frac_digits, 2);
+        assert_eq!(z.coefficient(), -846);
+        assert_eq!(z.n_frac_digits(), 2);
         let x = Decimal::new_raw(17654321, 8);
         let y = Decimal::new_raw(204, 3);
         let z = x.div_rounded(y, 2);
-        assert_eq!(z.coeff, 87);
-        assert_eq!(z.n_frac_digits, 2);
+        assert_eq!(z.coefficient(), 87);
+        assert_eq!(z.n_frac_digits(), 2);
         let x = Decimal::new_raw(12345678901234567890, 2);
         let y = Decimal::new_raw(244140625, 6);
         let z = x.div_rounded(y, 9);
-        assert_eq!(z.coeff, 505679007794567900774400);
-        assert_eq!(z.n_frac_digits, 9);
+        assert_eq!(z.coefficient(), 505679007794567900774400);
+        assert_eq!(z.n_frac_digits(), 9);
         let x = Decimal::new_raw(1234567, 5);
         let y = Decimal::new_raw(625, 2);
         let z = x.div_rounded(y, 3);
-        assert_eq!(z.coeff, 1975);
-        assert_eq!(z.n_frac_digits, 3);
+        assert_eq!(z.coefficient(), 1975);
+        assert_eq!(z.n_frac_digits(), 3);
     }
 
     #[test]
@@ -175,15 +175,15 @@ mod div_rounded_decimal_tests {
         let x = Decimal::new_raw(17, 0);
         let y = Decimal::new_raw(200, 2);
         let z = x.div_rounded(y, 0);
-        assert_eq!(z.coeff, 8);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 8);
+        assert_eq!(z.n_frac_digits(), 0);
         let y = Decimal::new_raw(3, 0);
         let z = x.div_rounded(y, 0);
-        assert_eq!(z.coeff, 6);
+        assert_eq!(z.coefficient(), 6);
         let x = Decimal::new_raw(170000, 4);
         let y = Decimal::new_raw(3, 0);
         let z = x.div_rounded(y, 0);
-        assert_eq!(z.coeff, 6);
+        assert_eq!(z.coefficient(), 6);
     }
 
     #[test]
@@ -191,11 +191,11 @@ mod div_rounded_decimal_tests {
         let x = Decimal::new_raw(0, 5);
         let y = Decimal::new_raw(17, 1);
         let z = x.div_rounded(y, 3);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits(), 0);
         let z = x.div_rounded(y, 29);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits(), 0);
     }
 
     #[test]
@@ -203,12 +203,12 @@ mod div_rounded_decimal_tests {
         let x = Decimal::new_raw(17, 5);
         let y = Decimal::ONE;
         let z = x.div_rounded(y, 4);
-        assert_eq!(z.coeff, 2);
-        assert_eq!(z.n_frac_digits, 4);
+        assert_eq!(z.coefficient(), 2);
+        assert_eq!(z.n_frac_digits(), 4);
         let y = Decimal::new_raw(1000000000, 9);
         let z = x.div_rounded(y, 6);
-        assert_eq!(z.coeff, 170);
-        assert_eq!(z.n_frac_digits, 6);
+        assert_eq!(z.coefficient(), 170);
+        assert_eq!(z.n_frac_digits(), 6);
     }
 
     // corner case: shifting divident overflows, stepwise algorithm must be used
@@ -217,8 +217,8 @@ mod div_rounded_decimal_tests {
         let x = Decimal::new_raw(13, 1);
         let y = Decimal::new_raw(20, 29);
         let z = x.div_rounded(y, 10);
-        assert_eq!(z.coeff, 65000000000000000000000000000000000000);
-        assert_eq!(z.n_frac_digits, 10);
+        assert_eq!(z.coefficient(), 65000000000000000000000000000000000000);
+        assert_eq!(z.n_frac_digits(), 10);
     }
 
     #[test]
@@ -243,11 +243,11 @@ mod div_rounded_decimal_tests {
         let y = Decimal::new_raw(12345, 4);
         let z = x.div_rounded(y, 2);
         let a = DivRounded::div_rounded(&x, y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
         let a = DivRounded::div_rounded(x, &y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
         let a = DivRounded::div_rounded(&x, &y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
     }
 }
 
@@ -397,17 +397,17 @@ mod div_rounded_decimal_by_int_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = $i;
                 let r = d.div_rounded(i, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&d).div_rounded(i, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = d.div_rounded(&i, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&d).div_rounded(&i, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
             }
         };
     }
@@ -450,8 +450,8 @@ mod div_rounded_decimal_by_int_tests {
         let x = Decimal::new_raw(0, 3);
         let y = 123_i64;
         let z = x.div_rounded(y, 2);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits(), 0);
     }
 
     #[test]
@@ -459,8 +459,8 @@ mod div_rounded_decimal_by_int_tests {
         let x = 0_u32;
         let y = Decimal::new_raw(1234567, 3);
         let z = x.div_rounded(y, 13);
-        assert_eq!(z.coeff, 0);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits(), 0);
     }
 
     #[test]
@@ -468,16 +468,16 @@ mod div_rounded_decimal_by_int_tests {
         let x = Decimal::new_raw(17, 5);
         let y = 1_i64;
         let z = x.div_rounded(y, 5);
-        assert_eq!(z.coeff, 17);
-        assert_eq!(z.n_frac_digits, 5);
+        assert_eq!(z.coefficient(), 17);
+        assert_eq!(z.n_frac_digits(), 5);
         let y = 1_u8;
         let z = x.div_rounded(y, 7);
-        assert_eq!(z.coeff, 1700);
-        assert_eq!(z.n_frac_digits, 7);
+        assert_eq!(z.coefficient(), 1700);
+        assert_eq!(z.n_frac_digits(), 7);
         let y = 1_i32;
         let z = x.div_rounded(y, 4);
-        assert_eq!(z.coeff, 2);
-        assert_eq!(z.n_frac_digits, 4);
+        assert_eq!(z.coefficient(), 2);
+        assert_eq!(z.n_frac_digits(), 4);
     }
 
     #[test]
@@ -485,13 +485,13 @@ mod div_rounded_decimal_by_int_tests {
         let x = 17;
         let y = Decimal::ONE;
         let z: Decimal = x.div_rounded(y, 0);
-        assert_eq!(z.coeff, 17);
-        assert_eq!(z.n_frac_digits, 0);
+        assert_eq!(z.coefficient(), 17);
+        assert_eq!(z.n_frac_digits(), 0);
         let x = 1_u64;
         let y = Decimal::new_raw(1000, 3);
         let z = x.div_rounded(y, 2);
-        assert_eq!(z.coeff, 100);
-        assert_eq!(z.n_frac_digits, 2);
+        assert_eq!(z.coefficient(), 100);
+        assert_eq!(z.n_frac_digits(), 2);
     }
 
     // corner case: shifting divident overflows, stepwise algorithm must be used
@@ -500,8 +500,8 @@ mod div_rounded_decimal_by_int_tests {
         let x = Decimal::new_raw(i128::MAX, 0);
         let y = Decimal::new_raw(20, 0);
         let z = x.div_rounded(y, 1);
-        assert_eq!(z.coeff, (i128::MAX / 20) * 10 + 4);
-        assert_eq!(z.n_frac_digits, 1);
+        assert_eq!(z.coefficient(), (i128::MAX / 20) * 10 + 4);
+        assert_eq!(z.n_frac_digits(), 1);
     }
 
     #[test]
@@ -526,17 +526,17 @@ mod div_rounded_int_by_decimal_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = $i;
                 let r = i.div_rounded(d, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&i).div_rounded(d, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = i.div_rounded(&d, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&i).div_rounded(&d, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
             }
         };
     }
@@ -684,17 +684,17 @@ mod div_rounded_int_by_int_tests {
                 let i = $i;
                 let j = $j;
                 let r = i.div_rounded(j, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&i).div_rounded(j, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = i.div_rounded(&j, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
                 let r = (&i).div_rounded(&j, $r);
-                assert_eq!(r.coeff, $res_coeff);
-                assert_eq!(r.n_frac_digits, $r);
+                assert_eq!(r.coefficient(), $res_coeff);
+                assert_eq!(r.n_frac_digits(), $r);
             }
         };
     }

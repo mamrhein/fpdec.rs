@@ -372,44 +372,44 @@ mod round_decimal_tests {
     fn test_decimal_round_no_op() {
         let x = Decimal::new_raw(12345, 2);
         let y = x.round(3);
-        assert_eq!(x.coeff, y.coeff);
-        assert_eq!(x.n_frac_digits, y.n_frac_digits);
+        assert_eq!(x.coefficient(), y.coefficient());
+        assert_eq!(x.n_frac_digits(), y.n_frac_digits());
         let y = x.checked_round(5).unwrap();
-        assert_eq!(x.coeff, y.coeff);
-        assert_eq!(x.n_frac_digits, y.n_frac_digits);
+        assert_eq!(x.coefficient(), y.coefficient());
+        assert_eq!(x.n_frac_digits(), y.n_frac_digits());
     }
 
     #[test]
     fn test_decimal_round_result_zero() {
         let x = Decimal::new_raw(12345, 2);
         let y = x.round(-3);
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let y = x.round(-37);
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let y = x.checked_round(-9).unwrap();
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let y = x.checked_round(-42).unwrap();
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
     }
 
     #[test]
     fn test_decimal_round() {
         let d = Decimal::new_raw(12345, 0);
-        assert_eq!(d.round(-1).coeff, 12340);
+        assert_eq!(d.round(-1).coefficient(), 12340);
         let d = Decimal::new_raw(1285, 0);
-        assert_eq!(d.round(-2).coeff, 1300);
+        assert_eq!(d.round(-2).coefficient(), 1300);
         let d = Decimal::new_raw(12345, 1);
-        assert_eq!(d.round(0).coeff, 1234);
+        assert_eq!(d.round(0).coefficient(), 1234);
         let d = Decimal::new_raw(1285, 2);
-        assert_eq!(d.round(0).coeff, 13);
+        assert_eq!(d.round(0).coefficient(), 13);
         let d = Decimal::new_raw(12345678909876543, 7);
-        assert_eq!(d.round(0).coeff, 1234567891);
+        assert_eq!(d.round(0).coefficient(), 1234567891);
         let d = Decimal::new_raw(123455, 9);
-        assert_eq!(d.round(8).coeff, 12346);
+        assert_eq!(d.round(8).coefficient(), 12346);
     }
 
     #[test]
@@ -422,17 +422,17 @@ mod round_decimal_tests {
     #[test]
     fn test_decimal_checked_round() {
         let d = Decimal::new_raw(12345, 0);
-        assert_eq!(d.checked_round(-1).unwrap().coeff, 12340);
+        assert_eq!(d.checked_round(-1).unwrap().coefficient(), 12340);
         let d = Decimal::new_raw(1285, 0);
-        assert_eq!(d.checked_round(-2).unwrap().coeff, 1300);
+        assert_eq!(d.checked_round(-2).unwrap().coefficient(), 1300);
         let d = Decimal::new_raw(12345, 1);
-        assert_eq!(d.checked_round(0).unwrap().coeff, 1234);
+        assert_eq!(d.checked_round(0).unwrap().coefficient(), 1234);
         let d = Decimal::new_raw(1285, 2);
-        assert_eq!(d.checked_round(0).unwrap().coeff, 13);
+        assert_eq!(d.checked_round(0).unwrap().coefficient(), 13);
         let d = Decimal::new_raw(12345678909876543, 7);
-        assert_eq!(d.checked_round(0).unwrap().coeff, 1234567891);
+        assert_eq!(d.checked_round(0).unwrap().coefficient(), 1234567891);
         let d = Decimal::new_raw(123455, 9);
-        assert_eq!(d.checked_round(8).unwrap().coeff, 12346);
+        assert_eq!(d.checked_round(8).unwrap().coefficient(), 12346);
         let d = Decimal::new_raw(170141183460469231731687303715884105727, 0);
         let res = d.checked_round(-1);
         assert!(res.is_none());

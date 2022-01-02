@@ -57,27 +57,27 @@ mod checked_rem_decimal_tests {
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(300, 2);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, 102);
+        assert_eq!(r.coefficient(), 102);
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(-307, 2);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, 88);
+        assert_eq!(r.coefficient(), 88);
         let x = Decimal::new_raw(-702, 2);
         let y = Decimal::new_raw(307, 2);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, -88);
+        assert_eq!(r.coefficient(), -88);
         let x = Decimal::new_raw(702, 3);
         let y = Decimal::new_raw(300, 2);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, 702);
+        assert_eq!(r.coefficient(), 702);
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::new_raw(-307, 5);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, 198);
+        assert_eq!(r.coefficient(), 198);
         let x = Decimal::new_raw(-702, 2);
         let y = Decimal::new_raw(307, 4);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, -204);
+        assert_eq!(r.coefficient(), -204);
     }
 
     #[test]
@@ -85,11 +85,11 @@ mod checked_rem_decimal_tests {
         let x = Decimal::new_raw(702, 2);
         let y = Decimal::ONE;
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, x.fract().coeff);
+        assert_eq!(r.coefficient(), x.fract().coefficient());
         let x = Decimal::new_raw(70389032, 4);
         let y = Decimal::new_raw(100, 2);
         let r = x.checked_rem(y).unwrap();
-        assert_eq!(r.coeff, x.fract().coeff);
+        assert_eq!(r.coefficient(), x.fract().coefficient());
     }
 
     #[test]
@@ -171,23 +171,32 @@ mod checked_rem_integer_tests {
                 let i: $t = 127;
                 let c = mul_pow_ten(i as i128, $p);
                 let r = d.checked_rem(i).unwrap();
-                assert_eq!(r.coeff, $coeff - c * ($coeff / c));
-                assert_eq!(r.coeff, (&d).checked_rem(i).unwrap().coeff);
-                assert_eq!(r.coeff, d.checked_rem(&i).unwrap().coeff);
-                assert_eq!(r.coeff, (&d).checked_rem(&i).unwrap().coeff);
+                assert_eq!(r.coefficient(), $coeff - c * ($coeff / c));
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_rem(i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    d.checked_rem(&i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_rem(&i).unwrap().coefficient()
+                );
                 let z = CheckedRem::checked_rem(i, d).unwrap();
-                assert_eq!(z.coeff, c - $coeff * (c / $coeff));
+                assert_eq!(z.coefficient(), c - $coeff * (c / $coeff));
                 assert_eq!(
-                    z.coeff,
-                    CheckedRem::checked_rem(&i, d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedRem::checked_rem(&i, d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedRem::checked_rem(i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedRem::checked_rem(i, &d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedRem::checked_rem(&i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedRem::checked_rem(&i, &d).unwrap().coefficient()
                 );
             }
         };
@@ -213,10 +222,10 @@ mod checked_rem_integer_tests {
         let x = Decimal::new_raw(17294738475, 5);
         let y = 1_i64;
         let z = x.checked_rem(y).unwrap();
-        assert_eq!(z.coeff, x.fract().coeff);
+        assert_eq!(z.coefficient(), x.fract().coefficient());
         let y = 1_u8;
         let z = x.checked_rem(y).unwrap();
-        assert_eq!(z.coeff, x.fract().coeff);
+        assert_eq!(z.coefficient(), x.fract().coefficient());
     }
 
     #[test]
@@ -224,11 +233,11 @@ mod checked_rem_integer_tests {
         let x = 17_i32;
         let y = Decimal::ONE;
         let z = CheckedRem::checked_rem(x, y).unwrap();
-        assert_eq!(z.coeff, 0);
+        assert_eq!(z.coefficient(), 0);
         let x = 1_u64;
         let y = Decimal::new_raw(1000000000000, 12);
         let z = CheckedRem::checked_rem(x, y).unwrap();
-        assert_eq!(z.coeff, 0);
+        assert_eq!(z.coefficient(), 0);
     }
 
     #[test]
