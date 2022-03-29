@@ -114,6 +114,7 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
 impl TryFrom<f32> for Decimal {
     type Error = DecimalError;
 
+    //noinspection DuplicatedCode
     /// Tries to convert a `f32` value `f` into a `Decimal`.
     ///
     /// Returns the value representable as a `Decimal` which is nearest to `f`,
@@ -171,6 +172,7 @@ impl TryFrom<f32> for Decimal {
 impl TryFrom<f64> for Decimal {
     type Error = DecimalError;
 
+    //noinspection DuplicatedCode
     /// Tries to convert a `f64` value `f` into a `Decimal`.
     ///
     /// Returns the value representable as a `Decimal` which is nearest to `f`,
