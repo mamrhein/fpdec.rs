@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 use fpdec_core::ten_pow;
 
@@ -57,30 +57,30 @@ mod mul_rounded_decimal_tests {
     fn test_mul_rounded_less_n_frac_digits() {
         let x = Decimal::new_raw(12345, 2);
         let z = x.mul_rounded(x, 2);
-        assert_eq!(z.coeff, 1523990);
-        assert_eq!(z.n_frac_digits, 2);
+        assert_eq!(z.coefficient(), 1523990);
+        assert_eq!(z.n_frac_digits(), 2);
         let y = Decimal::new_raw(5781, 4);
         let z = x.mul_rounded(y, 1);
-        assert_eq!(z.coeff, 714);
-        assert_eq!(z.n_frac_digits, 1);
+        assert_eq!(z.coefficient(), 714);
+        assert_eq!(z.n_frac_digits(), 1);
         let z = y.mul_rounded(x, 1);
-        assert_eq!(z.coeff, 714);
-        assert_eq!(z.n_frac_digits, 1);
+        assert_eq!(z.coefficient(), 714);
+        assert_eq!(z.n_frac_digits(), 1);
     }
 
     #[test]
     fn test_mul_rounded_no_adj_needed() {
         let x = Decimal::new_raw(12345, 2);
         let z = x.mul_rounded(x, 4);
-        assert_eq!(z.coeff, 152399025);
-        assert_eq!(z.n_frac_digits, 4);
+        assert_eq!(z.coefficient(), 152399025);
+        assert_eq!(z.n_frac_digits(), 4);
         let y = Decimal::new_raw(5781, 4);
         let z = x.mul_rounded(y, 10);
-        assert_eq!(z.coeff, 71366445);
-        assert_eq!(z.n_frac_digits, 6);
+        assert_eq!(z.coefficient(), 71366445);
+        assert_eq!(z.n_frac_digits(), 6);
         let z = y.mul_rounded(x, 7);
-        assert_eq!(z.coeff, 71366445);
-        assert_eq!(z.n_frac_digits, 6);
+        assert_eq!(z.coefficient(), 71366445);
+        assert_eq!(z.n_frac_digits(), 6);
     }
 
     #[test]
@@ -89,10 +89,10 @@ mod mul_rounded_decimal_tests {
         let y = Decimal::new_raw(12345, 1);
         let z = x.mul_rounded(y, 2);
         let a = MulRounded::mul_rounded(&x, y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
         let a = MulRounded::mul_rounded(x, &y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
         let a = MulRounded::mul_rounded(&x, &y, 2);
-        assert_eq!(a.coeff, z.coeff);
+        assert_eq!(a.coefficient(), z.coefficient());
     }
 }

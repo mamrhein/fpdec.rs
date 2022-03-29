@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::{convert::TryFrom, str::FromStr};
+use core::{convert::TryFrom, str::FromStr};
 
 use fpdec_core::{checked_mul_pow_ten, dec_repr_from_str};
 
@@ -41,7 +41,7 @@ impl FromStr for Decimal {
     ///
     /// ```rust
     /// # use fpdec::{Decimal, ParseDecimalError};
-    /// # use std::str::FromStr;
+    /// # use core::str::FromStr;
     /// # fn main() -> Result<(), ParseDecimalError> {
     /// let d = Decimal::from_str("38.207")?;
     /// assert_eq!(d.to_string(), "38.207");
@@ -91,50 +91,50 @@ mod tests {
     #[test]
     fn test_from_int_lit() {
         let d = Decimal::from_str("1957945").unwrap();
-        assert_eq!(d.coeff, 1957945);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 1957945);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
     fn test_from_dec_lit() {
         let d = Decimal::from_str("-17.5").unwrap();
-        assert_eq!(d.coeff, -175);
-        assert_eq!(d.n_frac_digits, 1);
+        assert_eq!(d.coefficient(), -175);
+        assert_eq!(d.n_frac_digits(), 1);
     }
 
     #[test]
     fn test_from_frac_only_lit() {
         let d = Decimal::from_str("+.75").unwrap();
-        assert_eq!(d.coeff, 75);
-        assert_eq!(d.n_frac_digits, 2);
+        assert_eq!(d.coefficient(), 75);
+        assert_eq!(d.n_frac_digits(), 2);
     }
 
     #[test]
     fn test_from_int_lit_neg_exp() {
         let d = Decimal::from_str("17e-5").unwrap();
-        assert_eq!(d.coeff, 17);
-        assert_eq!(d.n_frac_digits, 5);
+        assert_eq!(d.coefficient(), 17);
+        assert_eq!(d.n_frac_digits(), 5);
     }
 
     #[test]
     fn test_from_int_lit_pos_exp() {
         let d = Decimal::from_str("+217e3").unwrap();
-        assert_eq!(d.coeff, 217000);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 217000);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
     fn test_from_dec_lit_neg_exp() {
         let d = Decimal::from_str("-533.7e-2").unwrap();
-        assert_eq!(d.coeff, -5337);
-        assert_eq!(d.n_frac_digits, 3);
+        assert_eq!(d.coefficient(), -5337);
+        assert_eq!(d.n_frac_digits(), 3);
     }
 
     #[test]
     fn test_from_dec_lit_pos_exp() {
         let d = Decimal::from_str("700004.002E13").unwrap();
-        assert_eq!(d.coeff, 7000040020000000000);
-        assert_eq!(d.n_frac_digits, 0);
+        assert_eq!(d.coefficient(), 7000040020000000000);
+        assert_eq!(d.n_frac_digits(), 0);
     }
 
     #[test]
@@ -175,10 +175,8 @@ mod tests {
 
     #[test]
     fn test_int_lit_max_val_exceeded() {
-        let i = i128::MIN;
-        let mut s = format!("{}", i);
-        s.remove(0);
-        let res = Decimal::from_str(&s);
+        let lit = "170141183460469231731687303715884105728"; // 2 ^ 127
+        let res = Decimal::from_str(lit);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);
@@ -199,8 +197,8 @@ mod tests {
         let res = s.parse::<Decimal>();
         assert!(res.is_ok());
         let dec = res.unwrap();
-        assert_eq!(dec.coeff, 28700);
-        assert_eq!(dec.n_frac_digits, 3);
+        assert_eq!(dec.coefficient(), 28700);
+        assert_eq!(dec.n_frac_digits(), 3);
     }
 
     #[test]
@@ -218,8 +216,8 @@ mod tests {
         let res = Decimal::try_from(s);
         assert!(res.is_ok());
         let dec = res.unwrap();
-        assert_eq!(dec.coeff, -5340007080);
-        assert_eq!(dec.n_frac_digits, 4);
+        assert_eq!(dec.coefficient(), -5340007080);
+        assert_eq!(dec.n_frac_digits(), 4);
     }
 
     #[test]

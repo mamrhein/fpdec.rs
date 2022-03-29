@@ -1,6 +1,6 @@
 [package]
 name = "fpdec-core"
-version = "0.3.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Common constants and functions for crate fpdec."
@@ -13,3 +13,7 @@ keywords = ["number", "decimal", "fixed-point", "arithmetics"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
+
+[features]
+default = ["std"]
+std = []

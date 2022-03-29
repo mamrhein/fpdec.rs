@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 
 use crate::powers_of_ten::checked_mul_pow_ten;
 
@@ -46,11 +46,12 @@ impl ParseDecimalError {
 }
 
 impl Display for ParseDecimalError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         Display::fmt(self._description(), f)
     }
 }
 
+#[cfg(feature = "std")]
 impl std::error::Error for ParseDecimalError {}
 
 struct DecLitParts<'a> {

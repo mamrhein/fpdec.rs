@@ -7,14 +7,13 @@
 // $Source$
 // $Revision$
 
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
 use crate::Decimal;
 
 impl PartialEq<Decimal> for Decimal {
-    #[inline]
     fn eq(&self, other: &Decimal) -> bool {
         match checked_adjust_coeffs(
             self.coeff,
@@ -28,8 +27,9 @@ impl PartialEq<Decimal> for Decimal {
     }
 }
 
+impl Eq for Decimal {}
+
 impl PartialOrd<Decimal> for Decimal {
-    #[inline]
     fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
         match checked_adjust_coeffs(
             self.coeff,
@@ -59,6 +59,7 @@ impl PartialOrd<Decimal> for Decimal {
 }
 
 impl Ord for Decimal {
+    #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }
@@ -92,7 +93,7 @@ impl Decimal {
 
 #[cfg(test)]
 mod cmp_decimals_tests {
-    use std::cmp::{max, min};
+    use core::cmp::{max, min};
 
     use fpdec_core::ten_pow;
 
@@ -141,6 +142,30 @@ mod cmp_decimals_tests {
     }
 
     #[test]
+    fn test_ne_lhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        let x = Decimal::new_raw(coeff, 4);
+        let y = Decimal::new_raw(coeff, 5);
+        assert_ne!(x, y);
+        assert_eq!(x.partial_cmp(&y), Some(Ordering::Greater));
+        assert_eq!(x.cmp(&y), Ordering::Greater);
+        assert!(x > y);
+        assert!(y < x);
+    }
+
+    #[test]
+    fn test_ne_rhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        let x = Decimal::new_raw(coeff, 4);
+        let y = Decimal::new_raw(coeff, 3);
+        assert_ne!(x, y);
+        assert_eq!(x.partial_cmp(&y), Some(Ordering::Less));
+        assert_eq!(x.cmp(&y), Ordering::Less);
+        assert!(x < y);
+        assert!(y > x);
+    }
+
+    #[test]
     fn test_min_max() {
         let x = Decimal::new_raw(12345, 2);
         let y = Decimal::new_raw(12344, 2);
@@ -148,6 +173,24 @@ mod cmp_decimals_tests {
         assert_eq!(min(x, x), x);
         assert_eq!(max(x, y), x);
         assert_eq!(max(x, x), x);
+    }
+
+    #[test]
+    fn test_min_max_lhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 7;
+        let x = Decimal::new_raw(coeff, 1);
+        let y = Decimal::new_raw(coeff, 2);
+        assert_eq!(min(x, y), y);
+        assert_eq!(max(x, y), x);
+    }
+
+    #[test]
+    fn test_min_max_rhs_adj_coeff_overflow() {
+        let coeff = i128::MIN + 7;
+        let x = Decimal::new_raw(coeff, 1);
+        let y = Decimal::new_raw(coeff, 0);
+        assert_eq!(min(x, y), y);
+        assert_eq!(max(x, y), x);
     }
 
     #[test]
@@ -243,7 +286,7 @@ macro_rules! impl_decimal_cmp_signed_int {
             fn partial_cmp(&self, other: &$t) -> Option<Ordering> {
                 match checked_mul_pow_ten((*other) as i128,
                                           self.n_frac_digits) {
-                    Some(coeff) => self.coeff.partial_cmp(&coeff),
+                    Some(coeff) => self.coefficient().partial_cmp(&coeff),
                     None => {
                         if *other >= 0 {
                             Some(Ordering::Less)
@@ -271,7 +314,7 @@ macro_rules! impl_signed_int_cmp_decimal {
             fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
                 match checked_mul_pow_ten((*self) as i128,
                                           other.n_frac_digits) {
-                    Some(coeff) => coeff.partial_cmp(&other.coeff),
+                    Some(coeff) => coeff.partial_cmp(&other.coefficient()),
                     None => {
                         if *self < 0 {
                             Some(Ordering::Less)
@@ -302,7 +345,7 @@ macro_rules! impl_decimal_cmp_uint {
                 }
                 match checked_mul_pow_ten((*other) as i128,
                                            self.n_frac_digits) {
-                    Some(coeff) => self.coeff.partial_cmp(&coeff),
+                    Some(coeff) => self.coefficient().partial_cmp(&coeff),
                     None => Some(Ordering::Less),
                 }
             }
@@ -327,7 +370,7 @@ macro_rules! impl_uint_cmp_decimal {
                 }
                 match checked_mul_pow_ten((*self) as i128,
                                           other.n_frac_digits) {
-                    Some(coeff) => coeff.partial_cmp(&other.coeff),
+                    Some(coeff) => coeff.partial_cmp(&other.coefficient()),
                     None => Some(Ordering::Greater),
                 }
             }
@@ -340,7 +383,7 @@ impl_uint_cmp_decimal!();
 
 #[cfg(test)]
 mod cmp_decimals_and_ints_tests {
-    use std::cmp::Ordering;
+    use core::cmp::Ordering;
 
     use crate::Decimal;
 

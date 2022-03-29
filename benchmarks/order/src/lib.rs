@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::{fmt::Debug, ops::Mul, str::FromStr};
+use core::{fmt::Debug, ops::Mul, str::FromStr};
 
 use fpdec::{Decimal, DivRounded, MulRounded};
 use rust_decimal;

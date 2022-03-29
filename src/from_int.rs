@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::convert::TryFrom;
+use core::convert::TryFrom;
 
 use crate::{Decimal, DecimalError};
 
@@ -53,7 +53,7 @@ mod tests {
     {
         for n in numbers {
             let d = Decimal::from(*n);
-            assert_eq!(d.coeff, (*n).into());
+            assert_eq!(d.coefficient(), (*n).into());
             assert_eq!(d.n_frac_digits(), 0);
         }
     }
@@ -106,7 +106,7 @@ mod tests {
                 Ok(d) => match i128::try_from(n) {
                     Err(_) => panic!("Should never happen!"),
                     Ok(i) => {
-                        assert_eq!(d.coeff, i);
+                        assert_eq!(d.coefficient(), i);
                         assert_eq!(d.n_frac_digits(), 0);
                     }
                 },
@@ -125,11 +125,11 @@ mod tests {
     fn test_from() {
         let si = -358_i32;
         let dsi = Decimal::from(si);
-        assert_eq!(dsi.coeff, si as i128);
+        assert_eq!(dsi.coefficient(), si as i128);
         assert_eq!(dsi.n_frac_digits(), 0);
         let ui = 38_u64.pow(12);
         let dui = Decimal::from(ui);
-        assert_eq!(dui.coeff, ui as i128);
+        assert_eq!(dui.coefficient(), ui as i128);
         assert_eq!(dui.n_frac_digits(), 0);
     }
 
@@ -137,11 +137,11 @@ mod tests {
     fn test_into() {
         let ui = 38_u8;
         let dui: Decimal = ui.into();
-        assert_eq!(dui.coeff, ui as i128);
+        assert_eq!(dui.coefficient(), ui as i128);
         assert_eq!(dui.n_frac_digits(), 0);
         let si = -1234567890123456789_i64;
         let dsi: Decimal = si.into();
-        assert_eq!(dsi.coeff, si as i128);
+        assert_eq!(dsi.coefficient(), si as i128);
         assert_eq!(dsi.n_frac_digits(), 0);
     }
 }

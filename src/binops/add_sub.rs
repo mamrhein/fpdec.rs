@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::{
+use core::{
     cmp::Ordering,
     ops::{Add, AddAssign, Sub, SubAssign},
 };
@@ -70,11 +70,11 @@ mod add_sub_decimal_tests {
     fn test_add_same_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x + x;
-        assert_eq!(y.coeff, 2 * x.coeff);
-        assert_eq!(y.n_frac_digits, x.n_frac_digits);
+        assert_eq!(y.coefficient(), 2 * x.coefficient());
+        assert_eq!(y.n_frac_digits(), x.n_frac_digits());
         let z = x + Decimal::NEG_ONE;
-        assert_eq!(z.coeff, x.coeff - 1000);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() - 1000);
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -82,14 +82,17 @@ mod add_sub_decimal_tests {
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x + y;
-        assert_eq!(z.coeff, x.coeff + y.coeff * 10000);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = y + x;
-        assert_eq!(z.coeff, x.coeff + y.coeff * 10000);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = x + Decimal::NEG_ONE;
-        assert_eq!(z.coeff, x.coeff - ten_pow(x.n_frac_digits));
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() - ten_pow(x.n_frac_digits())
+        );
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -111,11 +114,14 @@ mod add_sub_decimal_tests {
     fn test_sub_same_n_frac_digits() {
         let x = Decimal::new_raw(1234567890, 3);
         let y = x - x;
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, x.n_frac_digits);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), x.n_frac_digits());
         let z = x - Decimal::NEG_ONE;
-        assert_eq!(z.coeff, x.coeff + ten_pow(x.n_frac_digits));
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + ten_pow(x.n_frac_digits())
+        );
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -123,14 +129,17 @@ mod add_sub_decimal_tests {
         let x = Decimal::new_raw(1234567890, 2);
         let y = Decimal::new_raw(890, 1);
         let z = x - y;
-        assert_eq!(z.coeff, x.coeff - y.coeff * 10);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() - y.coefficient() * 10);
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = y - x;
-        assert_eq!(z.coeff, y.coeff * 10 - x.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), y.coefficient() * 10 - x.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = x - Decimal::NEG_ONE;
-        assert_eq!(z.coeff, x.coeff + ten_pow(x.n_frac_digits));
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + ten_pow(x.n_frac_digits())
+        );
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
     }
 
     #[test]
@@ -152,9 +161,9 @@ mod add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x + y;
-        assert_eq!(z.coeff, (&x + y).coeff);
-        assert_eq!(z.coeff, (x + &y).coeff);
-        assert_eq!(z.coeff, (&x + &y).coeff);
+        assert_eq!(z.coefficient(), (&x + y).coefficient());
+        assert_eq!(z.coefficient(), (x + &y).coefficient());
+        assert_eq!(z.coefficient(), (&x + &y).coefficient());
     }
 
     #[test]
@@ -162,9 +171,9 @@ mod add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x - y;
-        assert_eq!(z.coeff, (&x - y).coeff);
-        assert_eq!(z.coeff, (x - &y).coeff);
-        assert_eq!(z.coeff, (&x - &y).coeff);
+        assert_eq!(z.coefficient(), (&x - y).coefficient());
+        assert_eq!(z.coefficient(), (x - &y).coefficient());
+        assert_eq!(z.coefficient(), (&x - &y).coefficient());
     }
 }
 
@@ -248,18 +257,18 @@ mod add_sub_integer_tests {
                 let r = d + i;
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
                 assert_eq!(
-                    r.coeff,
+                    r.coefficient(),
                     i as i128 * ten_pow($n_frac_digits) + $coeff
                 );
-                assert_eq!(r.coeff, (&d + i).coeff);
-                assert_eq!(r.coeff, (d + &i).coeff);
-                assert_eq!(r.coeff, (&d + &i).coeff);
+                assert_eq!(r.coefficient(), (&d + i).coefficient());
+                assert_eq!(r.coefficient(), (d + &i).coefficient());
+                assert_eq!(r.coefficient(), (&d + &i).coefficient());
                 let z = i + d;
                 assert_eq!(z.n_frac_digits(), r.n_frac_digits());
-                assert_eq!(z.coeff, r.coeff);
-                assert_eq!(z.coeff, (&i + d).coeff);
-                assert_eq!(z.coeff, (i + &d).coeff);
-                assert_eq!(z.coeff, (&i + &d).coeff);
+                assert_eq!(z.coefficient(), r.coefficient());
+                assert_eq!(z.coefficient(), (&i + d).coefficient());
+                assert_eq!(z.coefficient(), (i + &d).coefficient());
+                assert_eq!(z.coefficient(), (&i + &d).coefficient());
             }
         };
     }
@@ -278,16 +287,16 @@ mod add_sub_integer_tests {
         let d = Decimal::new_raw(1, 2);
         let i = 12345_i128;
         let r = d + i;
-        assert_eq!(r.coeff, i * 100 + 1);
-        assert_eq!(r.coeff, (&d + i).coeff);
-        assert_eq!(r.coeff, (d + &i).coeff);
-        assert_eq!(r.coeff, (&d + &i).coeff);
+        assert_eq!(r.coefficient(), i * 100 + 1);
+        assert_eq!(r.coefficient(), (&d + i).coefficient());
+        assert_eq!(r.coefficient(), (d + &i).coefficient());
+        assert_eq!(r.coefficient(), (&d + &i).coefficient());
         let z = i + d;
         assert_eq!(z.n_frac_digits(), r.n_frac_digits());
-        assert_eq!(z.coeff, r.coeff);
-        assert_eq!(z.coeff, (&i + d).coeff);
-        assert_eq!(z.coeff, (i + &d).coeff);
-        assert_eq!(z.coeff, (&i + &d).coeff);
+        assert_eq!(z.coefficient(), r.coefficient());
+        assert_eq!(z.coefficient(), (&i + d).coefficient());
+        assert_eq!(z.coefficient(), (i + &d).coefficient());
+        assert_eq!(z.coefficient(), (&i + &d).coefficient());
     }
 
     macro_rules! gen_sub_integer_tests {
@@ -299,21 +308,21 @@ mod add_sub_integer_tests {
                 let r = d - i;
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
                 assert_eq!(
-                    r.coeff,
+                    r.coefficient(),
                     $coeff - i as i128 * ten_pow($n_frac_digits)
                 );
-                assert_eq!(r.coeff, (&d - i).coeff);
-                assert_eq!(r.coeff, (d - &i).coeff);
-                assert_eq!(r.coeff, (&d - &i).coeff);
+                assert_eq!(r.coefficient(), (&d - i).coefficient());
+                assert_eq!(r.coefficient(), (d - &i).coefficient());
+                assert_eq!(r.coefficient(), (&d - &i).coefficient());
                 let z = i - d;
                 assert_eq!(z.n_frac_digits(), r.n_frac_digits());
                 assert_eq!(
-                    z.coeff,
+                    z.coefficient(),
                     i as i128 * ten_pow($n_frac_digits) - $coeff
                 );
-                assert_eq!(z.coeff, (&i - d).coeff);
-                assert_eq!(z.coeff, (i - &d).coeff);
-                assert_eq!(z.coeff, (&i - &d).coeff);
+                assert_eq!(z.coefficient(), (&i - d).coefficient());
+                assert_eq!(z.coefficient(), (i - &d).coefficient());
+                assert_eq!(z.coefficient(), (&i - &d).coefficient());
             }
         };
     }
@@ -332,15 +341,15 @@ mod add_sub_integer_tests {
         let d = Decimal::new_raw(501, 2);
         let i = 12345_i128;
         let r = d - i;
-        assert_eq!(r.coeff, -i * 100 + 501);
-        assert_eq!(r.coeff, (&d - i).coeff);
-        assert_eq!(r.coeff, (d - &i).coeff);
-        assert_eq!(r.coeff, (&d - &i).coeff);
+        assert_eq!(r.coefficient(), -i * 100 + 501);
+        assert_eq!(r.coefficient(), (&d - i).coefficient());
+        assert_eq!(r.coefficient(), (d - &i).coefficient());
+        assert_eq!(r.coefficient(), (&d - &i).coefficient());
         let z = i - d;
-        assert_eq!(z.coeff, i * 100 - 501);
-        assert_eq!(z.coeff, (&i - d).coeff);
-        assert_eq!(z.coeff, (i - &d).coeff);
-        assert_eq!(z.coeff, (&i - &d).coeff);
+        assert_eq!(z.coefficient(), i * 100 - 501);
+        assert_eq!(z.coefficient(), (&i - d).coefficient());
+        assert_eq!(z.coefficient(), (i - &d).coefficient());
+        assert_eq!(z.coefficient(), (&i - &d).coefficient());
     }
 }
 
@@ -356,18 +365,18 @@ mod add_sub_assign_tests {
     fn test_add_assign_decimal() {
         let mut x = Decimal::new_raw(1234567, 5);
         x += Decimal::new_raw(1, 4);
-        assert_eq!(x.coeff, 1234577);
+        assert_eq!(x.coefficient(), 1234577);
         x += Decimal::new_raw(88, 0);
-        assert_eq!(x.coeff, 10034577);
+        assert_eq!(x.coefficient(), 10034577);
     }
 
     #[test]
     fn test_add_assign_int() {
         let mut x = Decimal::new_raw(1234567, 5);
         x += 1_u32;
-        assert_eq!(x.coeff, 1334567);
+        assert_eq!(x.coefficient(), 1334567);
         x += -109_i8;
-        assert_eq!(x.coeff, -9565433);
+        assert_eq!(x.coefficient(), -9565433);
     }
 
     #[test]
@@ -388,18 +397,18 @@ mod add_sub_assign_tests {
     fn test_sub_assign_decimal() {
         let mut x = Decimal::new_raw(1234567, 3);
         x -= Decimal::new_raw(100, 3);
-        assert_eq!(x.coeff, 1234467);
+        assert_eq!(x.coefficient(), 1234467);
         x -= Decimal::new_raw(1235, 0);
-        assert_eq!(x.coeff, -533);
+        assert_eq!(x.coefficient(), -533);
     }
 
     #[test]
     fn test_sub_assign_int() {
         let mut x = Decimal::new_raw(1234567, 2);
         x -= 1_u32;
-        assert_eq!(x.coeff, 1234467_i128);
+        assert_eq!(x.coefficient(), 1234467_i128);
         x -= -109889_i128;
-        assert_eq!(x.coeff, 12223367_i128);
+        assert_eq!(x.coefficient(), 12223367_i128);
     }
 
     #[test]

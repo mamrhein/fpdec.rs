@@ -46,23 +46,23 @@ mod checked_mul_decimal_tests {
     fn test_checked_mul() {
         let x = Decimal::new_raw(1234567890, 4);
         let y = x.checked_mul(x).unwrap();
-        assert_eq!(y.coeff, x.coeff * x.coeff);
-        assert_eq!(y.n_frac_digits, 2 * x.n_frac_digits);
+        assert_eq!(y.coefficient(), x.coefficient() * x.coefficient());
+        assert_eq!(y.n_frac_digits(), 2 * x.n_frac_digits());
         let z = x.checked_mul(Decimal::NEG_ONE).unwrap();
-        assert_eq!(z.coeff, -x.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits);
+        assert_eq!(z.coefficient(), -x.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x.checked_mul(y).unwrap();
-        assert_eq!(z.coeff, x.coeff * y.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits + y.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() * y.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits() + y.n_frac_digits());
         let z = y.checked_mul(x).unwrap();
-        assert_eq!(z.coeff, x.coeff * y.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits + y.n_frac_digits);
+        assert_eq!(z.coefficient(), x.coefficient() * y.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits() + y.n_frac_digits());
         let y = Decimal::new_raw(-1, 3);
         let z = x.checked_mul(y).unwrap();
-        assert_eq!(z.coeff, -x.coeff);
-        assert_eq!(z.n_frac_digits, x.n_frac_digits + y.n_frac_digits);
+        assert_eq!(z.coefficient(), -x.coefficient());
+        assert_eq!(z.n_frac_digits(), x.n_frac_digits() + y.n_frac_digits());
     }
 
     #[test]
@@ -84,9 +84,12 @@ mod checked_mul_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_mul(y).unwrap();
-        assert_eq!(z.coeff, (&x).checked_mul(y).unwrap().coeff);
-        assert_eq!(z.coeff, x.checked_mul(&y).unwrap().coeff);
-        assert_eq!(z.coeff, (&x).checked_mul(&y).unwrap().coeff);
+        assert_eq!(z.coefficient(), (&x).checked_mul(y).unwrap().coefficient());
+        assert_eq!(z.coefficient(), x.checked_mul(&y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_mul(&y).unwrap().coefficient()
+        );
     }
 }
 
@@ -140,23 +143,32 @@ mod checked_mul_integer_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = <$t>::MAX;
                 let r = d.checked_mul(i).unwrap();
-                assert_eq!(r.coeff, i as i128 * $coeff);
-                assert_eq!(r.coeff, (&d).checked_mul(i).unwrap().coeff);
-                assert_eq!(r.coeff, d.checked_mul(&i).unwrap().coeff);
-                assert_eq!(r.coeff, (&d).checked_mul(&i).unwrap().coeff);
+                assert_eq!(r.coefficient(), i as i128 * $coeff);
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_mul(i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    d.checked_mul(&i).unwrap().coefficient()
+                );
+                assert_eq!(
+                    r.coefficient(),
+                    (&d).checked_mul(&i).unwrap().coefficient()
+                );
                 let z = CheckedMul::checked_mul(i, d).unwrap();
-                assert_eq!(z.coeff, r.coeff);
+                assert_eq!(z.coefficient(), r.coefficient());
                 assert_eq!(
-                    z.coeff,
-                    CheckedMul::checked_mul(&i, d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedMul::checked_mul(&i, d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedMul::checked_mul(i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedMul::checked_mul(i, &d).unwrap().coefficient()
                 );
                 assert_eq!(
-                    z.coeff,
-                    CheckedMul::checked_mul(&i, &d).unwrap().coeff
+                    z.coefficient(),
+                    CheckedMul::checked_mul(&i, &d).unwrap().coefficient()
                 );
                 let d = Decimal::new_raw(i128::MAX, $p);
                 let i: $t = 2;
@@ -186,15 +198,27 @@ mod checked_mul_integer_tests {
         let d = Decimal::new_raw(coeff, 2);
         let i = 12345_i128;
         let r = d.checked_mul(i).unwrap();
-        assert_eq!(r.coeff, i as i128 * coeff);
-        assert_eq!(r.coeff, (&d).checked_mul(i).unwrap().coeff);
-        assert_eq!(r.coeff, d.checked_mul(&i).unwrap().coeff);
-        assert_eq!(r.coeff, (&d).checked_mul(&i).unwrap().coeff);
+        assert_eq!(r.coefficient(), i as i128 * coeff);
+        assert_eq!(r.coefficient(), (&d).checked_mul(i).unwrap().coefficient());
+        assert_eq!(r.coefficient(), d.checked_mul(&i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_mul(&i).unwrap().coefficient()
+        );
         let z = CheckedMul::checked_mul(i, d).unwrap();
-        assert_eq!(z.coeff, r.coeff);
-        assert_eq!(z.coeff, CheckedMul::checked_mul(&i, d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedMul::checked_mul(i, &d).unwrap().coeff);
-        assert_eq!(z.coeff, CheckedMul::checked_mul(&i, &d).unwrap().coeff);
+        assert_eq!(z.coefficient(), r.coefficient());
+        assert_eq!(
+            z.coefficient(),
+            CheckedMul::checked_mul(&i, d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedMul::checked_mul(i, &d).unwrap().coefficient()
+        );
+        assert_eq!(
+            z.coefficient(),
+            CheckedMul::checked_mul(&i, &d).unwrap().coefficient()
+        );
         let i = u64::MAX as i128;
         let d = Decimal::new_raw(i, 3);
         let z = d.checked_mul(i);

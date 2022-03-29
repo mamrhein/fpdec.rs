@@ -8,6 +8,7 @@
 // $Revision$
 
 #![doc = include_str ! ("../README.md")]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(dead_code)]
 #![warn(missing_docs)]
 
@@ -49,7 +50,7 @@ mod unops;
 ///
 /// The number of fractional digits can be in the range 0 ..
 /// [`MAX_N_FRAC_DIGITS`].
-#[derive(Copy, Clone, Eq)]
+#[derive(Copy, Clone)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,

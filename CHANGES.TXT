@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.4.1     Fixed mismatch between impl of PartialOrd and derived impl of Ord.
+
 0.4.0     Added impls of trait DivRounded for native integers.
           Added traits AsIntegerRatio and Quantize as well as corresponding
           implementations for Decimal and native ints.

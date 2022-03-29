@@ -7,7 +7,7 @@
 // $Source$
 // $Revision$
 
-use std::ops::Neg;
+use core::ops::Neg;
 
 use fpdec_core::ten_pow;
 
@@ -86,7 +86,7 @@ impl Decimal {
     #[inline(always)]
     pub fn abs(&self) -> Self {
         Self {
-            coeff: self.coeff.abs(),
+            coeff: self.coefficient().abs(),
             n_frac_digits: self.n_frac_digits,
         }
     }
@@ -191,21 +191,21 @@ mod tests {
         let val = 1234567890i128;
         let x: Decimal = Decimal::new_raw(val, 2);
         let y = -x;
-        assert_eq!(x.coeff, -y.coeff);
+        assert_eq!(x.coefficient(), -y.coefficient());
         let z = -y;
-        assert_eq!(x.coeff, z.coeff);
+        assert_eq!(x.coefficient(), z.coefficient());
         let a = &x;
         let b = -a;
-        assert_eq!(a.coeff, -b.coeff);
+        assert_eq!(a.coefficient(), -b.coefficient());
     }
 
     #[test]
     fn test_neg_corner_cases_ok() {
         let x = Decimal::MAX;
         let y = -x;
-        assert_eq!(x.coeff, -y.coeff);
+        assert_eq!(x.coefficient(), -y.coefficient());
         let z = -y;
-        assert_eq!(x.coeff, z.coeff);
+        assert_eq!(x.coefficient(), z.coefficient());
     }
 
     #[test]
@@ -219,95 +219,95 @@ mod tests {
     fn test_abs() {
         let x = Decimal::new_raw(-123456789, 4);
         let y = x.abs();
-        assert_eq!(-x.coeff, y.coeff);
+        assert_eq!(-x.coefficient(), y.coefficient());
         let z = y.abs();
-        assert_eq!(y.coeff, z.coeff);
+        assert_eq!(y.coefficient(), z.coefficient());
         let a = &x;
         let b = a.abs();
-        assert_eq!(-a.coeff, b.coeff);
+        assert_eq!(-a.coefficient(), b.coefficient());
     }
 
     #[test]
     fn test_floor() {
         let x = Decimal::new_raw(123, 0);
         let y = x.floor();
-        assert_eq!(y.n_frac_digits, 0);
-        assert_eq!(y.coeff, x.coeff);
+        assert_eq!(y.n_frac_digits(), 0);
+        assert_eq!(y.coefficient(), x.coefficient());
         let x = Decimal::new_raw(123456789, 5);
         let y = x.floor();
-        assert_eq!(y.coeff, 1234);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 1234);
+        assert_eq!(y.n_frac_digits(), 0);
         let z = y.floor();
-        assert_eq!(y.coeff, z.coeff);
+        assert_eq!(y.coefficient(), z.coefficient());
         let x = Decimal::new_raw(-987, 9);
         let y = x.floor();
-        assert_eq!(y.coeff, -1);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), -1);
+        assert_eq!(y.n_frac_digits(), 0);
         let z = y.floor();
-        assert_eq!(y.coeff, z.coeff);
+        assert_eq!(y.coefficient(), z.coefficient());
         let a = &x;
         let b = a.floor();
-        assert_eq!(b.coeff, y.coeff);
+        assert_eq!(b.coefficient(), y.coefficient());
     }
 
     #[test]
     fn test_ceil() {
         let x = Decimal::new_raw(123, 0);
         let y = x.ceil();
-        assert_eq!(y.coeff, x.coeff);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), x.coefficient());
+        assert_eq!(y.n_frac_digits(), 0);
         let x = Decimal::new_raw(123400001, 5);
         let y = x.ceil();
-        assert_eq!(y.coeff, 1235);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 1235);
+        assert_eq!(y.n_frac_digits(), 0);
         let z = y.ceil();
-        assert_eq!(y.coeff, z.coeff);
+        assert_eq!(y.coefficient(), z.coefficient());
         let x = Decimal::new_raw(-987, 6);
         let y = x.ceil();
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let z = y.ceil();
-        assert_eq!(y.coeff, z.coeff);
+        assert_eq!(y.coefficient(), z.coefficient());
         let a = &x;
         let b = a.ceil();
-        assert_eq!(b.coeff, y.coeff);
+        assert_eq!(b.coefficient(), y.coefficient());
     }
 
     #[test]
     fn test_trunc() {
         let x = Decimal::new_raw(12345, 0);
         let y = x.trunc();
-        assert_eq!(x.coeff, y.coeff);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(x.coefficient(), y.coefficient());
+        assert_eq!(y.n_frac_digits(), 0);
         let x = Decimal::new_raw(98765, 3);
         let y = x.trunc();
-        assert_eq!(y.coeff, 98);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 98);
+        assert_eq!(y.n_frac_digits(), 0);
         let x = Decimal::new_raw(999999, 7);
         let y = x.trunc();
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let a = &x;
         let b = a.trunc();
-        assert_eq!(b.coeff, y.coeff);
+        assert_eq!(b.coefficient(), y.coefficient());
     }
 
     #[test]
     fn test_fract() {
         let x = Decimal::new_raw(12345, 0);
         let y = x.fract();
-        assert_eq!(y.coeff, 0);
-        assert_eq!(y.n_frac_digits, 0);
+        assert_eq!(y.coefficient(), 0);
+        assert_eq!(y.n_frac_digits(), 0);
         let x = Decimal::new_raw(987654, 3);
         let y = x.fract();
-        assert_eq!(y.coeff, 654);
-        assert_eq!(y.n_frac_digits, 3);
+        assert_eq!(y.coefficient(), 654);
+        assert_eq!(y.n_frac_digits(), 3);
         let x = Decimal::new_raw(9999, 5);
         let y = x.fract();
-        assert_eq!(y.coeff, 9999);
-        assert_eq!(y.n_frac_digits, 5);
+        assert_eq!(y.coefficient(), 9999);
+        assert_eq!(y.n_frac_digits(), 5);
         let a = &x;
         let b = a.fract();
-        assert_eq!(b.coeff, y.coeff);
+        assert_eq!(b.coefficient(), y.coefficient());
     }
 }

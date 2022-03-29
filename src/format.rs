@@ -7,19 +7,20 @@
 // $Source$
 // $Revision$
 
-use std::{
-    cmp::{min, Ordering},
-    fmt,
-};
+#[cfg(feature = "std")]
+use core::cmp::{min, Ordering};
+use core::fmt;
 
 use fpdec_core::{div_mod_floor, ten_pow};
 
-use crate::{rounding::div_i128_rounded, Decimal, MAX_N_FRAC_DIGITS};
+use crate::Decimal;
+#[cfg(feature = "std")]
+use crate::{rounding::div_i128_rounded, MAX_N_FRAC_DIGITS};
 
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.n_frac_digits == 0 {
-            write!(form, "Dec!({})", self.coeff)
+            write!(form, "Dec!({})", self.coefficient())
         } else {
             let (int, frac) =
                 div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
@@ -34,6 +35,7 @@ impl fmt::Debug for Decimal {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod test_fmt_debug {
     use super::*;
@@ -50,6 +52,7 @@ mod test_fmt_debug {
     }
 }
 
+#[cfg(feature = "std")]
 impl fmt::Display for Decimal {
     /// Formats the value using the given formatter.
     ///
@@ -60,7 +63,7 @@ impl fmt::Display for Decimal {
     /// # Examples:
     ///
     /// ```rust
-    /// # use std::fmt;
+    /// # use core::fmt;
     /// # use fpdec::{Dec, Decimal};
     /// let d = Dec!(-1234.56);
     /// assert_eq!(format!("{}", d), "-1234.56");
@@ -112,6 +115,7 @@ impl fmt::Display for Decimal {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod test_fmt_display {
     use super::*;

@@ -25,7 +25,7 @@ Add `fpdec` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fpdec = "0.4.0"
+fpdec = "0.4.1"
 ```
 
 ## Usage
@@ -50,7 +50,7 @@ assert_eq!(d.to_string(), "297");
 
 ```rust
 # use fpdec::{Decimal, DecimalError};
-# use std::convert::TryFrom;
+# use core::convert::TryFrom;
 let d = Decimal::try_from(83.25_f64)?;
 assert_eq!(d.to_string(), "83.25");
 # Ok::<(), DecimalError>(())
@@ -58,7 +58,7 @@ assert_eq!(d.to_string(), "83.25");
 
 ```rust
 # use fpdec::{Decimal, ParseDecimalError};
-# use std::str::FromStr;
+# use core::str::FromStr;
 let d = Decimal::from_str("38.2070")?;
 assert_eq!(d.to_string(), "38.2070");
 # Ok::<(), ParseDecimalError>(())
