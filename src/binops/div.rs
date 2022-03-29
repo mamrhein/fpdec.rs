@@ -19,20 +19,16 @@ use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 #[inline(always)]
 fn try_add(a: i128, b: i128) -> Result<i128, DecimalError> {
     match a.checked_add(b) {
-        Some(val) => {
-            return Ok(val);
-        }
-        None => return Err(DecimalError::InternalOverflow),
+        Some(val) => Ok(val),
+        None => Err(DecimalError::InternalOverflow),
     }
 }
 
 #[inline(always)]
 fn try_mul(a: i128, b: i128) -> Result<i128, DecimalError> {
     match a.checked_mul(b) {
-        Some(val) => {
-            return Ok(val);
-        }
-        None => return Err(DecimalError::InternalOverflow),
+        Some(val) => Ok(val),
+        None => Err(DecimalError::InternalOverflow),
     }
 }
 

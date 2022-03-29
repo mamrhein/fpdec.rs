@@ -80,7 +80,7 @@ mod test_int_as_ratio {
 /// Preconditions: `numer != 0`, `denom_exp <= 38`
 #[inline]
 fn gcd_special(numer: i128, denom_exp: u32) -> i128 {
-    assert!(numer != 0);
+    assert_ne!(numer, 0);
     assert!(denom_exp <= 38);
     // Set u = |numer| with trailing zeros stripped off
     let mut u = numer.abs();

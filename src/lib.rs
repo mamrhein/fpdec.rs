@@ -49,7 +49,7 @@ mod unops;
 ///
 /// The number of fractional digits can be in the range 0 ..
 /// [`MAX_N_FRAC_DIGITS`].
-#[derive(Copy, Clone, Eq, Ord)]
+#[derive(Copy, Clone, Eq)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,

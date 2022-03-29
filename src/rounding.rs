@@ -65,13 +65,13 @@ where
 {
     /// Returns a new `Self` instance with its value rounded to `n_frac_digits`
     /// fractional digits according to the current [RoundingMode].
-    fn round(self: Self, n_frac_digits: i8) -> Self;
+    fn round(self, n_frac_digits: i8) -> Self;
 
     /// Returns a new `Self` instance with its value rounded to `n_frac_digits`
     /// fractional digits according to the current `RoundingMode`, wrapped in
     /// `Option::Some`, or `Option::None` if the result can not be
     /// represented by `Self`.
-    fn checked_round(self: Self, n_frac_digits: i8) -> Option<Self>;
+    fn checked_round(self, n_frac_digits: i8) -> Option<Self>;
 }
 
 impl Round for Decimal {
@@ -98,7 +98,7 @@ impl Round for Decimal {
     /// ```
     fn round(self, n_frac_digits: i8) -> Self {
         if n_frac_digits >= self.n_frac_digits as i8 {
-            self.clone()
+            self
         } else if n_frac_digits < self.n_frac_digits as i8 - 38 {
             Self::ZERO
         } else {
@@ -145,7 +145,7 @@ impl Round for Decimal {
     /// ```
     fn checked_round(self, n_frac_digits: i8) -> Option<Self> {
         if n_frac_digits >= self.n_frac_digits as i8 {
-            Some(self.clone())
+            Some(self)
         } else if n_frac_digits < self.n_frac_digits as i8 - 38 {
             Some(Self::ZERO)
         } else {
@@ -160,13 +160,12 @@ impl Round for Decimal {
                 })
             } else {
                 // shift back
-                match coeff.checked_mul(ten_pow(-n_frac_digits as u8)) {
-                    None => None,
-                    Some(coeff) => Some(Self {
+                coeff
+                    .checked_mul(ten_pow(-n_frac_digits as u8))
+                    .map(|coeff| Self {
                         coeff,
                         n_frac_digits: 0,
-                    }),
-                }
+                    })
             }
         }
     }

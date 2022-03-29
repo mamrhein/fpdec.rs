@@ -15,29 +15,29 @@ use crate::Decimal;
 
 // TODO: remove this trait when feature(int_roundings) got stable
 trait DivModInt: Sized {
-    fn divmod(&self, rhs: &Self) -> (Self, Self);
-    fn div_floor(&self, rhs: &Self) -> Self;
-    fn div_ceil(&self, rhs: &Self) -> Self;
+    fn divmod(self, rhs: Self) -> (Self, Self);
+    fn div_floor(self, rhs: Self) -> Self;
+    fn div_ceil(self, rhs: Self) -> Self;
 }
 
 impl DivModInt for i128 {
     #[inline(always)]
-    fn divmod(&self, rhs: &Self) -> (Self, Self) {
-        (*self / *rhs, *self % *rhs)
+    fn divmod(self, rhs: Self) -> (Self, Self) {
+        (self / rhs, self % rhs)
     }
     #[inline]
-    fn div_floor(&self, rhs: &Self) -> Self {
+    fn div_floor(self, rhs: Self) -> Self {
         let (q, r) = self.divmod(rhs);
-        if (r > 0 && *rhs < 0) || (r < 0 && *rhs > 0) {
+        if (r > 0 && rhs < 0) || (r < 0 && rhs > 0) {
             q - 1
         } else {
             q
         }
     }
     #[inline]
-    fn div_ceil(&self, rhs: &Self) -> Self {
+    fn div_ceil(self, rhs: Self) -> Self {
         let (q, r) = self.divmod(rhs);
-        if (r > 0 && *rhs > 0) || (r < 0 && *rhs < 0) {
+        if (r > 0 && rhs > 0) || (r < 0 && rhs < 0) {
             q + 1
         } else {
             q
@@ -105,9 +105,10 @@ impl Decimal {
     #[inline]
     pub fn floor(&self) -> Self {
         match self.n_frac_digits {
-            0 => self.clone(),
+            0 => *self,
             n => Self {
-                coeff: self.coeff.div_floor(&ten_pow(n)),
+                // coeff: self.coeff.div_floor(ten_pow(n)),
+                coeff: DivModInt::div_floor(self.coeff, ten_pow(n)),
                 n_frac_digits: 0,
             },
         }
@@ -127,9 +128,10 @@ impl Decimal {
     #[inline]
     pub fn ceil(&self) -> Self {
         match self.n_frac_digits {
-            0 => self.clone(),
+            0 => *self,
             n => Self {
-                coeff: self.coeff.div_ceil(&ten_pow(n)),
+                // coeff: self.coeff.div_ceil(ten_pow(n)),
+                coeff: DivModInt::div_ceil(self.coeff, ten_pow(n)),
                 n_frac_digits: 0,
             },
         }
@@ -149,9 +151,9 @@ impl Decimal {
     #[inline]
     pub fn trunc(&self) -> Self {
         match self.n_frac_digits {
-            0 => self.clone(),
+            0 => *self,
             n => Self {
-                coeff: self.coeff / &ten_pow(n),
+                coeff: self.coeff / ten_pow(n),
                 n_frac_digits: 0,
             },
         }
@@ -173,7 +175,7 @@ impl Decimal {
         match self.n_frac_digits {
             0 => Self::ZERO,
             n => Self {
-                coeff: self.coeff % &ten_pow(n),
+                coeff: self.coeff % ten_pow(n),
                 n_frac_digits: n,
             },
         }

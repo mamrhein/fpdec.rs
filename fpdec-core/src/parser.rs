@@ -72,7 +72,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
     let mut exp_part_range = 0usize..0usize;
     let mut chars = lit.char_indices();
     let mut next = chars.next();
-    if let None = next {
+    if next.is_none() {
         return Result::Err(ParseDecimalError::Empty);
     }
     let (mut curr_idx, mut curr_char) = next.unwrap();
@@ -137,7 +137,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
     }
     if curr_char == 'e' || curr_char == 'E' {
         next = chars.next();
-        if let None = next {
+        if next.is_none() {
             return Result::Err(ParseDecimalError::Invalid);
         }
         let (curr_idx, curr_char) = next.unwrap();
@@ -167,7 +167,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
     } else {
         return Result::Err(ParseDecimalError::Invalid);
     }
-    if int_part_range.len() == 0 && frac_part_range.len() == 0 {
+    if int_part_range.is_empty() && frac_part_range.is_empty() {
         return Result::Err(ParseDecimalError::Invalid);
     }
     Ok(DecLitParts {
@@ -191,7 +191,7 @@ pub fn dec_repr_from_str(
 ) -> Result<(i128, isize), ParseDecimalError> {
     let max_n_frac_digits = crate::MAX_N_FRAC_DIGITS as isize;
     let parts = parse_decimal_literal(lit)?;
-    let exp: isize = if parts.exp_part.len() > 0 {
+    let exp: isize = if !parts.exp_part.is_empty() {
         if parts.exp_sign == "-" {
             -parts.exp_part.parse::<isize>().unwrap()
         } else {
@@ -204,7 +204,7 @@ pub fn dec_repr_from_str(
     if n_frac_digits - exp > max_n_frac_digits {
         return Result::Err(ParseDecimalError::FracDigitLimitExceeded);
     }
-    let mut coeff: i128 = if parts.int_part.len() > 0 {
+    let mut coeff: i128 = if !parts.int_part.is_empty() {
         match parts.int_part.parse() {
             Err(_) => {
                 return Err(ParseDecimalError::InternalOverflow);

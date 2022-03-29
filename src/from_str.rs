@@ -187,7 +187,7 @@ mod tests {
     #[test]
     fn test_dec_lit_max_val_exceeded() {
         let s = "123456789012345678901234567890123.4567890";
-        let res = Decimal::from_str(&s);
+        let res = Decimal::from_str(s);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);
@@ -197,7 +197,7 @@ mod tests {
     fn test_parse() {
         let s = "+00028.700";
         let res = s.parse::<Decimal>();
-        assert!(!res.is_err());
+        assert!(res.is_ok());
         let dec = res.unwrap();
         assert_eq!(dec.coeff, 28700);
         assert_eq!(dec.n_frac_digits, 3);
@@ -216,7 +216,7 @@ mod tests {
     fn test_try_from() {
         let s = "-534000.7080";
         let res = Decimal::try_from(s);
-        assert!(!res.is_err());
+        assert!(res.is_ok());
         let dec = res.unwrap();
         assert_eq!(dec.coeff, -5340007080);
         assert_eq!(dec.n_frac_digits, 4);

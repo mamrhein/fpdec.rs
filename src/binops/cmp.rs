@@ -58,6 +58,12 @@ impl PartialOrd<Decimal> for Decimal {
     }
 }
 
+impl Ord for Decimal {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
 impl Decimal {
     /// Returns true if self is equal to zero.
     #[inline(always)]
@@ -96,7 +102,7 @@ mod cmp_decimals_tests {
     fn test_eq_same_n_frac_digits() {
         let x = Decimal::new_raw(178, 1);
         assert!(x.eq(&x));
-        let y = x.clone();
+        let y = x;
         assert!(x.eq(&y));
         assert_eq!(x, y);
         assert_eq!(y, x);
