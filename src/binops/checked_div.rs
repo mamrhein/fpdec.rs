@@ -60,11 +60,11 @@ mod checked_div_decimal_tests {
         let z = x.checked_div(y).unwrap();
         assert_eq!(z.coefficient(), -85);
         assert_eq!(z.n_frac_digits(), 1);
-        let x = Decimal::new_raw(17, 31);
+        let x = Decimal::new_raw(17, 17);
         let y = Decimal::new_raw(2, 0);
         let z = x.checked_div(y).unwrap();
         assert_eq!(z.coefficient(), 85);
-        assert_eq!(z.n_frac_digits(), 32);
+        assert_eq!(z.n_frac_digits(), 18);
         let x = Decimal::new_raw(12345678901234567890, 2);
         let y = Decimal::new_raw(244140625, 6);
         let z = x.checked_div(y).unwrap();

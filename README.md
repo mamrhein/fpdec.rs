@@ -14,7 +14,7 @@ for which the accuracy of floating point math is - in most cases - sufficient.
 At the binary level a `Decimal` number is represented as a coefficient (stored 
 as an `i128` value) combined with a value specifying the number of fractional 
 decimal digits (stored as a `u8`). The latter is limited to a value given by 
-the constant `MAX_N_FRAC_DIGITS` = 38.
+the constant `MAX_N_FRAC_DIGITS` = 18.
 
 ### Status
 Experimental (work in progess)

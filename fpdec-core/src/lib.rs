@@ -18,7 +18,7 @@ mod parser;
 mod powers_of_ten;
 
 /// The maximum number of fractional decimal digits supported by `Decimal`.
-pub const MAX_N_FRAC_DIGITS: u8 = 38;
+pub const MAX_N_FRAC_DIGITS: u8 = 18;
 
 #[doc(hidden)]
 #[inline]
