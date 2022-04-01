@@ -73,6 +73,15 @@ mod checked_div_decimal_tests {
     }
 
     #[test]
+    fn test_checked_div_frac_limit_exceeded() {
+        let x = Decimal::new_raw(17, 1);
+        let y = Decimal::new_raw(3, 0);
+        let z = x.checked_div(y).unwrap();
+        assert_eq!(z.coefficient(), 566666666666666667);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
+    #[test]
     fn test_checked_div_by_one() {
         let x = Decimal::new_raw(17, 5);
         let y = Decimal::ONE;
@@ -87,14 +96,6 @@ mod checked_div_decimal_tests {
     fn test_checked_div_by_zero() {
         let x = Decimal::new_raw(17, 5);
         let y = Decimal::ZERO;
-        let z = x.checked_div(y);
-        assert!(z.is_none());
-    }
-
-    #[test]
-    fn test_checked_div_frac_limit_exceeded() {
-        let x = Decimal::new_raw(17, 1);
-        let y = Decimal::new_raw(3, 0);
         let z = x.checked_div(y);
         assert!(z.is_none());
     }
@@ -308,6 +309,24 @@ mod checked_div_integer_tests {
     }
 
     #[test]
+    fn test_checked_div_int_by_decimal_frac_limit_exceeded() {
+        let x = 3_i8;
+        let y = Decimal::new_raw(17, 2);
+        let z = CheckedDiv::checked_div(x, y).unwrap();
+        assert_eq!(z.coefficient(), 17647058823529411765);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
+    #[test]
+    fn test_checked_div_decimal_by_int_frac_limit_exceeded() {
+        let x = Decimal::new_raw(17, 12);
+        let y = 3_u8;
+        let z = x.checked_div(y).unwrap();
+        assert_eq!(z.coefficient(), 5666667);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
+    #[test]
     fn test_checked_div_decimal_by_int_zero() {
         let x = Decimal::new_raw(17, 5);
         let y = 0_i32;
@@ -319,22 +338,6 @@ mod checked_div_integer_tests {
     fn test_checked_div_int_by_decimal_zero() {
         let x = 25_i64;
         let y = Decimal::ZERO;
-        let z = CheckedDiv::checked_div(x, y);
-        assert!(z.is_none());
-    }
-
-    #[test]
-    fn test_checked_div_decimal_by_int_frac_limit_exceeded() {
-        let x = Decimal::new_raw(17, 12);
-        let y = 3_u8;
-        let z = x.checked_div(y);
-        assert!(z.is_none());
-    }
-
-    #[test]
-    fn test_checked_div_int_by_decimal_frac_limit_exceeded() {
-        let x = 3_i8;
-        let y = Decimal::new_raw(17, 2);
         let z = CheckedDiv::checked_div(x, y);
         assert!(z.is_none());
     }

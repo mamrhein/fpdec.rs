@@ -12,7 +12,7 @@ use core::{
     ops::{Div, DivAssign},
 };
 
-use fpdec_core::ten_pow;
+use fpdec_core::{div_mod_floor, ten_pow};
 
 use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
@@ -39,6 +39,12 @@ pub(crate) fn div(
     divisor_coeff: i128,
     divisor_n_frac_digits: u8,
 ) -> Result<(i128, u8), DecimalError> {
+    // Force divisor > 0
+    let (divident, divisor) = if divisor_coeff < 0 {
+        (-divident_coeff, -divisor_coeff)
+    } else {
+        (divident_coeff, divisor_coeff)
+    };
     let (mut n_frac_digits, shift) = match divident_n_frac_digits
         .cmp(&divisor_n_frac_digits)
     {
@@ -46,8 +52,9 @@ pub(crate) fn div(
         Ordering::Less => (0, divisor_n_frac_digits - divident_n_frac_digits),
         _ => (divident_n_frac_digits - divisor_n_frac_digits, 0),
     };
-    let mut coeff = divident_coeff / divisor_coeff;
-    let mut rem = divident_coeff % divisor_coeff;
+    // n_frac_digits >= 0 && shift >= 0
+    let (mut coeff, mut rem) = div_mod_floor(divident, divisor);
+    // devisor > 0 => rem >= 0
     if rem == 0 {
         if shift > 0 {
             coeff = try_mul(coeff, ten_pow(shift))?;
@@ -59,21 +66,34 @@ pub(crate) fn div(
             let ten_pow_shift = ten_pow(shift);
             coeff = try_mul(coeff, ten_pow_shift)?;
             rem = try_mul(rem, ten_pow_shift)?;
-            coeff = try_add(coeff, rem / divisor_coeff)?;
-            rem %= divisor_coeff;
+            coeff = try_add(coeff, rem / divisor)?;
+            rem %= divisor;
         }
         while rem != 0 && n_frac_digits < MAX_N_FRAC_DIGITS {
-            // rem < divisor
+            // 0 < rem < divisor
             rem = try_mul(rem, 10)?;
-            // rem < 10 * divisor
-            let quot = rem / divisor_coeff;
-            // quot < 10
-            rem %= divisor_coeff;
+            // 0 < rem < 10 * divisor
+            let quot = rem / divisor;
+            // 0 <= quot < 10
+            rem %= divisor;
             n_frac_digits += 1;
             coeff = try_add(try_mul(coeff, 10)?, quot)?;
         }
         if rem != 0 {
-            return Err(DecimalError::FracDigitLimitExceeded);
+            // round coeff (half to even):
+            // remainder > divisor / 2 or
+            // remainder = divisor / 2 and quotient < 0
+            // => add 1
+            // here:
+            // 0 < rem <= |divident|
+            // rem > 0 && divisor > 0 => divisor >= 2
+            // 0 < rem < divisor and divisor >= 2 => rem <= |divident| / 2,
+            // therefor it's safe to use rem << 1
+            rem <<= 1;
+            if rem > divisor || rem == divisor && coeff < 0 {
+                coeff += 1;
+            }
+            normalize(&mut coeff, &mut n_frac_digits);
         }
     }
     Ok((coeff, n_frac_digits))
@@ -136,6 +156,18 @@ mod div_decimal_tests {
     }
 
     #[test]
+    fn test_div_frac_limit_exceeded() {
+        let x = Decimal::new_raw(3, 0);
+        let y = Decimal::new_raw(17, 9);
+        let z = x / y;
+        assert_eq!(z.coefficient(), 176470588235294117647058824);
+        assert_eq!(z.n_frac_digits(), 18);
+        let z = Decimal::new_raw(1, 0) / x;
+        assert_eq!(z.coefficient(), 333333333333333333);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
+    #[test]
     fn test_div_zero() {
         let x = Decimal::new_raw(0, 9);
         let y = Decimal::new_raw(8, 0);
@@ -162,14 +194,6 @@ mod div_decimal_tests {
     fn test_div_by_zero() {
         let x = Decimal::new_raw(17, 5);
         let y = Decimal::new_raw(0, 7);
-        let _z = x / y;
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_div_frac_limit_exceeded() {
-        let x = Decimal::new_raw(3, 0);
-        let y = Decimal::new_raw(17, 9);
         let _z = x / y;
     }
 
@@ -306,9 +330,27 @@ mod div_integer_tests {
     gen_div_integer_tests!(test_div_i16, i16, -5, 4, 390625, 4, -78125);
     gen_div_integer_tests!(test_div_u32, u32, 78125, 3, 20, 9, 256);
     gen_div_integer_tests!(test_div_i32, i32, -4, 9, -1000, 8, 25);
-    // gen_div_integer_tests!(test_div_u64, u64, 137438953472, 0, 1, 18, 7275958);
+    gen_div_integer_tests!(test_div_u64, u64, 16384000, 0, 1, 17, 6103515625);
     gen_div_integer_tests!(test_div_i64, i64, 244140625, 2, -488281250, 2, -2);
     gen_div_integer_tests!(test_div_i128, i128, 5005, 4, 2002, 5, 4);
+
+    #[test]
+    fn test_div_decimal_by_int_frac_limit_exceeded() {
+        let x = Decimal::new_raw(17, 2);
+        let y = 3_i32;
+        let z = x / y;
+        assert_eq!(z.coefficient(), 56666666666666667);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
+    #[test]
+    fn test_div_int_by_decimal_frac_limit_exceeded() {
+        let x = 3_i32;
+        let y = Decimal::new_raw(17, 2);
+        let z = x / y;
+        assert_eq!(z.coefficient(), 17647058823529411765);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
 
     #[test]
     fn test_div_decimal_zero_by_int() {
@@ -373,22 +415,6 @@ mod div_integer_tests {
 
     #[test]
     #[should_panic]
-    fn test_div_decimal_by_int_frac_limit_exceeded() {
-        let x = Decimal::new_raw(17, 2);
-        let y = 3;
-        let _z = x / y;
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_div_int_by_decimal_frac_limit_exceeded() {
-        let x = 3;
-        let y = Decimal::new_raw(17, 2);
-        let _z = x / y;
-    }
-
-    #[test]
-    #[should_panic]
     fn test_div_int_by_decimal_overflow() {
         let x = mul_pow_ten(17, 20);
         let y = Decimal::new_raw(2, 19);
@@ -407,6 +433,7 @@ mod div_assign_tests {
         let mut x = Decimal::new_raw(1234567890, 9);
         x /= Decimal::new_raw(5000, 3);
         assert_eq!(x.coefficient(), 123456789 * 2);
+        assert_eq!(x.n_frac_digits(), 9);
     }
 
     #[test]
@@ -414,6 +441,25 @@ mod div_assign_tests {
         let mut x = Decimal::new_raw(1234567890, 9);
         x /= -10_i64;
         assert_eq!(x.coefficient(), -123456789);
+        assert_eq!(x.n_frac_digits(), 9);
+    }
+
+    #[test]
+    fn test_div_assign_decimal_by_int_frac_limit_exceeded() {
+        let mut x = Decimal::new_raw(17, 9);
+        let y = 3_i16;
+        x /= y;
+        assert_eq!(x.coefficient(), 5666666667);
+        assert_eq!(x.n_frac_digits(), 18);
+    }
+
+    #[test]
+    fn test_div_assign_decimal_by_decimal_frac_limit_exceeded() {
+        let mut x = Decimal::new_raw(3, 4);
+        let y = Decimal::new_raw(17, 9);
+        x /= y;
+        assert_eq!(x.coefficient(), 17647058823529411764706);
+        assert_eq!(x.n_frac_digits(), 18);
     }
 
     #[test]
@@ -429,22 +475,6 @@ mod div_assign_tests {
     fn test_div_assign_decimal_by_decimal_zero() {
         let mut x = Decimal::new_raw(25, 9);
         let y = Decimal::ZERO;
-        x /= y;
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_div_assign_decimal_by_int_frac_limit_exceeded() {
-        let mut x = Decimal::new_raw(17, 9);
-        let y = 3;
-        x /= y;
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_div_assign_decimal_by_decimal_frac_limit_exceeded() {
-        let mut x = Decimal::new_raw(17, 9);
-        let y = Decimal::new_raw(3, 4);
         x /= y;
     }
 }

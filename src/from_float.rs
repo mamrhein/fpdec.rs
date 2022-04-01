@@ -86,11 +86,11 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
         && n_frac_digits < MAX_N_FRAC_DIGITS
         && magn_coeff < MAGN_I128_MAX - 1
     {
-        // rem < divisor
+        // 0 < rem < divisor
         rem *= 10;
-        // rem < 10 * divisor
+        // 0 < rem < 10 * divisor
         let quot = rem / divisor;
-        // quot < 10
+        // 0 <= quot < 10
         rem %= divisor;
         n_frac_digits += 1;
         magn_coeff += 1;
