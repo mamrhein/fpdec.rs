@@ -103,7 +103,7 @@ mod checked_div_decimal_tests {
     #[test]
     fn test_checked_div_overflow() {
         let x = Decimal::new_raw(mul_pow_ten(17, 20), 0);
-        let y = Decimal::new_raw(2, 19);
+        let y = Decimal::new_raw(2, 18);
         let z = x.checked_div(y);
         assert!(z.is_none());
     }
@@ -345,7 +345,7 @@ mod checked_div_integer_tests {
     #[test]
     fn test_checked_div_int_by_decimal_overflow() {
         let x = mul_pow_ten(17, 20);
-        let y = Decimal::new_raw(2, 19);
+        let y = Decimal::new_raw(2, 18);
         let z = CheckedDiv::checked_div(x, y);
         assert!(z.is_none());
     }

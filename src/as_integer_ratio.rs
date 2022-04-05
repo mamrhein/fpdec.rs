@@ -167,10 +167,11 @@ impl AsIntegerRatio for Decimal {
 #[cfg(test)]
 mod test_decimal_as_ratio {
     use super::*;
+    use fpdec_core::MAX_N_FRAC_DIGITS;
 
     #[test]
     fn test_decimal_as_ratio() {
-        let d = Decimal::new_raw(0, 24);
+        let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.as_integer_ratio(), (0, 1));
         let d = Decimal::new_raw(12345, 0);
         assert_eq!(d.as_integer_ratio(), (12345, 1));
@@ -186,7 +187,7 @@ mod test_decimal_as_ratio {
 
     #[test]
     fn test_decimal_numerator() {
-        let d = Decimal::new_raw(0, 24);
+        let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.numerator(), 0);
         let d = Decimal::new_raw(12345, 0);
         assert_eq!(d.numerator(), 12345);
@@ -202,7 +203,7 @@ mod test_decimal_as_ratio {
 
     #[test]
     fn test_decimal_denominator() {
-        let d = Decimal::new_raw(0, 24);
+        let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.denominator(), 1);
         let d = Decimal::new_raw(12345, 0);
         assert_eq!(d.denominator(), 1);

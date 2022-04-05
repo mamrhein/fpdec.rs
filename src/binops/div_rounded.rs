@@ -214,8 +214,8 @@ mod div_rounded_decimal_tests {
     // corner case: shifting divident overflows, stepwise algorithm must be used
     #[test]
     fn test_div_rounded_stepwise() {
-        let x = Decimal::new_raw(13, 1);
-        let y = Decimal::new_raw(20, 29);
+        let x = Decimal::new_raw(mul_pow_ten(13, 11), 1);
+        let y = Decimal::new_raw(20, 18);
         let z = x.div_rounded(y, 10);
         assert_eq!(z.coefficient(), 65000000000000000000000000000000000000);
         assert_eq!(z.n_frac_digits(), 10);

@@ -12,6 +12,7 @@
 #![allow(dead_code)]
 #![warn(missing_docs)]
 
+use crate::DecimalError::FracDigitLimitExceeded;
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]
@@ -62,6 +63,11 @@ impl Decimal {
     #[doc(hidden)]
     #[inline(always)]
     pub fn new_raw(coeff: i128, n_frac_digits: u8) -> Self {
+        debug_assert!(
+            n_frac_digits <= MAX_N_FRAC_DIGITS,
+            "{}",
+            FracDigitLimitExceeded
+        );
         Self {
             coeff,
             n_frac_digits,
