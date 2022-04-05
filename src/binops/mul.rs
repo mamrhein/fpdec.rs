@@ -8,21 +8,31 @@
 // $Revision$
 
 use core::ops::{Mul, MulAssign};
+use fpdec_core::ten_pow;
 
+use crate::rounding::div_i128_rounded;
 use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 impl Mul<Decimal> for Decimal {
     type Output = Self;
 
-    #[inline]
     fn mul(self, rhs: Decimal) -> Self::Output {
-        let n_frac_ditits = self.n_frac_digits + rhs.n_frac_digits;
-        if n_frac_ditits > MAX_N_FRAC_DIGITS {
-            panic!("{}", DecimalError::FracDigitLimitExceeded)
-        }
+        let n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
+        let (coeff, n_frac_digits) = if n_frac_digits <= MAX_N_FRAC_DIGITS {
+            (self.coeff * rhs.coeff, n_frac_digits)
+        } else {
+            if let Some(coeff) = self.coeff.checked_mul(rhs.coeff) {
+                let shift = n_frac_digits - MAX_N_FRAC_DIGITS;
+                let rnd_coeff = div_i128_rounded(coeff, ten_pow(shift), None);
+                (rnd_coeff, MAX_N_FRAC_DIGITS)
+            } else {
+                // TODO: alternate strategy to avoid overflow
+                panic!("{}", DecimalError::InternalOverflow);
+            }
+        };
         Self::Output {
-            coeff: self.coeff * rhs.coeff,
-            n_frac_digits: self.n_frac_digits + rhs.n_frac_digits,
+            coeff,
+            n_frac_digits,
         }
     }
 }
@@ -57,6 +67,15 @@ mod mul_decimal_tests {
     }
 
     #[test]
+    fn test_mul_frac_limit_exceeded() {
+        let x = Decimal::new_raw(1, 18);
+        let y = Decimal::new_raw(1, 16);
+        let z = x * y;
+        assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits, MAX_N_FRAC_DIGITS);
+    }
+
+    #[test]
     #[should_panic]
     fn test_mul_pos_overflow() {
         let x = Decimal::new_raw(i128::MAX / 2 + 1, 4);
@@ -75,14 +94,6 @@ mod mul_decimal_tests {
     fn test_mul_neg_overflow() {
         let x = Decimal::new_raw(i128::MIN / 2 - 1, 3);
         let _y = x * Decimal::TWO;
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_mul_frac_limit_exceeded() {
-        let x = Decimal::new_raw(1, 23);
-        let y = Decimal::new_raw(1, 16);
-        let _z = x * y;
     }
 
     #[test]
