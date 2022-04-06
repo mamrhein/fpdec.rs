@@ -48,18 +48,17 @@ pub trait DivRounded<Rhs = Self> {
     fn div_rounded(self, rhs: Rhs, n_frac_digits: u8) -> Self::Output;
 }
 
-#[inline]
-fn div_rounded(
+pub(crate) fn checked_div_rounded(
     divident_coeff: i128,
     divident_n_frac_digits: u8,
     divisor_coeff: i128,
     divisor_n_frac_digits: u8,
     n_frac_digits: u8,
-) -> i128 {
+) -> Option<i128> {
     let mut shift = n_frac_digits + divisor_n_frac_digits;
     match divident_n_frac_digits.cmp(&shift) {
         Ordering::Equal => {
-            div_i128_rounded(divident_coeff, divisor_coeff, None)
+            Some(div_i128_rounded(divident_coeff, divisor_coeff, None))
         }
         Ordering::Less => {
             // divident coeff needs to be shifted
@@ -67,14 +66,14 @@ fn div_rounded(
             if let Some(shifted_divident) =
                 checked_mul_pow_ten(divident_coeff, shift)
             {
-                div_i128_rounded(shifted_divident, divisor_coeff, None)
+                Some(div_i128_rounded(shifted_divident, divisor_coeff, None))
             } else {
                 let magn_divident = magnitude(divident_coeff);
                 let magn_shifted_divident = magn_divident + shift;
                 if (magn_shifted_divident - magnitude(divisor_coeff))
                     > MAGN_I128_MAX
                 {
-                    panic!("{}", DecimalError::InternalOverflow);
+                    return None;
                 }
                 let mut coeff = divident_coeff / divisor_coeff;
                 let mut rem = divident_coeff % divisor_coeff;
@@ -92,7 +91,7 @@ fn div_rounded(
                 coeff *= ten_pow(step_shift);
                 rem *= ten_pow(step_shift);
                 coeff += div_i128_rounded(rem, divisor_coeff, None);
-                coeff
+                Some(coeff)
             }
         }
         Ordering::Greater => {
@@ -105,11 +104,11 @@ fn div_rounded(
             shift = divident_n_frac_digits - shift;
             // shift < divident_n_frac_digits => shift < 38 => ten_pow(shift)
             // is safe
-            div_i128_rounded(
+            Some(div_i128_rounded(
                 divident_coeff / divisor_coeff,
                 ten_pow(shift),
                 None,
-            )
+            ))
         }
     }
 }
@@ -127,16 +126,19 @@ impl DivRounded<Decimal> for Decimal {
         if self.eq_zero() {
             return Self::ZERO;
         }
-        let coeff = div_rounded(
+        if let Some(coeff) = checked_div_rounded(
             self.coeff,
             self.n_frac_digits,
             rhs.coeff,
             rhs.n_frac_digits,
             n_frac_digits,
-        );
-        Self::Output {
-            coeff,
-            n_frac_digits,
+        ) {
+            Self::Output {
+                coeff,
+                n_frac_digits,
+            }
+        } else {
+            panic!("{}", DecimalError::InternalOverflow);
         }
     }
 }
@@ -272,16 +274,19 @@ macro_rules! impl_div_rounded_decimal_and_int {
                 if self.eq_zero() {
                     return Self::ZERO;
                 }
-                let coeff = div_rounded(
+                if let Some(coeff) = checked_div_rounded(
                     self.coeff,
                     self.n_frac_digits,
                     rhs as i128,
                     0_u8,
                     n_frac_digits,
-                );
-                Self::Output {
-                    coeff,
-                    n_frac_digits,
+                ) {
+                    Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    }
+                } else {
+                    panic!("{}", DecimalError::InternalOverflow);
                 }
             }
         }
@@ -332,16 +337,19 @@ macro_rules! impl_div_rounded_decimal_and_int {
                 if self == 0 {
                     return Decimal::ZERO;
                 }
-                let coeff = div_rounded(
+                if let Some(coeff) = checked_div_rounded(
                     self as i128,
                     0_u8,
                     rhs.coeff,
                     rhs.n_frac_digits,
                     n_frac_digits,
-                );
-                Self::Output {
-                    coeff,
-                    n_frac_digits,
+                ) {
+                    Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    }
+                } else {
+                    panic!("{}", DecimalError::InternalOverflow);
                 }
             }
         }
@@ -619,16 +627,19 @@ macro_rules! impl_div_rounded_int_and_int {
                 if self == 0 {
                     return Decimal::ZERO;
                 }
-                let coeff = div_rounded(
+                if let Some(coeff) = checked_div_rounded(
                     self as i128,
                     0_u8,
                     rhs as i128,
                     0_u8,
                     n_frac_digits,
-                );
-                Self::Output {
-                    coeff,
-                    n_frac_digits,
+                ) {
+                    Self::Output {
+                        coeff,
+                        n_frac_digits,
+                    }
+                } else {
+                    panic!("{}", DecimalError::InternalOverflow);
                 }
             }
         }
