@@ -7,10 +7,11 @@
 // $Source$
 // $Revision$
 
-use crate::Decimal;
-use core::cmp::min;
-use core::mem;
+use core::{cmp::min, mem};
+
 use fpdec_core::ten_pow;
+
+use crate::Decimal;
 
 /// Conversion of a number into an equivalent ratio of integers.
 pub trait AsIntegerRatio: Copy + Sized {
@@ -166,8 +167,9 @@ impl AsIntegerRatio for Decimal {
 
 #[cfg(test)]
 mod test_decimal_as_ratio {
-    use super::*;
     use fpdec_core::MAX_N_FRAC_DIGITS;
+
+    use super::*;
 
     #[test]
     fn test_decimal_as_ratio() {

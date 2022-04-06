@@ -8,6 +8,7 @@
 // $Revision$
 
 use core::convert::TryFrom;
+
 use fpdec_core::{div_mod_floor, magnitude, MAX_N_FRAC_DIGITS};
 
 use crate::{normalize, Decimal, DecimalError};

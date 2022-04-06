@@ -226,8 +226,9 @@ forward_ref_binop_decimal_int!(impl CheckedSub, checked_sub);
 
 #[cfg(test)]
 mod checked_add_sub_integer_tests {
-    use super::*;
     use fpdec_core::ten_pow;
+
+    use super::*;
 
     macro_rules! gen_checked_add_integer_tests {
         ($func:ident, $t:ty, $p:expr, $coeff:expr) => {

@@ -7,8 +7,7 @@
 // $Source$
 // $Revision$
 
-use crate::binops::div::div;
-use crate::Decimal;
+use crate::{binops::div::div, Decimal};
 
 /// Checked division.
 /// Computes `self / rhs`.

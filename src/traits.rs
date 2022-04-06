@@ -7,8 +7,7 @@
 // $Source$
 // $Revision$
 
-use core::ops::Add;
-use core::str::FromStr;
+use core::{ops::Add, str::FromStr};
 
 use num_traits::{Num, One, Zero};
 

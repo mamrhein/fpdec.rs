@@ -7,8 +7,7 @@
 // $Source$
 // $Revision$
 
-use crate::binops::rem::rem;
-use crate::Decimal;
+use crate::{binops::rem::rem, Decimal};
 
 /// Checked remainder.
 /// Computes `self % rhs`.

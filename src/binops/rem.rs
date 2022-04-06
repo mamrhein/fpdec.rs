@@ -233,8 +233,9 @@ forward_ref_binop_decimal_int!(impl Rem, rem);
 #[cfg(test)]
 #[allow(clippy::neg_multiply)]
 mod rem_integer_tests {
-    use super::*;
     use fpdec_core::mul_pow_ten;
+
+    use super::*;
 
     macro_rules! gen_rem_integer_tests {
         ($func:ident, $t:ty, $p:expr, $coeff:expr) => {

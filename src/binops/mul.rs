@@ -8,10 +8,12 @@
 // $Revision$
 
 use core::ops::{Mul, MulAssign};
+
 use fpdec_core::ten_pow;
 
-use crate::rounding::div_i128_rounded;
-use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
+use crate::{
+    rounding::div_i128_rounded, Decimal, DecimalError, MAX_N_FRAC_DIGITS,
+};
 
 impl Mul<Decimal> for Decimal {
     type Output = Self;
