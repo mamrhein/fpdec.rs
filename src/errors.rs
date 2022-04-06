@@ -17,9 +17,9 @@ use core::fmt::{Debug, Display, Formatter};
 /// operators panic.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DecimalError {
-    /// The precise result would have more than
-    /// [MAX_N_FRAC_DIGITS](crate::MAX_N_FRAC_DIGITS) fractional decimal digits.
-    FracDigitLimitExceeded,
+    /// More than [MAX_N_FRAC_DIGITS](crate::MAX_N_FRAC_DIGITS) fractional
+    /// decimal digits requested.
+    MaxNFracDigitsExceeded,
     /// The result would exceed the internal representation of `Decimal`.
     InternalOverflow,
     /// Attempt to convert an infinite value to `Decimal`.
@@ -34,8 +34,9 @@ impl DecimalError {
     #[doc(hidden)]
     pub fn _description(&self) -> &str {
         match self {
-            DecimalError::FracDigitLimitExceeded => {
-                "Result exceeds the maximum number of fractional digits."
+            DecimalError::MaxNFracDigitsExceeded => {
+                "More than MAX_N_FRAC_DIGITS fractional decimal digits \
+                 requested."
             }
             DecimalError::InternalOverflow => {
                 "Internal representation exceeded."
