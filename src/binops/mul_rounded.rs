@@ -9,9 +9,9 @@
 
 use core::cmp::Ordering;
 
-use fpdec_core::ten_pow;
+use fpdec_core::{ten_pow, MAX_N_FRAC_DIGITS};
 
-use crate::{rounding::div_i128_rounded, Decimal};
+use crate::{rounding::div_i128_rounded, Decimal, DecimalError};
 
 /// Multiplication giving a result rounded to a given number of fractional
 /// digits.
@@ -28,8 +28,11 @@ impl MulRounded<Decimal> for Decimal {
 
     #[inline]
     fn mul_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+        if n_frac_digits > MAX_N_FRAC_DIGITS {
+            panic!("{}", DecimalError::MaxNFracDigitsExceeded);
+        }
         let max_n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
-        match n_frac_digits.cmp(&(max_n_frac_digits)) {
+        match n_frac_digits.cmp(&max_n_frac_digits) {
             Ordering::Less => Self::Output {
                 coeff: div_i128_rounded(
                     self.coeff * rhs.coeff,

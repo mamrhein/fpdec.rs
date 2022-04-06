@@ -9,7 +9,7 @@
 
 use core::cmp::{min, Ordering};
 
-use fpdec_core::{checked_mul_pow_ten, magnitude, ten_pow};
+use fpdec_core::{checked_mul_pow_ten, magnitude, ten_pow, MAX_N_FRAC_DIGITS};
 
 use crate::{rounding::div_i128_rounded, Decimal, DecimalError};
 
@@ -118,6 +118,9 @@ impl DivRounded<Decimal> for Decimal {
     type Output = Self;
 
     fn div_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+        if n_frac_digits > MAX_N_FRAC_DIGITS {
+            panic!("{}", DecimalError::MaxNFracDigitsExceeded);
+        }
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }
@@ -193,7 +196,7 @@ mod div_rounded_decimal_tests {
         let z = x.div_rounded(y, 3);
         assert_eq!(z.coefficient(), 0);
         assert_eq!(z.n_frac_digits(), 0);
-        let z = x.div_rounded(y, 29);
+        let z = x.div_rounded(y, 18);
         assert_eq!(z.coefficient(), 0);
         assert_eq!(z.n_frac_digits(), 0);
     }
