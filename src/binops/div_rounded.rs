@@ -73,9 +73,8 @@ pub(crate) fn checked_div_rounded(
             } else {
                 let magn_divident = magnitude(divident_coeff);
                 let magn_shifted_divident = magn_divident + shift;
-                if (magn_shifted_divident - magnitude(divisor_coeff))
-                    > MAGN_I128_MAX
-                {
+                let magn_divisor = magnitude(divisor_coeff);
+                if (magn_shifted_divident - magn_divisor) > MAGN_I128_MAX {
                     return None;
                 }
                 let mut coeff = divident_coeff / divisor_coeff;

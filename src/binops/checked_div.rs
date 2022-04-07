@@ -7,7 +7,9 @@
 // $Source$
 // $Revision$
 
-use crate::{binops::div::div, Decimal};
+use crate::binops::div_rounded::checked_div_rounded;
+use crate::{normalize, Decimal};
+use fpdec_core::MAX_N_FRAC_DIGITS;
 
 /// Checked division.
 /// Computes `self / rhs`.
@@ -21,7 +23,7 @@ pub trait CheckedDiv<Rhs = Self> {
 }
 
 impl CheckedDiv<Decimal> for Decimal {
-    type Output = Option<Decimal>;
+    type Output = Option<Self>;
 
     fn checked_div(self, rhs: Decimal) -> Self::Output {
         if rhs.eq_zero() {
@@ -33,14 +35,19 @@ impl CheckedDiv<Decimal> for Decimal {
         if rhs.eq_one() {
             return Some(self);
         }
-        match div(self.coeff, self.n_frac_digits, rhs.coeff, rhs.n_frac_digits)
-        {
-            Ok((coeff, n_frac_digits)) => Some(Self {
-                coeff,
-                n_frac_digits,
-            }),
-            Err(_) => None,
-        }
+        let mut n_frac_digits = MAX_N_FRAC_DIGITS;
+        let mut coeff = checked_div_rounded(
+            self.coeff,
+            self.n_frac_digits,
+            rhs.coeff,
+            rhs.n_frac_digits,
+            n_frac_digits,
+        )?;
+        normalize(&mut coeff, &mut n_frac_digits);
+        Some(Self {
+            coeff,
+            n_frac_digits,
+        })
     }
 }
 
@@ -128,7 +135,7 @@ macro_rules! impl_div_decimal_and_int {
     ($($t:ty),*) => {
         $(
         impl CheckedDiv<$t> for Decimal {
-            type Output = Option<Decimal>;
+            type Output = Option<Self>;
 
             fn checked_div(self, rhs: $t) -> Self::Output {
                 if rhs == 0 {
@@ -140,14 +147,19 @@ macro_rules! impl_div_decimal_and_int {
                 if rhs == 1 {
                     return Some(self);
                 }
-                match div(self.coeff, self.n_frac_digits, rhs as i128, 0)
-                {
-                    Ok((coeff, n_frac_digits)) => Some(Self {
-                        coeff,
-                        n_frac_digits,
-                    }),
-                    Err(_) => None,
-                }
+                let mut n_frac_digits = MAX_N_FRAC_DIGITS;
+                let mut coeff = checked_div_rounded(
+                    self.coeff,
+                    self.n_frac_digits,
+                    rhs as i128,
+                    0,
+                    n_frac_digits,
+                )?;
+                normalize(&mut coeff, &mut n_frac_digits);
+                Some(Self {
+                    coeff,
+                    n_frac_digits,
+                })
             }
         }
 
@@ -167,14 +179,19 @@ macro_rules! impl_div_decimal_and_int {
                         n_frac_digits: 0
                     });
                 }
-                match div(self as i128, 0, rhs.coeff, rhs.n_frac_digits)
-                {
-                    Ok((coeff, n_frac_digits)) => Some(Decimal {
-                        coeff,
-                        n_frac_digits,
-                    }),
-                    Err(_) => None,
-                }
+                let mut n_frac_digits = MAX_N_FRAC_DIGITS;
+                let mut coeff = checked_div_rounded(
+                    self as i128,
+                    0,
+                    rhs.coeff,
+                    rhs.n_frac_digits,
+                    n_frac_digits,
+                )?;
+                normalize(&mut coeff, &mut n_frac_digits);
+                Some(Decimal {
+                    coeff,
+                    n_frac_digits,
+                })
             }
         }
         )*
