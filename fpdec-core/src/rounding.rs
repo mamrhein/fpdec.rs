@@ -91,19 +91,15 @@ where
 
 // rounding helper
 
-/// Divide 'divident' by 'divisor' and round result according to 'mode'.
-#[doc(hidden)]
-pub fn div_i128_rounded(
-    mut divident: i128,
-    mut divisor: i128,
+// Round `quot` according to `mode` based on `rem` and `divisor`.
+// Pre-condition: 0 < divisor and rem <= divisor
+#[inline]
+fn round_quot(
+    quot: i128,
+    rem: i128,
+    divisor: i128,
     mode: Option<RoundingMode>,
 ) -> i128 {
-    if divisor < 0 {
-        divident = -divident;
-        divisor = -divisor;
-    }
-    let (quot, rem) = div_mod_floor(divident, divisor);
-    // div_mod_floor with divisor > 0 => rem >= 0
     if rem == 0 {
         // no need for rounding
         return quot;
@@ -184,6 +180,22 @@ pub fn div_i128_rounded(
     quot
 }
 
+/// Divide 'divident' by 'divisor' and round result according to 'mode'.
+#[doc(hidden)]
+pub fn div_i128_rounded(
+    mut divident: i128,
+    mut divisor: i128,
+    mode: Option<RoundingMode>,
+) -> i128 {
+    if divisor < 0 {
+        divident = -divident;
+        divisor = -divisor;
+    }
+    let (quot, rem) = div_mod_floor(divident, divisor);
+    // div_mod_floor with divisor > 0 => rem >= 0
+    round_quot(quot, rem, divisor, mode)
+}
+
 #[cfg(feature = "std")]
 #[cfg(test)]
 mod rounding_mode_tests {
@@ -258,7 +270,6 @@ mod helper_tests {
     fn test_div_rounded() {
         for (divident, divisor, rnd_mode, result) in TESTDATA {
             let quot = div_i128_rounded(divident, divisor, Some(rnd_mode));
-            // println!("{} {} {:?}", divident, divisor, rnd_mode);
             assert_eq!(quot, result);
         }
     }
