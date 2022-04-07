@@ -9,9 +9,9 @@
 
 use core::cmp::Ordering;
 
-use fpdec_core::{ten_pow, MAX_N_FRAC_DIGITS};
+use fpdec_core::{div_i128_rounded, ten_pow, MAX_N_FRAC_DIGITS};
 
-use crate::{round::div_i128_rounded, Decimal, DecimalError};
+use crate::{Decimal, DecimalError};
 
 /// Multiplication giving a result rounded to a given number of fractional
 /// digits.

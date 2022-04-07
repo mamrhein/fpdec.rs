@@ -13,9 +13,11 @@ use core::cmp::Ordering;
 
 pub use parser::{dec_repr_from_str, ParseDecimalError};
 pub use powers_of_ten::{checked_mul_pow_ten, mul_pow_ten, ten_pow};
+pub use rounding::{div_i128_rounded, Round, RoundingMode};
 
 mod parser;
 mod powers_of_ten;
+mod rounding;
 
 /// The maximum number of fractional decimal digits supported by `Decimal`.
 pub const MAX_N_FRAC_DIGITS: u8 = 18;

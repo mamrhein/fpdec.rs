@@ -11,11 +11,11 @@
 use core::cmp::{min, Ordering};
 use core::fmt;
 
-use fpdec_core::{div_mod_floor, ten_pow};
+use fpdec_core::{div_i128_rounded, div_mod_floor, ten_pow};
 
 use crate::Decimal;
 #[cfg(feature = "std")]
-use crate::{round::div_i128_rounded, MAX_N_FRAC_DIGITS};
+use crate::MAX_N_FRAC_DIGITS;
 
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {

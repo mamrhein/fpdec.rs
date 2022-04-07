@@ -9,11 +9,9 @@
 
 use core::ops::{Mul, MulAssign};
 
-use fpdec_core::ten_pow;
+use fpdec_core::{div_i128_rounded, ten_pow};
 
-use crate::{
-    round::div_i128_rounded, Decimal, DecimalError, MAX_N_FRAC_DIGITS,
-};
+use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 impl Mul<Decimal> for Decimal {
     type Output = Self;

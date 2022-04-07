@@ -24,13 +24,13 @@ pub use binops::{
 pub use errors::*;
 use fpdec_core::magnitude;
 #[doc(inline)]
-pub use fpdec_core::{ParseDecimalError, MAX_N_FRAC_DIGITS};
+pub use fpdec_core::{
+    ParseDecimalError, Round, RoundingMode, MAX_N_FRAC_DIGITS,
+};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
 #[doc(inline)]
 pub use quantize::Quantize;
-#[doc(inline)]
-pub use round::{Round, RoundingMode};
 
 mod as_integer_ratio;
 mod binops;
