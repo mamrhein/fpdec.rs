@@ -11,7 +11,7 @@ use core::cmp::{min, Ordering};
 
 use fpdec_core::{checked_mul_pow_ten, magnitude, ten_pow, MAX_N_FRAC_DIGITS};
 
-use crate::{rounding::div_i128_rounded, Decimal, DecimalError};
+use crate::{round::div_i128_rounded, Decimal, DecimalError};
 
 const MAGN_I128_MAX: u8 = 38;
 

@@ -11,7 +11,7 @@ use core::cmp::Ordering;
 
 use fpdec_core::{ten_pow, MAX_N_FRAC_DIGITS};
 
-use crate::{rounding::div_i128_rounded, Decimal, DecimalError};
+use crate::{round::div_i128_rounded, Decimal, DecimalError};
 
 /// Multiplication giving a result rounded to a given number of fractional
 /// digits.

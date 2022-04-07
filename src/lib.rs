@@ -30,7 +30,7 @@ pub use fpdec_macros::Dec;
 #[doc(inline)]
 pub use quantize::Quantize;
 #[doc(inline)]
-pub use rounding::{Round, RoundingMode};
+pub use round::{Round, RoundingMode};
 
 mod as_integer_ratio;
 mod binops;
@@ -40,7 +40,7 @@ mod from_float;
 mod from_int;
 mod from_str;
 mod quantize;
-mod rounding;
+mod round;
 #[cfg(feature = "num-traits")]
 mod traits;
 mod unops;
