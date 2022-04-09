@@ -22,7 +22,7 @@ pub use binops::{
 };
 #[doc(inline)]
 pub use errors::*;
-use fpdec_core::magnitude;
+use fpdec_core::i128_magnitude;
 #[doc(inline)]
 pub use fpdec_core::{
     ParseDecimalError, Round, RoundingMode, MAX_N_FRAC_DIGITS,
@@ -102,7 +102,7 @@ impl Decimal {
     /// assert_eq!(d.magnitude(), 0);
     #[inline(always)]
     pub fn magnitude(self) -> i8 {
-        magnitude(self.coeff) as i8 - self.n_frac_digits as i8
+        i128_magnitude(self.coeff) as i8 - self.n_frac_digits as i8
     }
 
     /// Additive identity

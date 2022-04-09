@@ -7,8 +7,9 @@
 // $Source$
 // $Revision$
 
+use fpdec_core::{i128_div_rounded, ten_pow, Round};
+
 use crate::Decimal;
-use fpdec_core::{div_i128_rounded, ten_pow, Round};
 
 impl Round for Decimal {
     /// Returns a new `Decimal` with its value rounded to `n_frac_digits`
@@ -41,7 +42,7 @@ impl Round for Decimal {
             // n_frac_digits < self.n_frac_digits
             let shift: u8 = (self.n_frac_digits as i8 - n_frac_digits) as u8;
             let divisor = ten_pow(shift);
-            let coeff = div_i128_rounded(self.coeff, divisor, None);
+            let coeff = i128_div_rounded(self.coeff, divisor, None);
             if n_frac_digits >= 0 {
                 Self {
                     coeff,
@@ -88,7 +89,7 @@ impl Round for Decimal {
             // n_frac_digits < self.n_frac_digits
             let shift: u8 = (self.n_frac_digits as i8 - n_frac_digits) as u8;
             let divisor = ten_pow(shift);
-            let coeff = div_i128_rounded(self.coeff, divisor, None);
+            let coeff = i128_div_rounded(self.coeff, divisor, None);
             if n_frac_digits >= 0 {
                 Some(Self {
                     coeff,

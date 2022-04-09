@@ -7,9 +7,9 @@
 // $Source$
 // $Revision$
 
-use crate::binops::div_rounded::checked_div_rounded;
-use crate::{normalize, Decimal};
 use fpdec_core::MAX_N_FRAC_DIGITS;
+
+use crate::{binops::div_rounded::checked_div_rounded, normalize, Decimal};
 
 /// Checked division.
 /// Computes `self / rhs`.

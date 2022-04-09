@@ -10,7 +10,7 @@
 use core::cmp::Ordering;
 
 use fpdec_core::{
-    checked_mul_pow_ten, div_i128_rounded, div_shifted_i128_rounded, ten_pow,
+    checked_mul_pow_ten, i128_div_rounded, i128_shifted_div_rounded, ten_pow,
     MAX_N_FRAC_DIGITS,
 };
 
@@ -61,7 +61,7 @@ pub(crate) fn checked_div_rounded(
     let mut shift = n_frac_digits + divisor_n_frac_digits;
     match divident_n_frac_digits.cmp(&shift) {
         Ordering::Equal => {
-            Some(div_i128_rounded(divident_coeff, divisor_coeff, None))
+            Some(i128_div_rounded(divident_coeff, divisor_coeff, None))
         }
         Ordering::Less => {
             // divident coeff needs to be shifted
@@ -69,9 +69,9 @@ pub(crate) fn checked_div_rounded(
             if let Some(shifted_divident) =
                 checked_mul_pow_ten(divident_coeff, shift)
             {
-                Some(div_i128_rounded(shifted_divident, divisor_coeff, None))
+                Some(i128_div_rounded(shifted_divident, divisor_coeff, None))
             } else {
-                div_shifted_i128_rounded(
+                i128_shifted_div_rounded(
                     divident_coeff,
                     shift,
                     divisor_coeff,
@@ -89,7 +89,7 @@ pub(crate) fn checked_div_rounded(
             shift = divident_n_frac_digits - shift;
             // shift < divident_n_frac_digits => shift < 38 => ten_pow(shift)
             // is safe
-            Some(div_i128_rounded(
+            Some(i128_div_rounded(
                 divident_coeff / divisor_coeff,
                 ten_pow(shift),
                 None,

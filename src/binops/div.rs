@@ -9,8 +9,10 @@
 
 use core::ops::{Div, DivAssign};
 
-use crate::binops::div_rounded::checked_div_rounded;
-use crate::{normalize, Decimal, DecimalError, MAX_N_FRAC_DIGITS};
+use crate::{
+    binops::div_rounded::checked_div_rounded, normalize, Decimal, DecimalError,
+    MAX_N_FRAC_DIGITS,
+};
 
 impl Div<Decimal> for Decimal {
     type Output = Decimal;

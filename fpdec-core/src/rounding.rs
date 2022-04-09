@@ -10,7 +10,7 @@
 #[cfg(feature = "std")]
 use core::cell::RefCell;
 
-use crate::{div_mod_floor, shifted_div_mod_floor};
+use crate::{i128_div_mod_floor, i128_shifted_div_mod_floor};
 
 /// Enum representing the different methods used when rounding a number.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -182,7 +182,7 @@ fn round_quot(
 
 /// Divide 'divident' by 'divisor' and round result according to 'mode'.
 #[doc(hidden)]
-pub fn div_i128_rounded(
+pub fn i128_div_rounded(
     mut divident: i128,
     mut divisor: i128,
     mode: Option<RoundingMode>,
@@ -191,14 +191,14 @@ pub fn div_i128_rounded(
         divident = -divident;
         divisor = -divisor;
     }
-    let (quot, rem) = div_mod_floor(divident, divisor);
+    let (quot, rem) = i128_div_mod_floor(divident, divisor);
     // div_mod_floor with divisor > 0 => rem >= 0
     round_quot(quot, rem, divisor, mode)
 }
 
 /// Divide 'divident * 10^p' by 'divisor' and round result according to 'mode'.
 #[doc(hidden)]
-pub fn div_shifted_i128_rounded(
+pub fn i128_shifted_div_rounded(
     mut divident: i128,
     p: u8,
     mut divisor: i128,
@@ -208,7 +208,7 @@ pub fn div_shifted_i128_rounded(
         divident = -divident;
         divisor = -divisor;
     }
-    let (quot, rem) = shifted_div_mod_floor(divident, p, divisor)?;
+    let (quot, rem) = i128_shifted_div_mod_floor(divident, p, divisor)?;
     // div_mod_floor with divisor > 0 => rem >= 0
     Some(round_quot(quot, rem, divisor, mode))
 }
@@ -286,7 +286,7 @@ mod helper_tests {
     #[test]
     fn test_div_rounded() {
         for (divident, divisor, rnd_mode, result) in TESTDATA {
-            let quot = div_i128_rounded(divident, divisor, Some(rnd_mode));
+            let quot = i128_div_rounded(divident, divisor, Some(rnd_mode));
             assert_eq!(quot, result);
         }
     }

@@ -9,7 +9,7 @@
 
 use core::cmp::Ordering;
 
-use fpdec_core::{div_i128_rounded, ten_pow, MAX_N_FRAC_DIGITS};
+use fpdec_core::{i128_div_rounded, ten_pow, MAX_N_FRAC_DIGITS};
 
 use crate::{Decimal, DecimalError};
 
@@ -34,7 +34,7 @@ impl MulRounded<Decimal> for Decimal {
         let max_n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
         match n_frac_digits.cmp(&max_n_frac_digits) {
             Ordering::Less => Self::Output {
-                coeff: div_i128_rounded(
+                coeff: i128_div_rounded(
                     self.coeff * rhs.coeff,
                     ten_pow(max_n_frac_digits - n_frac_digits),
                     None,

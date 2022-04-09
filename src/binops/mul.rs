@@ -9,7 +9,7 @@
 
 use core::ops::{Mul, MulAssign};
 
-use fpdec_core::{div_i128_rounded, ten_pow};
+use fpdec_core::{i128_div_rounded, ten_pow};
 
 use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
@@ -23,7 +23,7 @@ impl Mul<Decimal> for Decimal {
         } else {
             if let Some(coeff) = self.coeff.checked_mul(rhs.coeff) {
                 let shift = n_frac_digits - MAX_N_FRAC_DIGITS;
-                let rnd_coeff = div_i128_rounded(coeff, ten_pow(shift), None);
+                let rnd_coeff = i128_div_rounded(coeff, ten_pow(shift), None);
                 (rnd_coeff, MAX_N_FRAC_DIGITS)
             } else {
                 // TODO: alternate strategy to avoid overflow

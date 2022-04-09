@@ -10,13 +10,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use core::cmp::Ordering;
-use std::cmp::min;
-use std::ops::Neg;
+use std::{cmp::min, ops::Neg};
 
 pub use parser::{dec_repr_from_str, ParseDecimalError};
 pub use powers_of_ten::{checked_mul_pow_ten, mul_pow_ten, ten_pow};
 pub use rounding::{
-    div_i128_rounded, div_shifted_i128_rounded, Round, RoundingMode,
+    i128_div_rounded, i128_shifted_div_rounded, Round, RoundingMode,
 };
 
 mod parser;
@@ -56,7 +55,7 @@ pub fn checked_adjust_coeffs(
 /// as y and `0 <= abs(r) < abs(y)`.
 #[doc(hidden)]
 #[inline]
-pub fn div_mod_floor(x: i128, y: i128) -> (i128, i128) {
+pub fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
     let (q, r) = (x / y, x % y);
     if (r > 0 && y < 0) || (r < 0 && y > 0) {
         (q - 1, r + y)
@@ -67,7 +66,7 @@ pub fn div_mod_floor(x: i128, y: i128) -> (i128, i128) {
 
 #[doc(hidden)]
 #[inline]
-pub fn magnitude(i: i128) -> u8 {
+pub fn i128_magnitude(i: i128) -> u8 {
     // TODO: change after feature(int_log) got stable:
     // i.log(10).trunc() as u8
     (i.abs() as f64).log10().trunc() as u8
@@ -75,7 +74,7 @@ pub fn magnitude(i: i128) -> u8 {
 
 /// Return the index of the most significant bit of an u128.
 /// The given u128 must not be zero!
-fn msb(mut i: u128) -> u8 {
+fn u128_msb(mut i: u128) -> u8 {
     debug_assert_ne!(i, 0);
     const IDX_MAP: [u8; 16] = [0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];
     let mut n: u8 = 0;
@@ -106,7 +105,11 @@ fn msb(mut i: u128) -> u8 {
 /// `(x * 10^p) = q * y + r`, where q is rounded against floor so that r, if
 /// non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`.
 #[doc(hidden)]
-pub fn shifted_div_mod_floor(x: i128, p: u8, y: i128) -> Option<(i128, i128)> {
+pub fn i128_shifted_div_mod_floor(
+    x: i128,
+    p: u8,
+    y: i128,
+) -> Option<(i128, i128)> {
     // x * 10^p may overflow, so we proceed stepwise, in each step shifting the
     // divident so that it highest bit is set.
     let mut q: u128 = 0;
@@ -115,7 +118,7 @@ pub fn shifted_div_mod_floor(x: i128, p: u8, y: i128) -> Option<(i128, i128)> {
     let neg = x.is_negative() != y.is_negative();
     let mut n = p;
     while n > 0 {
-        let m = min(n, 127_u8 - msb(r));
+        let m = min(n, 127_u8 - u128_msb(r));
         q = q.checked_shl(m as u32)?;
         let t = r << m;
         q = q.checked_add(t / d)?;
@@ -128,7 +131,7 @@ pub fn shifted_div_mod_floor(x: i128, p: u8, y: i128) -> Option<(i128, i128)> {
     if q > (1 << 127) - 1 {
         return None;
     }
-    let (mut sq, sr) = div_mod_floor(t as i128, y);
+    let (mut sq, sr) = i128_div_mod_floor(t as i128, y);
     sq += q as i128;
     if neg {
         sq = sq.neg();

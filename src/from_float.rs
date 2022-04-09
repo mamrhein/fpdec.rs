@@ -9,7 +9,7 @@
 
 use core::convert::TryFrom;
 
-use fpdec_core::{div_mod_floor, magnitude, MAX_N_FRAC_DIGITS};
+use fpdec_core::{i128_div_mod_floor, i128_magnitude, MAX_N_FRAC_DIGITS};
 
 use crate::{normalize, Decimal, DecimalError};
 
@@ -81,8 +81,8 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
         return (0, 0);
     }
     let mut n_frac_digits = 0_u8;
-    let (mut coeff, mut rem) = div_mod_floor(divident, divisor);
-    let mut magn_coeff = magnitude(coeff);
+    let (mut coeff, mut rem) = i128_div_mod_floor(divident, divisor);
+    let mut magn_coeff = i128_magnitude(coeff);
     while rem != 0
         && n_frac_digits < MAX_N_FRAC_DIGITS
         && magn_coeff < MAGN_I128_MAX - 1

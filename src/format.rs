@@ -11,7 +11,7 @@
 use core::cmp::{min, Ordering};
 use core::fmt;
 
-use fpdec_core::{div_i128_rounded, div_mod_floor, ten_pow};
+use fpdec_core::{i128_div_mod_floor, i128_div_rounded, ten_pow};
 
 use crate::Decimal;
 #[cfg(feature = "std")]
@@ -23,7 +23,7 @@ impl fmt::Debug for Decimal {
             write!(form, "Dec!({})", self.coefficient())
         } else {
             let (int, frac) =
-                div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
+                i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
             write!(
                 form,
                 "Dec!({}.{:0width$})",
@@ -85,20 +85,21 @@ impl fmt::Display for Decimal {
             }
         } else {
             let (int, frac) = match prec.cmp(&(self.n_frac_digits as usize)) {
-                Ordering::Equal => {
-                    div_mod_floor(self.coeff.abs(), ten_pow(self.n_frac_digits))
-                }
+                Ordering::Equal => i128_div_mod_floor(
+                    self.coeff.abs(),
+                    ten_pow(self.n_frac_digits),
+                ),
                 Ordering::Less => {
                     // Important: first round, then take abs() !
-                    let coeff = div_i128_rounded(
+                    let coeff = i128_div_rounded(
                         self.coeff,
                         ten_pow(self.n_frac_digits - prec as u8),
                         None,
                     );
-                    div_mod_floor(coeff.abs(), ten_pow(prec as u8))
+                    i128_div_mod_floor(coeff.abs(), ten_pow(prec as u8))
                 }
                 Ordering::Greater => {
-                    let (int, frac) = div_mod_floor(
+                    let (int, frac) = i128_div_mod_floor(
                         self.coeff.abs(),
                         ten_pow(self.n_frac_digits),
                     );
