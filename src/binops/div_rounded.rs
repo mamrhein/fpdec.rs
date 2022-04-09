@@ -66,6 +66,7 @@ pub(crate) fn checked_div_rounded(
         Ordering::Less => {
             // divident coeff needs to be shifted
             shift -= divident_n_frac_digits;
+            // 0 < shift <= 36
             if let Some(shifted_divident) =
                 checked_mul_pow_ten(divident_coeff, shift)
             {
@@ -87,7 +88,7 @@ pub(crate) fn checked_div_rounded(
             // thus avoiding i128 overflow.
             // divident_n_frac_digits > shift
             shift = divident_n_frac_digits - shift;
-            // shift < divident_n_frac_digits => shift < 38 => ten_pow(shift)
+            // shift < divident_n_frac_digits => shift < 18 => ten_pow(shift)
             // is safe
             Some(i128_div_rounded(
                 divident_coeff / divisor_coeff,
