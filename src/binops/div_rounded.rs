@@ -7,10 +7,10 @@
 // $Source$
 // $Revision$
 
-use core::cmp::{min, Ordering};
+use core::cmp::Ordering;
 
 use fpdec_core::{
-    checked_mul_pow_ten, div_i128_rounded, magnitude, ten_pow,
+    checked_mul_pow_ten, div_i128_rounded, div_shifted_i128_rounded, ten_pow,
     MAX_N_FRAC_DIGITS,
 };
 
@@ -71,29 +71,12 @@ pub(crate) fn checked_div_rounded(
             {
                 Some(div_i128_rounded(shifted_divident, divisor_coeff, None))
             } else {
-                let magn_divident = magnitude(divident_coeff);
-                let magn_shifted_divident = magn_divident + shift;
-                let magn_divisor = magnitude(divisor_coeff);
-                if (magn_shifted_divident - magn_divisor) > MAGN_I128_MAX {
-                    return None;
-                }
-                let mut coeff = divident_coeff / divisor_coeff;
-                let mut rem = divident_coeff % divisor_coeff;
-                let mut rem_shift = shift;
-                let mut step_shift =
-                    min(rem_shift, MAGN_I128_MAX - magnitude(rem));
-                while step_shift < rem_shift {
-                    coeff *= ten_pow(step_shift);
-                    rem *= ten_pow(step_shift);
-                    coeff += rem / divisor_coeff;
-                    rem %= divisor_coeff;
-                    rem_shift -= step_shift;
-                    step_shift = min(rem_shift, MAGN_I128_MAX - magnitude(rem));
-                }
-                coeff *= ten_pow(step_shift);
-                rem *= ten_pow(step_shift);
-                coeff += div_i128_rounded(rem, divisor_coeff, None);
-                Some(coeff)
+                div_shifted_i128_rounded(
+                    divident_coeff,
+                    shift,
+                    divisor_coeff,
+                    None,
+                )
             }
         }
         Ordering::Greater => {

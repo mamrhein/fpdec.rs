@@ -106,6 +106,16 @@ mod checked_div_decimal_tests {
         assert!(z.is_none());
     }
 
+    // corner case where divident * shift overflows, but result doesn't
+    #[test]
+    fn test_checked_div_stepwise() {
+        let x = Decimal::new_raw(mul_pow_ten(17, 17), 0);
+        let y = Decimal::new_raw(20498, 5);
+        let z = x.checked_div(y).unwrap();
+        assert_eq!(z.coefficient(), 8293492048004683383744755585910820568_i128);
+        assert_eq!(z.n_frac_digits(), 18);
+    }
+
     #[test]
     fn test_checked_div_overflow() {
         let x = Decimal::new_raw(mul_pow_ten(17, 20), 0);

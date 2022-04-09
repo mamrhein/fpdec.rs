@@ -10,7 +10,7 @@
 #[cfg(feature = "std")]
 use core::cell::RefCell;
 
-use crate::div_mod_floor;
+use crate::{div_mod_floor, shifted_div_mod_floor};
 
 /// Enum representing the different methods used when rounding a number.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -194,6 +194,23 @@ pub fn div_i128_rounded(
     let (quot, rem) = div_mod_floor(divident, divisor);
     // div_mod_floor with divisor > 0 => rem >= 0
     round_quot(quot, rem, divisor, mode)
+}
+
+/// Divide 'divident * 10^p' by 'divisor' and round result according to 'mode'.
+#[doc(hidden)]
+pub fn div_shifted_i128_rounded(
+    mut divident: i128,
+    p: u8,
+    mut divisor: i128,
+    mode: Option<RoundingMode>,
+) -> Option<i128> {
+    if divisor < 0 {
+        divident = -divident;
+        divisor = -divisor;
+    }
+    let (quot, rem) = shifted_div_mod_floor(divident, p, divisor)?;
+    // div_mod_floor with divisor > 0 => rem >= 0
+    Some(round_quot(quot, rem, divisor, mode))
 }
 
 #[cfg(feature = "std")]
