@@ -25,6 +25,15 @@ impl CheckedMul<Decimal> for Decimal {
 
     #[inline]
     fn checked_mul(self, rhs: Decimal) -> Self::Output {
+        if self.eq_zero() || rhs.eq_zero() {
+            return Some(Self::ZERO);
+        }
+        if rhs.eq_one() {
+            return Some(self);
+        }
+        if self.eq_one() {
+            return Some(rhs);
+        }
         let n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             return None;

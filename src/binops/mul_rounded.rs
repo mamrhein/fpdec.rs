@@ -7,9 +7,9 @@
 // $Source$
 // $Revision$
 
-use core::cmp::Ordering;
-
-use fpdec_core::{i128_div_rounded, ten_pow, MAX_N_FRAC_DIGITS};
+use fpdec_core::{
+    i128_div_rounded, i128_mul_div_ten_pow_rounded, ten_pow, MAX_N_FRAC_DIGITS,
+};
 
 use crate::{Decimal, DecimalError};
 
@@ -23,6 +23,36 @@ pub trait MulRounded<Rhs = Self> {
     fn mul_rounded(self, rhs: Rhs, n_frac_digits: u8) -> Self::Output;
 }
 
+pub(crate) fn checked_mul_rounded(
+    x: Decimal,
+    y: Decimal,
+    n_frac_digits: u8,
+) -> Option<Decimal> {
+    let max_n_frac_digits = x.n_frac_digits + y.n_frac_digits;
+    if n_frac_digits >= max_n_frac_digits {
+        // no need for rounding
+        Some(Decimal {
+            coeff: x.coeff.checked_mul(y.coeff)?,
+            n_frac_digits: max_n_frac_digits,
+        })
+    } else {
+        let shift = max_n_frac_digits - n_frac_digits;
+        if let Some(coeff) = x.coeff.checked_mul(y.coeff) {
+            Some(Decimal {
+                coeff: i128_div_rounded(coeff, ten_pow(shift), None),
+                n_frac_digits,
+            })
+        } else {
+            let coeff =
+                i128_mul_div_ten_pow_rounded(x.coeff, y.coeff, shift, None)?;
+            Some(Decimal {
+                coeff,
+                n_frac_digits,
+            })
+        }
+    }
+}
+
 impl MulRounded<Decimal> for Decimal {
     type Output = Self;
 
@@ -31,21 +61,13 @@ impl MulRounded<Decimal> for Decimal {
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::MaxNFracDigitsExceeded);
         }
-        let max_n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
-        match n_frac_digits.cmp(&max_n_frac_digits) {
-            Ordering::Less => Self::Output {
-                coeff: i128_div_rounded(
-                    self.coeff * rhs.coeff,
-                    ten_pow(max_n_frac_digits - n_frac_digits),
-                    None,
-                ),
-                n_frac_digits,
-            },
-            // no need for rounding
-            _ => Self::Output {
-                coeff: self.coeff * rhs.coeff,
-                n_frac_digits: max_n_frac_digits,
-            },
+        if self.eq_zero() || rhs.eq_zero() {
+            return Self::ZERO;
+        }
+        if let Some(res) = checked_mul_rounded(self, rhs, n_frac_digits) {
+            res
+        } else {
+            panic!("{}", DecimalError::InternalOverflow);
         }
     }
 }

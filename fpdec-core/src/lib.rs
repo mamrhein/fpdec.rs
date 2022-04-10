@@ -15,7 +15,8 @@ use std::ops::Neg;
 pub use parser::{dec_repr_from_str, ParseDecimalError};
 pub use powers_of_ten::{checked_mul_pow_ten, mul_pow_ten, ten_pow};
 pub use rounding::{
-    i128_div_rounded, i128_shifted_div_rounded, Round, RoundingMode,
+    i128_div_rounded, i128_mul_div_ten_pow_rounded, i128_shifted_div_rounded,
+    Round, RoundingMode,
 };
 
 mod parser;
@@ -270,6 +271,28 @@ pub fn i128_shifted_div_mod_floor(
             q = q.neg() - 1;
             r = r - y;
         }
+    }
+    Some((q, r))
+}
+
+/// Return `Some<(q, r)>` with `q = (x1 * x2) / y` and `r = (x1 * x2) % y`,
+/// so that `(x1 * x2) = q * y + r`, where q is rounded against floor so that
+/// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or return
+/// `None` if |q| > i128::MAX.
+#[doc(hidden)]
+pub fn i256_div_mod_floor(x1: i128, x2: i128, y: i128) -> Option<(i128, i128)> {
+    debug_assert!(y > 0);
+    let (mut xh, mut xl) = u128_mul_u128(x1.abs() as u128, x2.abs() as u128);
+    let r = u256_idiv_u128(&mut xh, &mut xl, y.abs() as u128);
+    if xh != 0 || xl > i128::MAX as u128 {
+        return None;
+    }
+    let mut q = xl as i128;
+    // r < y, so r as i128 is safe.
+    let mut r = r as i128;
+    if x1.is_negative() != x2.is_negative() {
+        q = q.neg() - 1;
+        r = y - r;
     }
     Some((q, r))
 }

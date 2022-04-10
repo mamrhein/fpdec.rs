@@ -9,30 +9,26 @@
 
 use core::ops::{Mul, MulAssign};
 
-use fpdec_core::{i128_div_rounded, ten_pow};
-
+use crate::binops::mul_rounded::checked_mul_rounded;
 use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
 impl Mul<Decimal> for Decimal {
     type Output = Self;
 
     fn mul(self, rhs: Decimal) -> Self::Output {
-        let n_frac_digits = self.n_frac_digits + rhs.n_frac_digits;
-        let (coeff, n_frac_digits) = if n_frac_digits <= MAX_N_FRAC_DIGITS {
-            (self.coeff * rhs.coeff, n_frac_digits)
+        if self.eq_zero() || rhs.eq_zero() {
+            return Self::ZERO;
+        }
+        if rhs.eq_one() {
+            return self;
+        }
+        if self.eq_one() {
+            return rhs;
+        }
+        if let Some(res) = checked_mul_rounded(self, rhs, MAX_N_FRAC_DIGITS) {
+            res
         } else {
-            if let Some(coeff) = self.coeff.checked_mul(rhs.coeff) {
-                let shift = n_frac_digits - MAX_N_FRAC_DIGITS;
-                let rnd_coeff = i128_div_rounded(coeff, ten_pow(shift), None);
-                (rnd_coeff, MAX_N_FRAC_DIGITS)
-            } else {
-                // TODO: alternate strategy to avoid overflow
-                panic!("{}", DecimalError::InternalOverflow);
-            }
-        };
-        Self::Output {
-            coeff,
-            n_frac_digits,
+            panic!("{}", DecimalError::InternalOverflow);
         }
     }
 }
@@ -67,11 +63,21 @@ mod mul_decimal_tests {
     }
 
     #[test]
-    fn test_mul_frac_limit_exceeded() {
+    fn test_mul_frac_limit_forced() {
         let x = Decimal::new_raw(1, 18);
         let y = Decimal::new_raw(1, 16);
         let z = x * y;
         assert_eq!(z.coefficient(), 0);
+        assert_eq!(z.n_frac_digits, MAX_N_FRAC_DIGITS);
+    }
+
+    // corner case where x * y exceeds i128::MAX, but result is rounded
+    #[test]
+    fn test_mul_frac_limt_forced_from_i256_coeff() {
+        let x = Decimal::new_raw(i64::MIN as i128, 10);
+        let y = Decimal::new_raw(27 * (i64::MAX as i128), 12);
+        let z = x * y;
+        assert_eq!(z.coefficient(), -229690597671633462812874755516935648);
         assert_eq!(z.n_frac_digits, MAX_N_FRAC_DIGITS);
     }
 
