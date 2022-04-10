@@ -96,8 +96,8 @@ where
 #[inline]
 fn round_quot(
     quot: i128,
-    rem: i128,
-    divisor: i128,
+    rem: u128,
+    divisor: u128,
     mode: Option<RoundingMode>,
 ) -> i128 {
     if rem == 0 {
@@ -193,7 +193,7 @@ pub fn i128_div_rounded(
     }
     let (quot, rem) = i128_div_mod_floor(divident, divisor);
     // div_mod_floor with divisor > 0 => rem >= 0
-    round_quot(quot, rem, divisor, mode)
+    round_quot(quot, rem as u128, divisor as u128, mode)
 }
 
 /// Divide 'divident * 10^p' by 'divisor' and round result according to 'mode'.
@@ -210,7 +210,7 @@ pub fn i128_shifted_div_rounded(
     }
     let (quot, rem) = i128_shifted_div_mod_floor(divident, p, divisor)?;
     // div_mod_floor with divisor > 0 => rem >= 0
-    Some(round_quot(quot, rem, divisor, mode))
+    Some(round_quot(quot, rem as u128, divisor as u128, mode))
 }
 
 #[cfg(feature = "std")]
