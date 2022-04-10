@@ -99,6 +99,19 @@ mod div_decimal_tests {
         assert_eq!(z.n_frac_digits(), 0);
     }
 
+    // corner case where divident * shift exceeds i128::MAX, but result doesn't
+    #[test]
+    fn test_div_internal_overflow() {
+        let x = Decimal::new_raw(i128::MAX - 1, 0);
+        let y = Decimal::new_raw(i128::MAX, 0);
+        let z = x / y;
+        assert_eq!(z.coefficient(), 1);
+        assert_eq!(z.n_frac_digits(), 0);
+        let z = y / x;
+        assert_eq!(z.coefficient(), 1);
+        assert_eq!(z.n_frac_digits(), 0);
+    }
+
     #[test]
     fn test_div_by_one() {
         let x = Decimal::new_raw(17, 5);
@@ -127,15 +140,6 @@ mod div_decimal_tests {
         let y = Decimal::new_raw(2, 19);
         let _z = x / y;
     }
-
-    // TODO: Fix div and reactivate this test case
-    // #[test]
-    // #[should_panic]
-    // fn test_div_internal_overflow() {
-    //     let x = Decimal::new_raw(i128::MAX - 1, 0);
-    //     let y = Decimal::new_raw(i128::MAX, 0);
-    //     let _z = x / y;
-    // }
 
     #[test]
     fn test_div_ref() {
