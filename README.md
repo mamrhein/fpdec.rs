@@ -17,7 +17,7 @@ decimal digits (stored as a `u8`). The latter is limited to a value given by
 the constant `MAX_N_FRAC_DIGITS` = 18.
 
 ### Status
-Experimental (work in progess)
+Work in progess, but most of the API is stable.
 
 ## Getting started
 
@@ -25,7 +25,7 @@ Add `fpdec` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fpdec = "0.4.1"
+fpdec = "0.5"
 ```
 
 ## Usage
