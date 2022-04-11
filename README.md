@@ -117,6 +117,22 @@ assert_eq!(z.to_string(), "-3.5");
 let z = x % y;
 assert_eq!(z.to_string(), "2.5");
 ```
+The results of Multiplication or Division are not exact in any case. If the
+number of fractional decimal digits of the exact result would exceed
+`MAX_N_FRAC_DIGITS` fractional decimal digits, the result given is rounded to
+fit this limit.
+
+```rust
+# use fpdec::{Dec, Decimal};
+let x = Dec!(1e-10);
+let y = Dec!(75e-9);
+let z = x * y;
+assert_eq!(z.to_string(), "0.000000000000000008");
+let x = Dec!(1.);
+let y = Dec!(3.);
+let z = x / y;
+assert_eq!(z.to_string(), "0.333333333333333333");
+```
 
 All these binary numeric operators panic if the result is not representable as 
 a `Decimal` according to the constraints stated above. In addition, there are
