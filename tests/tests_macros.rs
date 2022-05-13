@@ -59,4 +59,22 @@ mod tests {
         assert_eq!(d.coefficient(), 7000040020000000000);
         assert_eq!(d.n_frac_digits(), 0);
     }
+
+    #[test]
+    fn test_dec_const() {
+        const D: Decimal = Dec!(17.5);
+        assert_eq!(D.coefficient(), 175);
+        assert_eq!(D.n_frac_digits(), 1);
+    }
+
+    struct Test {
+        d: Decimal,
+    }
+
+    #[test]
+    fn test_dec_in_const_struct() {
+        const T: Test = Test { d: Dec!(17.5) };
+        assert_eq!(T.d.coefficient(), 175);
+        assert_eq!(T.d.n_frac_digits(), 1);
+    }
 }

@@ -61,11 +61,10 @@ impl Decimal {
     // needs to be public because of macro Dec!
     #[doc(hidden)]
     #[inline(always)]
-    pub fn new_raw(coeff: i128, n_frac_digits: u8) -> Self {
+    pub const fn new_raw(coeff: i128, n_frac_digits: u8) -> Self {
         debug_assert!(
             n_frac_digits <= MAX_N_FRAC_DIGITS,
-            "{}",
-            DecimalError::MaxNFracDigitsExceeded
+            "More than MAX_N_FRAC_DIGITS fractional decimal digits requested."
         );
         Self {
             coeff,
