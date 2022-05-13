@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.5.1     Changed internal fn, so that macro Dec! can be used in a const
+          context.
+
 0.5.0     Reduced MAX_N_FRAC_DIGITS to 18.
           If the exact result of Multiplication or Division would exceed
           MAX_N_FRAC_DIGITS, a result rounded to MAX_N_FRAC_DIGITS is returned
