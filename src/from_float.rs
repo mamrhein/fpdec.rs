@@ -13,8 +13,6 @@ use fpdec_core::{i128_div_mod_floor, i128_magnitude, MAX_N_FRAC_DIGITS};
 
 use crate::{normalize, Decimal, DecimalError};
 
-// TODO: replace the following two functions when feature dec2flt got stable
-
 /// Returns a normal f64 value f as (mantissa, exponent, sign) so that
 /// `f = sign * mantissa * 2 ^ exponent`.
 /// If f is signed zero or subnormal, (0, 0, 0) is returned.
