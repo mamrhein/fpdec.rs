@@ -12,6 +12,8 @@
 #![allow(dead_code)]
 #![warn(missing_docs)]
 
+extern crate alloc;
+
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]

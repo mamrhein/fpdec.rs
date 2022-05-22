@@ -231,6 +231,8 @@ pub fn dec_repr_from_str(
 
 #[cfg(test)]
 mod tests {
+    use alloc::format;
+
     use super::*;
     use crate::dec_repr_from_str;
 
