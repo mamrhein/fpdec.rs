@@ -10,6 +10,8 @@
 use fpdec_core::{i128_div_rounded, ten_pow, Round};
 
 use crate::Decimal;
+#[cfg(doc)]
+use crate::RoundingMode;
 
 impl Round for Decimal {
     /// Returns a new `Decimal` with its value rounded to `n_frac_digits`
