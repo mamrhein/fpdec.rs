@@ -231,8 +231,6 @@ pub fn dec_repr_from_str(
 
 #[cfg(test)]
 mod tests {
-    use alloc::format;
-
     use super::*;
     use crate::dec_repr_from_str;
 
@@ -316,9 +314,7 @@ mod tests {
 
     #[test]
     fn test_int_lit_max_val_exceeded() {
-        let i = i128::MIN;
-        let mut s = format!("{}", i);
-        s.remove(0);
+        let s = "170141183460469231731687303715884105728";
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();
@@ -327,8 +323,7 @@ mod tests {
 
     #[test]
     fn test_dec_lit_max_val_exceeded() {
-        let i = i128::MAX / 100 + 1;
-        let s = format!("{}.00", i);
+        let s = "1701411834604692317316873037158841058.00";
         let res = dec_repr_from_str(&s);
         assert!(res.is_err());
         let err = res.unwrap_err();

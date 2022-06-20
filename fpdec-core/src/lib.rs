@@ -17,8 +17,6 @@
 #![warn(trivial_casts, trivial_numeric_casts)]
 #![warn(unused)]
 
-extern crate alloc;
-
 use core::{cmp::Ordering, ops::Neg};
 
 pub use parser::{dec_repr_from_str, ParseDecimalError};
