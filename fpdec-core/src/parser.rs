@@ -100,7 +100,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
                 }
             }
             Some((idx, ch)) => {
-                if !ch.is_digit(10) {
+                if !ch.is_ascii_digit() {
                     int_part_range.end = idx;
                     curr_char = ch;
                     curr_idx = idx;
@@ -126,7 +126,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
                     });
                 }
                 Some((idx, ch)) => {
-                    if !ch.is_digit(10) {
+                    if !ch.is_ascii_digit() {
                         frac_part_range.end = idx;
                         curr_char = ch;
                         break;
@@ -145,7 +145,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
         if curr_char == '-' || curr_char == '+' {
             exp_sign_range = curr_idx..curr_idx + 1;
             exp_part_range.start = curr_idx + 1;
-        } else if curr_char.is_digit(10) {
+        } else if curr_char.is_ascii_digit() {
             exp_part_range.start = curr_idx;
         } else {
             return Result::Err(ParseDecimalError::Invalid);
@@ -158,7 +158,7 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
                     break;
                 }
                 Some((_, ch)) => {
-                    if !ch.is_digit(10) {
+                    if !ch.is_ascii_digit() {
                         return Result::Err(ParseDecimalError::Invalid);
                     }
                 }
