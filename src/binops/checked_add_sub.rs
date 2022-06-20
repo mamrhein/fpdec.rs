@@ -187,11 +187,11 @@ macro_rules! impl_checked_add_sub_decimal_and_int {
             #[inline]
             fn $method(self, rhs: $t) -> Self::Output {
                 let coeff = if self.n_frac_digits == 0 {
-                    i128::$method(self.coeff, rhs as i128)
+                    i128::$method(self.coeff, i128::from(rhs))
                 } else {
                     i128::$method(
                         self.coeff,
-                        checked_mul_pow_ten(rhs as i128, self.n_frac_digits)?
+                        checked_mul_pow_ten(i128::from(rhs), self.n_frac_digits)?
                     )
                 }?;
                 Some(Decimal { coeff, n_frac_digits: self.n_frac_digits })
@@ -204,10 +204,10 @@ macro_rules! impl_checked_add_sub_decimal_and_int {
             #[inline]
             fn $method(self, rhs: Decimal) -> Self::Output {
                 let coeff = if rhs.n_frac_digits == 0 {
-                    i128::$method(self as i128, rhs.coeff)
+                    i128::$method(i128::from(self), rhs.coeff)
                 } else {
                     i128::$method(
-                        checked_mul_pow_ten(self as i128, rhs.n_frac_digits)?,
+                        checked_mul_pow_ten(i128::from(self), rhs.n_frac_digits)?,
                         rhs.coeff
                     )
                 }?;
@@ -238,7 +238,10 @@ mod checked_add_sub_integer_tests {
                 let i = <$t>::MAX;
                 let r = d.checked_add(i).unwrap();
                 assert_eq!(r.n_frac_digits, d.n_frac_digits);
-                assert_eq!(r.coefficient(), i as i128 * ten_pow($p) + $coeff);
+                assert_eq!(
+                    r.coefficient(),
+                    i128::from(i) * ten_pow($p) + $coeff
+                );
                 assert_eq!(
                     r.coefficient(),
                     (&d).checked_add(i).unwrap().coefficient()
@@ -322,7 +325,10 @@ mod checked_add_sub_integer_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = <$t>::MAX;
                 let r = d.checked_sub(i).unwrap();
-                assert_eq!(r.coefficient(), $coeff - i as i128 * ten_pow($p));
+                assert_eq!(
+                    r.coefficient(),
+                    $coeff - i128::from(i) * ten_pow($p)
+                );
                 assert_eq!(
                     r.coefficient(),
                     (&d).checked_sub(i).unwrap().coefficient()
@@ -336,7 +342,10 @@ mod checked_add_sub_integer_tests {
                     (&d).checked_sub(&i).unwrap().coefficient()
                 );
                 let z = CheckedSub::checked_sub(i, d).unwrap();
-                assert_eq!(z.coefficient(), i as i128 * ten_pow($p) - $coeff);
+                assert_eq!(
+                    z.coefficient(),
+                    i128::from(i) * ten_pow($p) - $coeff
+                );
                 assert_eq!(
                     z.coefficient(),
                     CheckedSub::checked_sub(&i, d).unwrap().coefficient()

@@ -264,6 +264,7 @@ pub fn i128_shifted_div_mod_floor(
     if xh != 0 || xl > i128::MAX as u128 {
         return None;
     }
+    // xl <= i128::MAX, so xl as i128 is safe.
     let mut q = xl as i128;
     // r < y, so r as i128 is safe.
     let mut r = r as i128;
@@ -293,6 +294,7 @@ pub fn i256_div_mod_floor(x1: i128, x2: i128, y: i128) -> Option<(i128, i128)> {
     if xh != 0 || xl > i128::MAX as u128 {
         return None;
     }
+    // xl <= i128::MAX, so xl as i128 is safe.
     let mut q = xl as i128;
     // r < y, so r as i128 is safe.
     let mut r = r as i128;

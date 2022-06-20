@@ -119,7 +119,7 @@ macro_rules! impl_checked_rem_decimal_and_int {
                 if rhs == 1 {
                     return Some(self.fract());
                 }
-                match rem(self.coeff, self.n_frac_digits, rhs as i128, 0) {
+                match rem(self.coeff, self.n_frac_digits, i128::from(rhs), 0) {
                     Ok((coeff, n_frac_digits)) => Some(Self {
                         coeff,
                         n_frac_digits,
@@ -139,7 +139,7 @@ macro_rules! impl_checked_rem_decimal_and_int {
                 if self == 0 || rhs.eq_one() {
                     return Some(Decimal::ZERO);
                 }
-                match rem(self as i128, 0, rhs.coeff, rhs.n_frac_digits) {
+                match rem(i128::from(self), 0, rhs.coeff, rhs.n_frac_digits) {
                     Ok((coeff, n_frac_digits)) => Some(Decimal {
                         coeff,
                         n_frac_digits,
@@ -168,7 +168,7 @@ mod checked_rem_integer_tests {
             fn $func() {
                 let d = Decimal::new_raw($coeff, $p);
                 let i: $t = 127;
-                let c = mul_pow_ten(i as i128, $p);
+                let c = mul_pow_ten(i128::from(i), $p);
                 let r = d.checked_rem(i).unwrap();
                 assert_eq!(r.coefficient(), $coeff - c * ($coeff / c));
                 assert_eq!(

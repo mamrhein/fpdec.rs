@@ -263,7 +263,7 @@ macro_rules! impl_div_rounded_decimal_and_int {
                 if let Some(coeff) = checked_div_rounded(
                     self.coeff,
                     self.n_frac_digits,
-                    rhs as i128,
+                    i128::from(rhs),
                     0_u8,
                     n_frac_digits,
                 ) {
@@ -324,7 +324,7 @@ macro_rules! impl_div_rounded_decimal_and_int {
                     return Decimal::ZERO;
                 }
                 if let Some(coeff) = checked_div_rounded(
-                    self as i128,
+                    i128::from(self),
                     0_u8,
                     rhs.coeff,
                     rhs.n_frac_digits,
@@ -614,9 +614,9 @@ macro_rules! impl_div_rounded_int_and_int {
                     return Decimal::ZERO;
                 }
                 if let Some(coeff) = checked_div_rounded(
-                    self as i128,
+                    i128::from(self),
                     0_u8,
-                    rhs as i128,
+                    i128::from(rhs),
                     0_u8,
                     n_frac_digits,
                 ) {

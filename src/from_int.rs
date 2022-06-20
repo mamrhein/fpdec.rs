@@ -21,7 +21,7 @@ macro_rules! impl_from_int {
             #[inline]
             fn from(i: $t) -> Self
             {
-                Decimal { coeff: i as i128, n_frac_digits: 0 }
+                Decimal { coeff: i128::from(i), n_frac_digits: 0 }
             }
         }
         )*
@@ -125,11 +125,11 @@ mod tests {
     fn test_from() {
         let si = -358_i32;
         let dsi = Decimal::from(si);
-        assert_eq!(dsi.coefficient(), si as i128);
+        assert_eq!(dsi.coefficient(), i128::from(si));
         assert_eq!(dsi.n_frac_digits(), 0);
         let ui = 38_u64.pow(12);
         let dui = Decimal::from(ui);
-        assert_eq!(dui.coefficient(), ui as i128);
+        assert_eq!(dui.coefficient(), i128::from(ui));
         assert_eq!(dui.n_frac_digits(), 0);
     }
 
@@ -137,11 +137,11 @@ mod tests {
     fn test_into() {
         let ui = 38_u8;
         let dui: Decimal = ui.into();
-        assert_eq!(dui.coefficient(), ui as i128);
+        assert_eq!(dui.coefficient(), i128::from(ui));
         assert_eq!(dui.n_frac_digits(), 0);
         let si = -1234567890123456789_i64;
         let dsi: Decimal = si.into();
-        assert_eq!(dsi.coefficient(), si as i128);
+        assert_eq!(dsi.coefficient(), i128::from(si));
         assert_eq!(dsi.n_frac_digits(), 0);
     }
 }

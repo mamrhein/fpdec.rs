@@ -175,7 +175,7 @@ macro_rules! impl_div_decimal_and_int {
                 if let Some(mut coeff) = checked_div_rounded(
                     self.coeff,
                     self.n_frac_digits,
-                    rhs as i128,
+                    i128::from(rhs),
                     0,
                     n_frac_digits,
                 ) {
@@ -202,13 +202,13 @@ macro_rules! impl_div_decimal_and_int {
                 }
                 if rhs.eq_one() {
                     return Self::Output {
-                        coeff: self as i128,
+                        coeff: i128::from(self),
                         n_frac_digits: 0,
                     };
                 }
                 let mut n_frac_digits = MAX_N_FRAC_DIGITS;
                 if let Some(mut coeff) = checked_div_rounded(
-                    self as i128,
+                    i128::from(self),
                     0,
                     rhs.coeff,
                     rhs.n_frac_digits,

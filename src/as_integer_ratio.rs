@@ -53,7 +53,7 @@ mod test_int_as_ratio {
     macro_rules! gen_test_as_ratio {
         ($t:ty) => {
             let i = <$t>::MAX;
-            assert_eq!(i.numerator(), i as i128);
+            assert_eq!(i.numerator(), i128::from(i));
             assert_eq!(i.denominator(), 1_i128);
         };
     }

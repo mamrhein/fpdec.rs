@@ -125,7 +125,7 @@ macro_rules! impl_mul_decimal_and_int {
             #[inline(always)]
             fn mul(self, rhs: $t) -> Self::Output {
                 Self::Output{
-                    coeff: self.coeff * rhs as i128,
+                    coeff: self.coeff * i128::from(rhs),
                     n_frac_digits: self.n_frac_digits,
                 }
             }
@@ -137,7 +137,7 @@ macro_rules! impl_mul_decimal_and_int {
             #[inline(always)]
             fn mul(self, rhs: Decimal) -> Self::Output {
                 Self::Output{
-                    coeff: self as i128 * rhs.coeff,
+                    coeff: i128::from(self) * rhs.coeff,
                     n_frac_digits: rhs.n_frac_digits,
                 }
             }
@@ -162,7 +162,7 @@ mod mul_integer_tests {
                 let i = <$t>::MAX;
                 let r = d * i;
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
-                assert_eq!(r.coefficient(), i as i128 * $coeff);
+                assert_eq!(r.coefficient(), i128::from(i) * $coeff);
                 assert_eq!(r.coefficient(), (&d * i).coefficient());
                 assert_eq!(r.coefficient(), (d * &i).coefficient());
                 assert_eq!(r.coefficient(), (&d * &i).coefficient());

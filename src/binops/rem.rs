@@ -187,7 +187,7 @@ macro_rules! impl_rem_decimal_and_int {
                 match rem(
                     self.coeff,
                     self.n_frac_digits(),
-                    rhs as i128,
+                    i128::from(rhs),
                     0,
                 ) {
                     Ok((coeff, n_frac_digits)) => Self::Output {
@@ -210,7 +210,7 @@ macro_rules! impl_rem_decimal_and_int {
                     return Decimal::ZERO;
                 }
                 match rem(
-                    self as i128,
+                    i128::from(self),
                     0,
                     rhs.coeff,
                     rhs.n_frac_digits(),
@@ -243,7 +243,7 @@ mod rem_integer_tests {
             fn $func() {
                 let d = Decimal::new_raw($coeff, $p);
                 let i: $t = 127;
-                let c = mul_pow_ten(i as i128, $p);
+                let c = mul_pow_ten(i128::from(i), $p);
                 let r = d % i;
                 assert_eq!(r.n_frac_digits(), $p);
                 assert_eq!(r.coefficient(), $coeff - c * ($coeff / c));

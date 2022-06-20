@@ -116,7 +116,7 @@ macro_rules! impl_checked_mul_decimal_and_int {
             #[inline]
             fn checked_mul(self, rhs: $t) -> Self::Output {
                 Some(Self {
-                    coeff: i128::checked_mul(self.coeff, rhs as i128)?,
+                    coeff: i128::checked_mul(self.coeff, i128::from(rhs))?,
                     n_frac_digits: self.n_frac_digits,
                 })
             }
@@ -128,7 +128,7 @@ macro_rules! impl_checked_mul_decimal_and_int {
             #[inline]
             fn checked_mul(self, rhs: Decimal) -> Self::Output {
                 Some(Decimal {
-                    coeff: i128::checked_mul(self as i128, rhs.coeff)?,
+                    coeff: i128::checked_mul(i128::from(self), rhs.coeff)?,
                     n_frac_digits: rhs.n_frac_digits,
                 })
             }
@@ -152,7 +152,7 @@ mod checked_mul_integer_tests {
                 let d = Decimal::new_raw($coeff, $p);
                 let i = <$t>::MAX;
                 let r = d.checked_mul(i).unwrap();
-                assert_eq!(r.coefficient(), i as i128 * $coeff);
+                assert_eq!(r.coefficient(), i128::from(i) * $coeff);
                 assert_eq!(
                     r.coefficient(),
                     (&d).checked_mul(i).unwrap().coefficient()
@@ -207,7 +207,7 @@ mod checked_mul_integer_tests {
         let d = Decimal::new_raw(coeff, 2);
         let i = 12345_i128;
         let r = d.checked_mul(i).unwrap();
-        assert_eq!(r.coefficient(), i as i128 * coeff);
+        assert_eq!(r.coefficient(), i128::from(i) * coeff);
         assert_eq!(r.coefficient(), (&d).checked_mul(i).unwrap().coefficient());
         assert_eq!(r.coefficient(), d.checked_mul(&i).unwrap().coefficient());
         assert_eq!(

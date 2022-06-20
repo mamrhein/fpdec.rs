@@ -194,14 +194,14 @@ macro_rules! impl_add_sub_decimal_and_int {
             fn $method(self, rhs: $t) -> Self::Output {
                 if self.n_frac_digits == 0 {
                     Self::Output{
-                        coeff: $imp::$method(self.coeff, rhs as i128),
+                        coeff: $imp::$method(self.coeff, i128::from(rhs)),
                         n_frac_digits: 0,
                     }
                 } else {
                     Self::Output{
                         coeff: $imp::$method(self.coeff,
                                              mul_pow_ten(
-                                                rhs as i128,
+                                                i128::from(rhs),
                                                 self.n_frac_digits)),
                         n_frac_digits: self.n_frac_digits,
                     }
@@ -218,13 +218,13 @@ macro_rules! impl_add_sub_decimal_and_int {
             fn $method(self, rhs: Decimal) -> Self::Output {
                 if rhs.n_frac_digits == 0 {
                     Self::Output{
-                        coeff: $imp::$method(self as i128, rhs.coeff),
+                        coeff: $imp::$method(i128::from(self), rhs.coeff),
                         n_frac_digits: 0,
                     }
                 } else {
                     Self::Output{
                         coeff: $imp::$method(mul_pow_ten(
-                                                self as i128,
+                                                i128::from(self),
                                                 rhs.n_frac_digits),
                                              rhs.coeff),
                         n_frac_digits: rhs.n_frac_digits,
@@ -258,7 +258,7 @@ mod add_sub_integer_tests {
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
                 assert_eq!(
                     r.coefficient(),
-                    i as i128 * ten_pow($n_frac_digits) + $coeff
+                    i128::from(i) * ten_pow($n_frac_digits) + $coeff
                 );
                 assert_eq!(r.coefficient(), (&d + i).coefficient());
                 assert_eq!(r.coefficient(), (d + &i).coefficient());
@@ -309,7 +309,7 @@ mod add_sub_integer_tests {
                 assert_eq!(r.n_frac_digits(), d.n_frac_digits());
                 assert_eq!(
                     r.coefficient(),
-                    $coeff - i as i128 * ten_pow($n_frac_digits)
+                    $coeff - i128::from(i) * ten_pow($n_frac_digits)
                 );
                 assert_eq!(r.coefficient(), (&d - i).coefficient());
                 assert_eq!(r.coefficient(), (d - &i).coefficient());
@@ -318,7 +318,7 @@ mod add_sub_integer_tests {
                 assert_eq!(z.n_frac_digits(), r.n_frac_digits());
                 assert_eq!(
                     z.coefficient(),
-                    i as i128 * ten_pow($n_frac_digits) - $coeff
+                    i128::from(i) * ten_pow($n_frac_digits) - $coeff
                 );
                 assert_eq!(z.coefficient(), (&i - d).coefficient());
                 assert_eq!(z.coefficient(), (i - &d).coefficient());
