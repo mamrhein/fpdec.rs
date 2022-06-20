@@ -251,8 +251,8 @@ pub fn i128_shifted_div_mod_floor(
     p: u8,
     y: i128,
 ) -> Option<(i128, i128)> {
-    let (mut xh, mut xl) = u128_mul_u128(x.abs() as u128, ten_pow(p) as u128);
-    let r = u256_idiv_u128(&mut xh, &mut xl, y.abs() as u128);
+    let (mut xh, mut xl) = u128_mul_u128(x.unsigned_abs(), ten_pow(p) as u128);
+    let r = u256_idiv_u128(&mut xh, &mut xl, y.unsigned_abs());
     if xh != 0 || xl > i128::MAX as u128 {
         return None;
     }
@@ -266,11 +266,9 @@ pub fn i128_shifted_div_mod_floor(
             q = q.neg() - 1;
             r = y - r;
         }
-    } else {
-        if y.is_negative() {
-            q = q.neg() - 1;
-            r = r - y;
-        }
+    } else if y.is_negative() {
+        q = q.neg() - 1;
+        r -= y;
     }
     Some((q, r))
 }
@@ -282,8 +280,8 @@ pub fn i128_shifted_div_mod_floor(
 #[doc(hidden)]
 pub fn i256_div_mod_floor(x1: i128, x2: i128, y: i128) -> Option<(i128, i128)> {
     debug_assert!(y > 0);
-    let (mut xh, mut xl) = u128_mul_u128(x1.abs() as u128, x2.abs() as u128);
-    let r = u256_idiv_u128(&mut xh, &mut xl, y.abs() as u128);
+    let (mut xh, mut xl) = u128_mul_u128(x1.unsigned_abs(), x2.unsigned_abs());
+    let r = u256_idiv_u128(&mut xh, &mut xl, y.unsigned_abs());
     if xh != 0 || xl > i128::MAX as u128 {
         return None;
     }
