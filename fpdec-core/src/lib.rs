@@ -76,6 +76,7 @@ pub fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
 // TODO: remove after feature(int_log) got stable
 
 // 0 < val <= u8::MAX
+#[doc(hidden)]
 #[inline]
 pub const fn u8(val: u8) -> u32 {
     let val = val as u32;
@@ -98,6 +99,7 @@ pub const fn u8(val: u8) -> u32 {
 }
 
 // 0 < val < 100_000
+#[doc(hidden)]
 #[inline]
 const fn less_than_5(val: u32) -> u32 {
     // Similar to u8, when adding one of these constants to val,
@@ -119,12 +121,14 @@ const fn less_than_5(val: u32) -> u32 {
 }
 
 // 0 < val <= u16::MAX
+#[doc(hidden)]
 #[inline]
 pub const fn u16(val: u16) -> u32 {
     less_than_5(val as u32)
 }
 
 // 0 < val <= u32::MAX
+#[doc(hidden)]
 #[inline]
 pub const fn u32(mut val: u32) -> u32 {
     let mut log = 0;
@@ -136,6 +140,7 @@ pub const fn u32(mut val: u32) -> u32 {
 }
 
 // 0 < val <= u64::MAX
+#[doc(hidden)]
 #[inline]
 pub const fn u64(mut val: u64) -> u32 {
     let mut log = 0;
@@ -151,6 +156,7 @@ pub const fn u64(mut val: u64) -> u32 {
 }
 
 // 0 < val <= u128::MAX
+#[doc(hidden)]
 #[inline]
 pub const fn u128(mut val: u128) -> u32 {
     let mut log = 0;
