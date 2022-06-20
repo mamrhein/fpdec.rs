@@ -15,7 +15,7 @@ use crate::{
 };
 
 /// Enum representing the different methods used when rounding a number.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum RoundingMode {
     /// Round away from zero if last digit after rounding towards zero would
     /// have been 0 or 5; otherwise round towards zero.
