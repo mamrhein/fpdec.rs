@@ -9,8 +9,14 @@
 
 #![doc = include_str ! ("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(dead_code)]
+// activate some rustc lints
+#![deny(non_ascii_idents)]
+#![deny(unsafe_code)]
+#![warn(missing_debug_implementations)]
 #![warn(missing_docs)]
+#![warn(trivial_casts, trivial_numeric_casts)]
+#![warn(unused)]
+#![allow(dead_code)]
 
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
