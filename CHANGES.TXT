@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.5.2     Fixed errors in 'no_std' environment.
+
 0.5.1     Changed internal fn, so that macro Dec! can be used in a const
           context.
 

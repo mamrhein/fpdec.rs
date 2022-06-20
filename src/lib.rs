@@ -18,6 +18,8 @@
 #![warn(unused)]
 #![allow(dead_code)]
 
+extern crate alloc;
+
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]
