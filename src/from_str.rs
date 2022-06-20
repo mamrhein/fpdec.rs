@@ -58,6 +58,7 @@ impl FromStr for Decimal {
             // 10 ^ 39 > int128::MAX
             return Result::Err(ParseDecimalError::InternalOverflow);
         }
+        #[allow(clippy::cast_possible_truncation)]
         if exponent < 0 {
             Ok(Self {
                 coeff,

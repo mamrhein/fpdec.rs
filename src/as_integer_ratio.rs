@@ -88,6 +88,7 @@ fn gcd_special(numer: i128, denom_exp: u32) -> i128 {
     let utz = u.trailing_zeros();
     u >>= utz;
     // Set v = denom with trailing zeros stripped off
+    #[allow(clippy::cast_possible_truncation)]
     let mut v = ten_pow(denom_exp as u8) >> denom_exp;
     while v != 0 {
         v >>= v.trailing_zeros();

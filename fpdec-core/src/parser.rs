@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn test_int_lit_max_val_exceeded() {
         let s = "170141183460469231731687303715884105728";
-        let res = dec_repr_from_str(&s);
+        let res = dec_repr_from_str(s);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);
@@ -324,7 +324,7 @@ mod tests {
     #[test]
     fn test_dec_lit_max_val_exceeded() {
         let s = "1701411834604692317316873037158841058.00";
-        let res = dec_repr_from_str(&s);
+        let res = dec_repr_from_str(s);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);

@@ -76,6 +76,7 @@ pub fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
 // TODO: remove after feature(int_log) got stable
 
 // 0 < val <= u8::MAX
+#[allow(clippy::unusual_byte_groupings)]
 #[doc(hidden)]
 #[inline]
 pub const fn u8(val: u8) -> u32 {
@@ -99,6 +100,7 @@ pub const fn u8(val: u8) -> u32 {
 }
 
 // 0 < val < 100_000
+#[allow(clippy::unusual_byte_groupings)]
 #[doc(hidden)]
 #[inline]
 const fn less_than_5(val: u32) -> u32 {
@@ -179,7 +181,7 @@ pub const fn u128(mut val: u128) -> u32 {
 pub const fn i128_magnitude(i: i128) -> u8 {
     // TODO: change after feature(int_log) got stable:
     // i.log10() as u8
-    u128(i.abs() as u128) as u8
+    u128(i.unsigned_abs()) as u8
 }
 
 /// Return the index of the most significant bit of an u128.

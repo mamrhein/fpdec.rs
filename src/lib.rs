@@ -17,6 +17,9 @@
 #![warn(trivial_casts, trivial_numeric_casts)]
 #![warn(unused)]
 #![allow(dead_code)]
+// activate some clippy lints
+#![warn(clippy::cast_possible_truncation)]
+#![warn(clippy::cognitive_complexity)]
 
 extern crate alloc;
 

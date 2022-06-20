@@ -71,19 +71,24 @@ impl fmt::Display for Decimal {
     /// ```
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         let tmp: String;
+        #[allow(clippy::cast_possible_truncation)]
         let prec = match form.precision() {
-            Some(prec) => min(prec, MAX_N_FRAC_DIGITS as usize),
-            None => self.n_frac_digits as usize,
+            Some(prec) => min(prec, MAX_N_FRAC_DIGITS as usize) as u8,
+            None => self.n_frac_digits,
         };
         if self.n_frac_digits == 0 {
             if prec > 0 {
-                tmp =
-                    format!("{}.{:0width$}", self.coeff.abs(), 0, width = prec);
+                tmp = format!(
+                    "{}.{:0width$}",
+                    self.coeff.abs(),
+                    0,
+                    width = prec as usize
+                );
             } else {
                 tmp = self.coeff.abs().to_string();
             }
         } else {
-            let (int, frac) = match prec.cmp(&(self.n_frac_digits as usize)) {
+            let (int, frac) = match prec.cmp(&(self.n_frac_digits)) {
                 Ordering::Equal => i128_div_mod_floor(
                     self.coeff.abs(),
                     ten_pow(self.n_frac_digits),
@@ -92,21 +97,22 @@ impl fmt::Display for Decimal {
                     // Important: first round, then take abs() !
                     let coeff = i128_div_rounded(
                         self.coeff,
-                        ten_pow(self.n_frac_digits - prec as u8),
+                        ten_pow(self.n_frac_digits - prec),
                         None,
                     );
-                    i128_div_mod_floor(coeff.abs(), ten_pow(prec as u8))
+                    i128_div_mod_floor(coeff.abs(), ten_pow(prec))
                 }
                 Ordering::Greater => {
                     let (int, frac) = i128_div_mod_floor(
                         self.coeff.abs(),
                         ten_pow(self.n_frac_digits),
                     );
-                    (int, frac * ten_pow(prec as u8 - self.n_frac_digits))
+                    (int, frac * ten_pow(prec - self.n_frac_digits))
                 }
             };
             if prec > 0 {
-                tmp = format!("{}.{:0width$}", int, frac, width = prec);
+                tmp =
+                    format!("{}.{:0width$}", int, frac, width = prec as usize);
             } else {
                 tmp = int.to_string();
             }
