@@ -69,6 +69,7 @@ fn f32_decode(f: f32) -> (u64, i16, i8) {
 
 const MAGN_I128_MAX: u8 = 38;
 
+#[allow(clippy::integer_division)]
 #[inline]
 fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
     assert!(divisor > 0);
@@ -144,12 +145,12 @@ impl TryFrom<f32> for Decimal {
         }
         let (mantissa, exponent, sign) = f32_decode(f);
         if exponent < -126 {
-            Ok(Decimal::ZERO)
+            Ok(Self::ZERO)
         } else if exponent < 0 {
             let numer = i128::from(sign) * i128::from(mantissa);
             let denom = 1_i128 << ((-exponent) as usize);
             let (coeff, n_frac_digits) = approx_rational(numer, denom);
-            Ok(Decimal {
+            Ok(Self {
                 coeff,
                 n_frac_digits,
             })
@@ -157,7 +158,7 @@ impl TryFrom<f32> for Decimal {
             let numer = i128::from(sign) * i128::from(mantissa);
             let shift = 1_i128 << exponent as usize;
             match numer.checked_mul(shift) {
-                Some(coeff) => Ok(Decimal {
+                Some(coeff) => Ok(Self {
                     coeff,
                     n_frac_digits: 0,
                 }),
@@ -202,12 +203,12 @@ impl TryFrom<f64> for Decimal {
         }
         let (mantissa, exponent, sign) = f64_decode(f);
         if exponent < -126 {
-            Ok(Decimal::ZERO)
+            Ok(Self::ZERO)
         } else if exponent < 0 {
             let numer = i128::from(sign) * i128::from(mantissa);
             let denom = 1_i128 << ((-exponent) as usize);
             let (coeff, n_frac_digits) = approx_rational(numer, denom);
-            Ok(Decimal {
+            Ok(Self {
                 coeff,
                 n_frac_digits,
             })
@@ -215,7 +216,7 @@ impl TryFrom<f64> for Decimal {
             let numer = i128::from(sign) * i128::from(mantissa);
             let shift = 1_i128 << exponent as usize;
             match numer.checked_mul(shift) {
-                Some(coeff) => Ok(Decimal {
+                Some(coeff) => Ok(Self {
                     coeff,
                     n_frac_digits: 0,
                 }),

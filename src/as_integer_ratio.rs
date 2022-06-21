@@ -114,6 +114,7 @@ impl AsIntegerRatio for Decimal {
     /// let d = Dec!(28.27095);
     /// assert_eq!(d.as_integer_ratio(), (565419, 20000));
     /// ```
+    #[allow(clippy::integer_division)]
     fn as_integer_ratio(self) -> (i128, i128) {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer
@@ -135,6 +136,7 @@ impl AsIntegerRatio for Decimal {
     /// let d = Dec!(28.27095);
     /// assert_eq!(d.numerator(), 565419);
     /// ```
+    #[allow(clippy::integer_division)]
     fn numerator(self) -> i128 {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer
@@ -156,6 +158,7 @@ impl AsIntegerRatio for Decimal {
     /// let d = Dec!(28.27095);
     /// assert_eq!(d.denominator(), 20000);
     /// ```
+    #[allow(clippy::integer_division)]
     fn denominator(self) -> i128 {
         if self.n_frac_digits == 0 || self.coeff == 0 {
             // self is equivalent to an integer

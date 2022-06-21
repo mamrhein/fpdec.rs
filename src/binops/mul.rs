@@ -12,10 +12,10 @@ use core::ops::{Mul, MulAssign};
 use crate::binops::mul_rounded::checked_mul_rounded;
 use crate::{Decimal, DecimalError, MAX_N_FRAC_DIGITS};
 
-impl Mul<Decimal> for Decimal {
+impl Mul<Self> for Decimal {
     type Output = Self;
 
-    fn mul(self, rhs: Decimal) -> Self::Output {
+    fn mul(self, rhs: Self) -> Self::Output {
         if self.eq_zero() || rhs.eq_zero() {
             return Self::ZERO;
         }

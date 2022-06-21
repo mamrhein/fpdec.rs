@@ -53,11 +53,11 @@ pub(crate) fn checked_mul_rounded(
     }
 }
 
-impl MulRounded<Decimal> for Decimal {
+impl MulRounded<Self> for Decimal {
     type Output = Self;
 
     #[inline]
-    fn mul_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+    fn mul_rounded(self, rhs: Self, n_frac_digits: u8) -> Self::Output {
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::MaxNFracDigitsExceeded);
         }

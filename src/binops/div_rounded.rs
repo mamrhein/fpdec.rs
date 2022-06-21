@@ -51,6 +51,7 @@ pub trait DivRounded<Rhs = Self> {
     fn div_rounded(self, rhs: Rhs, n_frac_digits: u8) -> Self::Output;
 }
 
+#[allow(clippy::integer_division)]
 pub(crate) fn checked_div_rounded(
     divident_coeff: i128,
     divident_n_frac_digits: u8,
@@ -99,10 +100,10 @@ pub(crate) fn checked_div_rounded(
     }
 }
 
-impl DivRounded<Decimal> for Decimal {
+impl DivRounded<Self> for Decimal {
     type Output = Self;
 
-    fn div_rounded(self, rhs: Decimal, n_frac_digits: u8) -> Self::Output {
+    fn div_rounded(self, rhs: Self, n_frac_digits: u8) -> Self::Output {
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::MaxNFracDigitsExceeded);
         }

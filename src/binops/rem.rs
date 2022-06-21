@@ -62,10 +62,10 @@ pub(crate) fn rem(
     }
 }
 
-impl Rem<Decimal> for Decimal {
-    type Output = Decimal;
+impl Rem<Self> for Decimal {
+    type Output = Self;
 
-    fn rem(self, rhs: Decimal) -> Self::Output {
+    fn rem(self, rhs: Self) -> Self::Output {
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }

@@ -21,6 +21,7 @@ trait DivModInt: Sized {
 }
 
 impl DivModInt for i128 {
+    #[allow(clippy::integer_division)]
     #[inline(always)]
     fn divmod(self, rhs: Self) -> (Self, Self) {
         (self / rhs, self % rhs)
@@ -84,7 +85,7 @@ impl Neg for &Decimal {
 impl Decimal {
     /// Returns the absolute value of `self`.
     #[inline(always)]
-    pub fn abs(&self) -> Self {
+    pub const fn abs(&self) -> Self {
         Self {
             coeff: self.coefficient().abs(),
             n_frac_digits: self.n_frac_digits,
@@ -148,6 +149,7 @@ impl Decimal {
     /// let d = Dec!(-17.55555);
     /// assert_eq!(d.trunc().to_string(), "-17");
     /// ```
+    #[allow(clippy::integer_division)]
     #[inline]
     pub fn trunc(&self) -> Self {
         match self.n_frac_digits {

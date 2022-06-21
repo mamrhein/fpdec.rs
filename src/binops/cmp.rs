@@ -13,8 +13,8 @@ use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
 use crate::Decimal;
 
-impl PartialEq<Decimal> for Decimal {
-    fn eq(&self, other: &Decimal) -> bool {
+impl PartialEq<Self> for Decimal {
+    fn eq(&self, other: &Self) -> bool {
         match checked_adjust_coeffs(
             self.coeff,
             self.n_frac_digits,
@@ -29,8 +29,8 @@ impl PartialEq<Decimal> for Decimal {
 
 impl Eq for Decimal {}
 
-impl PartialOrd<Decimal> for Decimal {
-    fn partial_cmp(&self, other: &Decimal) -> Option<Ordering> {
+impl PartialOrd<Self> for Decimal {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match checked_adjust_coeffs(
             self.coeff,
             self.n_frac_digits,
@@ -67,26 +67,30 @@ impl Ord for Decimal {
 
 impl Decimal {
     /// Returns true if self is equal to zero.
+    #[must_use]
     #[inline(always)]
-    pub fn eq_zero(&self) -> bool {
+    pub const fn eq_zero(&self) -> bool {
         self.coeff == 0
     }
 
     /// Returns true if self is equal to one.
+    #[must_use]
     #[inline(always)]
     pub fn eq_one(&self) -> bool {
         self.coeff == ten_pow(self.n_frac_digits)
     }
 
     /// Returns true if self is less than zero.
+    #[must_use]
     #[inline(always)]
-    pub fn is_negative(&self) -> bool {
+    pub const fn is_negative(&self) -> bool {
         self.coeff < 0
     }
 
     /// Returns true if self is greater than zero.
+    #[must_use]
     #[inline(always)]
-    pub fn is_positive(&self) -> bool {
+    pub const fn is_positive(&self) -> bool {
         self.coeff > 0
     }
 }

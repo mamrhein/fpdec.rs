@@ -22,10 +22,10 @@ pub trait CheckedDiv<Rhs = Self> {
     fn checked_div(self, rhs: Rhs) -> Self::Output;
 }
 
-impl CheckedDiv<Decimal> for Decimal {
+impl CheckedDiv<Self> for Decimal {
     type Output = Option<Self>;
 
-    fn checked_div(self, rhs: Decimal) -> Self::Output {
+    fn checked_div(self, rhs: Self) -> Self::Output {
         if rhs.eq_zero() {
             return None;
         }

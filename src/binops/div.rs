@@ -14,10 +14,10 @@ use crate::{
     MAX_N_FRAC_DIGITS,
 };
 
-impl Div<Decimal> for Decimal {
-    type Output = Decimal;
+impl Div<Self> for Decimal {
+    type Output = Self;
 
-    fn div(self, rhs: Decimal) -> Self::Output {
+    fn div(self, rhs: Self) -> Self::Output {
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }

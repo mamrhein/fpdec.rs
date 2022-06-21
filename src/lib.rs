@@ -19,7 +19,42 @@
 #![allow(dead_code)]
 // activate some clippy lints
 #![warn(clippy::cast_possible_truncation)]
+// #![warn(clippy::cast_possible_wrap)]
+#![warn(clippy::cast_precision_loss)]
+// #![warn(clippy::cast_sign_loss)]
 #![warn(clippy::cognitive_complexity)]
+#![warn(clippy::decimal_literal_representation)]
+#![warn(clippy::enum_glob_use)]
+#![warn(clippy::equatable_if_let)]
+#![warn(clippy::fallible_impl_from)]
+#![warn(clippy::if_not_else)]
+#![warn(clippy::if_then_some_else_none)]
+#![warn(clippy::implicit_clone)]
+#![warn(clippy::integer_division)]
+#![warn(clippy::manual_assert)]
+#![warn(clippy::match_same_arms)]
+// #![warn(clippy::mismatching_type_param_order)] TODO: enable when 1.62 stable
+#![warn(clippy::missing_const_for_fn)]
+#![warn(clippy::missing_errors_doc)]
+#![warn(clippy::missing_panics_doc)]
+#![warn(clippy::multiple_crate_versions)]
+// #![warn(clippy::multiple_inherent_impl)]
+#![warn(clippy::must_use_candidate)]
+#![warn(clippy::needless_pass_by_value)]
+#![warn(clippy::print_stderr)]
+#![warn(clippy::print_stdout)]
+#![warn(clippy::semicolon_if_nothing_returned)]
+#![warn(clippy::str_to_string)]
+#![warn(clippy::string_to_string)]
+#![warn(clippy::undocumented_unsafe_blocks)]
+#![warn(clippy::unicode_not_nfc)]
+#![warn(clippy::unimplemented)]
+#![warn(clippy::unseparated_literal_suffix)]
+#![warn(clippy::unused_self)]
+#![warn(clippy::unwrap_in_result)]
+#![warn(clippy::use_self)]
+#![warn(clippy::used_underscore_binding)]
+#![warn(clippy::wildcard_imports)]
 
 extern crate alloc;
 
@@ -61,6 +96,7 @@ mod unops;
 ///
 /// The number of fractional digits can be in the range 0 ..
 /// [`MAX_N_FRAC_DIGITS`].
+#[must_use]
 #[derive(Copy, Clone)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
@@ -84,12 +120,14 @@ impl Decimal {
     }
 
     /// Coefficient of `self`.
+    #[must_use]
     #[inline(always)]
     pub const fn coefficient(self) -> i128 {
         self.coeff
     }
 
     /// Number of fractional decimal digits of `self`.
+    #[must_use]
     #[inline(always)]
     pub const fn n_frac_digits(self) -> u8 {
         self.n_frac_digits
@@ -110,56 +148,57 @@ impl Decimal {
     /// assert_eq!(d.magnitude(), -3);
     /// let d = Decimal::ZERO;
     /// assert_eq!(d.magnitude(), 0);
+    #[must_use]
     #[inline(always)]
-    pub fn magnitude(self) -> i8 {
+    pub const fn magnitude(self) -> i8 {
         i128_magnitude(self.coeff) as i8 - self.n_frac_digits as i8
     }
 
     /// Additive identity
-    pub const ZERO: Decimal = Decimal {
+    pub const ZERO: Self = Self {
         coeff: 0,
         n_frac_digits: 0,
     };
 
     /// Multiplicative identity
-    pub const ONE: Decimal = Decimal {
+    pub const ONE: Self = Self {
         coeff: 1,
         n_frac_digits: 0,
     };
 
     /// Multiplicative negator
-    pub const NEG_ONE: Decimal = Decimal {
+    pub const NEG_ONE: Self = Self {
         coeff: -1,
         n_frac_digits: 0,
     };
 
     /// Equivalent of 2
-    pub const TWO: Decimal = Decimal {
+    pub const TWO: Self = Self {
         coeff: 2,
         n_frac_digits: 0,
     };
 
     /// Equivalent of 10
-    pub const TEN: Decimal = Decimal {
+    pub const TEN: Self = Self {
         coeff: 10,
         n_frac_digits: 0,
     };
 
     /// Maximum value representable by `Decimal`
-    pub const MAX: Decimal = Decimal {
+    pub const MAX: Self = Self {
         coeff: i128::MAX,
         n_frac_digits: 0,
     };
 
     /// Minimum value representable by `Decimal`
-    pub const MIN: Decimal = Decimal {
+    pub const MIN: Self = Self {
         coeff: i128::MIN,
         n_frac_digits: 0,
     };
 
     /// Smallest absolute difference between two non-equal values of `Decimal`
-    pub const DELTA: Decimal = Decimal {
-        coeff: 1i128,
+    pub const DELTA: Self = Self {
+        coeff: 1_i128,
         n_frac_digits: MAX_N_FRAC_DIGITS,
     };
 }

@@ -32,20 +32,17 @@ pub enum DecimalError {
 
 impl DecimalError {
     #[doc(hidden)]
-    pub fn _description(&self) -> &str {
+    #[must_use]
+    pub const fn _description(&self) -> &str {
         match self {
-            DecimalError::MaxNFracDigitsExceeded => {
+            Self::MaxNFracDigitsExceeded => {
                 "More than MAX_N_FRAC_DIGITS fractional decimal digits \
                  requested."
             }
-            DecimalError::InternalOverflow => {
-                "Internal representation exceeded."
-            }
-            DecimalError::InfiniteValue => {
-                "Can't convert infinite value to Decimal."
-            }
-            DecimalError::NotANumber => "Given value is not a number.",
-            DecimalError::DivisionByZero => "Division by Zero.",
+            Self::InternalOverflow => "Internal representation exceeded.",
+            Self::InfiniteValue => "Can't convert infinite value to Decimal.",
+            Self::NotANumber => "Given value is not a number.",
+            Self::DivisionByZero => "Division by Zero.",
         }
     }
 }

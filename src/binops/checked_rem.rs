@@ -20,11 +20,11 @@ pub trait CheckedRem<Rhs = Self> {
     fn checked_rem(self, rhs: Rhs) -> Self::Output;
 }
 
-impl CheckedRem<Decimal> for Decimal {
-    type Output = Option<Decimal>;
+impl CheckedRem<Self> for Decimal {
+    type Output = Option<Self>;
 
     #[inline(always)]
-    fn checked_rem(self, rhs: Decimal) -> Self::Output {
+    fn checked_rem(self, rhs: Self) -> Self::Output {
         if rhs.eq_zero() {
             return None;
         }

@@ -20,11 +20,11 @@ pub trait CheckedMul<Rhs = Self> {
     fn checked_mul(self, rhs: Rhs) -> Self::Output;
 }
 
-impl CheckedMul<Decimal> for Decimal {
+impl CheckedMul<Self> for Decimal {
     type Output = Option<Self>;
 
     #[inline]
-    fn checked_mul(self, rhs: Decimal) -> Self::Output {
+    fn checked_mul(self, rhs: Self) -> Self::Output {
         if self.eq_zero() || rhs.eq_zero() {
             return Some(Self::ZERO);
         }

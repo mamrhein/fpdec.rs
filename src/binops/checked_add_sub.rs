@@ -37,7 +37,7 @@ pub trait CheckedSub<Rhs = Self> {
 
 macro_rules! impl_checked_add_sub_decimal {
     (impl $imp:ident, $method:ident) => {
-        impl $imp<Decimal> for Decimal {
+        impl $imp<Self> for Decimal {
             type Output = Option<Self>;
 
             #[inline]
