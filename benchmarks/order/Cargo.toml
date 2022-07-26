@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-fpdec = { path = "../..", version = "0.0.0" }
+fpdec = { path = "../.." }
 rust_decimal = "1.17"
 rust_decimal_macros = "1.17"
 
