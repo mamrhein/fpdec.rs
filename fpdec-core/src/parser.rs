@@ -63,8 +63,12 @@ struct DecLitParts<'a> {
 }
 
 /// Parse a Decimal literal in the form
-/// \[+|-]<int>\[.<frac>]\[<e|E>\[+|-]<exp>] or
-/// \[+|-].<frac>\[<e|E>\[+|-]<exp>].
+///
+/// `[+|-]<int>[.<frac>][<e|E>[+|-]<exp>]`
+///
+/// or
+///
+/// `[+|-].<frac>[<e|E>[+|-]<exp>]`.
 fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
     let mut num_sign_range = 0usize..0usize;
     let mut int_part_range = 0usize..0usize;
@@ -184,8 +188,12 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
 /// (coefficient, exponent), so that number == coefficient * 10 ^ exponent.
 ///
 /// The literal must be in the form
-/// \[+|-]<int>\[.<frac>]\[<e|E>\[+|-]<exp>] or
-/// \[+|-].<frac>\[<e|E>\[+|-]<exp>].
+///
+/// `[+|-]<int>[.<frac>][<e|E>[+|-]<exp>]`
+///
+/// or
+///
+/// `[+|-].<frac>[<e|E>[+|-]<exp>]`.
 #[doc(hidden)]
 pub fn dec_repr_from_str(
     lit: &str,
