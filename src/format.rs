@@ -7,15 +7,18 @@
 // $Source$
 // $Revision$
 
-use alloc::format;
-use alloc::string::{String, ToString};
-use core::cmp::{min, Ordering};
-use core::fmt;
+use alloc::{
+    format,
+    string::{String, ToString},
+};
+use core::{
+    cmp::{min, Ordering},
+    fmt,
+};
 
 use fpdec_core::{i128_div_mod_floor, i128_div_rounded, ten_pow};
 
-use crate::Decimal;
-use crate::MAX_N_FRAC_DIGITS;
+use crate::{Decimal, MAX_N_FRAC_DIGITS};
 
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -37,9 +40,8 @@ impl fmt::Debug for Decimal {
 
 #[cfg(test)]
 mod test_fmt_debug {
-    use crate::Dec;
-
     use super::*;
+    use crate::Dec;
 
     #[test]
     fn test_fmt() {
@@ -123,9 +125,8 @@ impl fmt::Display for Decimal {
 
 #[cfg(test)]
 mod test_fmt_display {
-    use crate::Dec;
-
     use super::*;
+    use crate::Dec;
 
     #[test]
     fn test_fmt_integral_decimal() {
