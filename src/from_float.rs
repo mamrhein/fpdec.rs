@@ -13,8 +13,8 @@ use fpdec_core::{i128_div_mod_floor, i128_magnitude, MAX_N_FRAC_DIGITS};
 
 use crate::{normalize, Decimal, DecimalError};
 
-/// Returns a normal f64 value f as (mantissa, exponent, sign) so that
-/// `f = sign * mantissa * 2 ^ exponent`.
+/// Returns a normal f64 value f as (significand, exponent, sign) so that
+/// `f = sign * significand * 2 ^ exponent`.
 /// If f is signed zero or subnormal, (0, 0, 0) is returned.
 fn f64_decode(f: f64) -> (u64, i16, i8) {
     let bits = f.to_bits();
@@ -26,7 +26,7 @@ fn f64_decode(f: f64) -> (u64, i16, i8) {
     assert_ne!(biased_exp, 0x7ff);
     // fraction at bit pos 0 .. 51
     let fraction = bits & 0xfffffffffffff;
-    let (mantissa, exponent, sign) = if biased_exp == 0 {
+    let (significand, exponent, sign) = if biased_exp == 0 {
         // f is signed zero or subnormal
         (0, 0, 0)
     } else {
@@ -37,11 +37,11 @@ fn f64_decode(f: f64) -> (u64, i16, i8) {
             1 - (sign_bit << 1) as i8,   // map sign bit to sign (1 / -1)
         )
     };
-    (mantissa, exponent, sign)
+    (significand, exponent, sign)
 }
 
-/// Returns a normal f32 value f as (mantissa, exponent, sign) so that
-/// `f = sign * mantissa * 2 ^ exponent`.
+/// Returns a normal f32 value f as (significand, exponent, sign) so that
+/// `f = sign * significand * 2 ^ exponent`.
 /// If f is signed zero or subnormal, (0, 0, 0) is returned.
 fn f32_decode(f: f32) -> (u64, i16, i8) {
     let bits = f.to_bits();
@@ -53,7 +53,7 @@ fn f32_decode(f: f32) -> (u64, i16, i8) {
     assert_ne!(biased_exp, 0xff);
     // fraction at bit pos 0 .. 22
     let fraction = (bits & 0x7fffff) as u64;
-    let (mantissa, exponent, sign) = if biased_exp == 0 {
+    let (significand, exponent, sign) = if biased_exp == 0 {
         // f is signed zero or subnormal
         (0, 0, 0)
     } else {
@@ -64,7 +64,7 @@ fn f32_decode(f: f32) -> (u64, i16, i8) {
             1 - (sign_bit << 1) as i8, // map sign bit to sign (1 / -1)
         )
     };
-    (mantissa, exponent, sign)
+    (significand, exponent, sign)
 }
 
 const MAGN_I128_MAX: u8 = 38;
@@ -143,11 +143,11 @@ impl TryFrom<f32> for Decimal {
         if f.is_nan() {
             return Err(DecimalError::NotANumber);
         }
-        let (mantissa, exponent, sign) = f32_decode(f);
+        let (significand, exponent, sign) = f32_decode(f);
         if exponent < -126 {
             Ok(Self::ZERO)
         } else if exponent < 0 {
-            let numer = i128::from(sign) * i128::from(mantissa);
+            let numer = i128::from(sign) * i128::from(significand);
             let denom = 1_i128 << ((-exponent) as usize);
             let (coeff, n_frac_digits) = approx_rational(numer, denom);
             Ok(Self {
@@ -155,7 +155,7 @@ impl TryFrom<f32> for Decimal {
                 n_frac_digits,
             })
         } else {
-            let numer = i128::from(sign) * i128::from(mantissa);
+            let numer = i128::from(sign) * i128::from(significand);
             let shift = 1_i128 << exponent as usize;
             match numer.checked_mul(shift) {
                 Some(coeff) => Ok(Self {
@@ -201,11 +201,11 @@ impl TryFrom<f64> for Decimal {
         if f.is_nan() {
             return Err(DecimalError::NotANumber);
         }
-        let (mantissa, exponent, sign) = f64_decode(f);
+        let (significand, exponent, sign) = f64_decode(f);
         if exponent < -126 {
             Ok(Self::ZERO)
         } else if exponent < 0 {
-            let numer = i128::from(sign) * i128::from(mantissa);
+            let numer = i128::from(sign) * i128::from(significand);
             let denom = 1_i128 << ((-exponent) as usize);
             let (coeff, n_frac_digits) = approx_rational(numer, denom);
             Ok(Self {
@@ -213,7 +213,7 @@ impl TryFrom<f64> for Decimal {
                 n_frac_digits,
             })
         } else {
-            let numer = i128::from(sign) * i128::from(mantissa);
+            let numer = i128::from(sign) * i128::from(significand);
             let shift = 1_i128 << exponent as usize;
             match numer.checked_mul(shift) {
                 Some(coeff) => Ok(Self {
