@@ -27,7 +27,7 @@ fn f64_decode(f: f64) -> (u64, i16, i8) {
     // fraction at bit pos 0 .. 51
     let fraction = bits & 0xfffffffffffff;
     let (significand, exponent, sign) = if biased_exp == 0 {
-        // f is signed zero or subnormal
+        // f is zero or subnormal
         (0, 0, 0)
     } else {
         // f is normal
@@ -54,7 +54,7 @@ fn f32_decode(f: f32) -> (u64, i16, i8) {
     // fraction at bit pos 0 .. 22
     let fraction = (bits & 0x7fffff) as u64;
     let (significand, exponent, sign) = if biased_exp == 0 {
-        // f is signed zero or subnormal
+        // f is zero or subnormal
         (0, 0, 0)
     } else {
         // f is normal
