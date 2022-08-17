@@ -1,6 +1,6 @@
 [package]
 name = "fpdec"
-version = "0.5.3"
+version = "0.5.4"
 edition = "2021"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Decimal fixed-point arithmetic."
