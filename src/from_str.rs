@@ -9,7 +9,7 @@
 
 use core::{convert::TryFrom, str::FromStr};
 
-use fpdec_core::{checked_mul_pow_ten, dec_repr_from_str};
+use fpdec_core::{checked_mul_pow_ten, str_to_dec};
 
 use crate::{Decimal, ParseDecimalError, MAX_N_FRAC_DIGITS};
 
@@ -34,8 +34,8 @@ impl FromStr for Decimal {
     /// * The number of fractional digits in `lit` minus the value of the signed
     ///   exponent in `lit` exceeds [crate::MAX_N_FRAC_DIGITS] ->
     ///   `ParseDecimalError::FracDigitLimitExceeded`
-    /// * The given decimal literal exceeds the the internal representation of
-    ///   `Decimal`. -> ParseDecimalError::InternalOverflow
+    /// * The given decimal literal exceeds the internal representation of
+    ///   `Decimal` -> ParseDecimalError::InternalOverflow
     ///
     /// # Examples:
     ///
@@ -50,7 +50,7 @@ impl FromStr for Decimal {
     /// # Ok(()) }
     /// ```
     fn from_str(lit: &str) -> Result<Self, Self::Err> {
-        let (coeff, exponent) = dec_repr_from_str(lit)?;
+        let (coeff, exponent) = str_to_dec(lit)?;
         if -exponent > MAX_N_FRAC_DIGITS as isize {
             return Result::Err(ParseDecimalError::FracDigitLimitExceeded);
         }
@@ -159,8 +159,7 @@ mod tests {
 
     #[test]
     fn test_frac_limit_exceeded() {
-        let res =
-            Decimal::from_str("0.000000000000000000000000000000000000001");
+        let res = Decimal::from_str("0.000000000000000000001");
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);

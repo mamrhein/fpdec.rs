@@ -11,7 +11,7 @@
 
 use ::proc_macro::TokenStream;
 use ::quote::quote;
-use fpdec_core::{dec_repr_from_str, ParseDecimalError, MAX_N_FRAC_DIGITS};
+use fpdec_core::{str_to_dec, ParseDecimalError, MAX_N_FRAC_DIGITS};
 
 /// Macro used to convert a number literal into a `Decimal`.
 ///
@@ -50,7 +50,7 @@ pub fn Dec(input: TokenStream) -> TokenStream {
     if src.starts_with("- ") || src.starts_with("+ ") {
         src.remove(1);
     }
-    match dec_repr_from_str(&src) {
+    match str_to_dec(&src) {
         Err(e) => panic!("{}", e),
         Ok((mut coeff, mut exponent)) => {
             if -exponent > (MAX_N_FRAC_DIGITS as isize) {

@@ -7,9 +7,10 @@
 // $Source$
 // $Revision$
 
-use core::fmt::{Display, Formatter};
-
-use crate::powers_of_ten::checked_mul_pow_ten;
+use core::{
+    fmt::{Display, Formatter},
+    ptr,
+};
 
 /// An error which can be returned when parsing a decimal literal.
 ///
@@ -54,134 +55,167 @@ impl Display for ParseDecimalError {
 #[cfg(feature = "std")]
 impl std::error::Error for ParseDecimalError {}
 
-struct DecLitParts<'a> {
-    num_sign: &'a str,
-    int_part: &'a str,
-    frac_part: &'a str,
-    exp_sign: &'a str,
-    exp_part: &'a str,
+/// Check whether an u64 is holding 8 decimal digits.
+fn chunk_contains_8_digits(chunk: u64) -> bool {
+    // Subtract b'0' from each byte.
+    let x = chunk.wrapping_sub(0x3030303030303030);
+    // Add 0x46 (= 0x7f - b'9') to each byte.
+    let y = chunk.wrapping_add(0x4646464646464646);
+    // In x now all original bytes < b'0' have the highest bit set, and
+    // in y now all original bytes > b'9' are > 0x7f.
+    // Then, in x|y all original bytes besides b'0' .. b'9' are > 0x7f.
+    // Thus, bitwise-and with 0x80 gives 0 for all original bytes b'0' .. b'9'
+    // and 0x7f for all others.
+    (x | y) & 0x8080808080808080 == 0
 }
 
-/// Parse a Decimal literal in the form
-///
-/// `[+|-]<int>[.<frac>][<e|E>[+|-]<exp>]`
-///
-/// or
-///
-/// `[+|-].<frac>[<e|E>[+|-]<exp>]`.
-fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
-    let mut num_sign_range = 0usize..0usize;
-    let mut int_part_range = 0usize..0usize;
-    let mut frac_part_range = 0usize..0usize;
-    let mut exp_sign_range = 0usize..0usize;
-    let mut exp_part_range = 0usize..0usize;
-    let mut chars = lit.char_indices();
-    let mut next = chars.next();
-    if next.is_none() {
-        return Result::Err(ParseDecimalError::Empty);
+/// Convert an u64 holding a sequence of 8 decimal digits into an u64.
+fn chunk_to_u64(mut chunk: u64) -> u64 {
+    // The following is adopted from Johnny Lee: Fast numeric string to int
+    // [https://johnnylee-sde.github.io/Fast-numeric-string-to-int].
+    chunk &= 0x0f0f0f0f0f0f0f0f;
+    chunk = (chunk & 0x000f000f000f000f)
+        .wrapping_mul(10)
+        .wrapping_add((chunk >> 8) & 0x000f000f000f000f);
+    chunk = (chunk & 0x0000007f0000007f)
+        .wrapping_mul(100)
+        .wrapping_add((chunk >> 16) & 0x0000007f0000007f);
+    (chunk & 0x3fff)
+        .wrapping_mul(10000)
+        .wrapping_add((chunk >> 32) & 0x3fff)
+}
+
+// Bytes wrapper specialized for parsing decimal number literals
+struct AsciiDecLit<'a> {
+    bytes: &'a [u8],
+}
+
+impl<'a> AsciiDecLit<'a> {
+    fn new(bytes: &'a [u8]) -> Self {
+        Self { bytes }
     }
-    let (mut curr_idx, mut curr_char) = next.unwrap();
-    if curr_char == '-' || curr_char == '+' {
-        num_sign_range = curr_idx..curr_idx + 1;
-        next = chars.next();
+
+    fn is_empty(&self) -> bool {
+        self.bytes.is_empty()
     }
-    int_part_range.start = num_sign_range.end;
-    loop {
-        match next {
-            None => {
-                curr_idx = lit.len();
-                if int_part_range.start < curr_idx {
-                    int_part_range.end = lit.len();
-                    return Ok(DecLitParts {
-                        num_sign: &lit[num_sign_range],
-                        int_part: &lit[int_part_range],
-                        frac_part: "",
-                        exp_sign: "",
-                        exp_part: "",
-                    });
-                } else {
-                    return Result::Err(ParseDecimalError::Invalid);
-                }
-            }
-            Some((idx, ch)) => {
-                if !ch.is_ascii_digit() {
-                    int_part_range.end = idx;
-                    curr_char = ch;
-                    curr_idx = idx;
-                    break;
-                }
-            }
-        }
-        next = chars.next();
+
+    fn len(&self) -> usize {
+        self.bytes.len()
     }
-    if curr_char == '.' {
-        frac_part_range.start = curr_idx + 1;
-        next = chars.next();
-        loop {
-            match next {
-                None => {
-                    frac_part_range.end = lit.len();
-                    return Ok(DecLitParts {
-                        num_sign: &lit[num_sign_range],
-                        int_part: &lit[int_part_range],
-                        frac_part: &lit[frac_part_range],
-                        exp_sign: "",
-                        exp_part: "",
-                    });
-                }
-                Some((idx, ch)) => {
-                    if !ch.is_ascii_digit() {
-                        frac_part_range.end = idx;
-                        curr_char = ch;
-                        break;
-                    }
-                }
-            }
-            next = chars.next();
+
+    /// self <- self[n..]
+    unsafe fn skip_n(&mut self, n: usize) -> &mut Self {
+        debug_assert!(self.bytes.len() >= n);
+        self.bytes = self.bytes.get_unchecked(n..);
+        self
+    }
+
+    /// self <- self[n..]
+    unsafe fn skip_1(&mut self) -> &mut Self {
+        self.skip_n(1)
+    }
+
+    fn first(&self) -> Option<&u8> {
+        self.bytes.first()
+    }
+
+    fn first_eq(&self, b: u8) -> bool {
+        Some(&b) == self.first()
+    }
+
+    fn first_is_digit(&self) -> bool {
+        match self.first() {
+            Some(c) if c.wrapping_sub(b'0') < 10 => true,
+            _ => false,
         }
     }
-    if curr_char == 'e' || curr_char == 'E' {
-        next = chars.next();
-        if next.is_none() {
-            return Result::Err(ParseDecimalError::Invalid);
+
+    fn skip_leading_zeroes(&mut self) -> &mut Self {
+        while self.first_eq(b'0') {
+            // safe because of condition above!
+            unsafe {
+                self.skip_1();
+            };
         }
-        let (curr_idx, curr_char) = next.unwrap();
-        if curr_char == '-' || curr_char == '+' {
-            exp_sign_range = curr_idx..curr_idx + 1;
-            exp_part_range.start = curr_idx + 1;
-        } else if curr_char.is_ascii_digit() {
-            exp_part_range.start = curr_idx;
+        self
+    }
+
+    // Read 8 bytes as u64 (little-endian).
+    unsafe fn read_u64_unchecked(&self) -> u64 {
+        debug_assert!(self.bytes.len() >= 8);
+        let src = self.bytes.as_ptr() as *const u64;
+        u64::from_le(ptr::read_unaligned(src))
+    }
+
+    // Try to read the next 8 bytes from self.
+    fn read_u64(&self) -> Option<u64> {
+        if self.len() >= 8 {
+            // safe because of condition above!
+            Some(unsafe { self.read_u64_unchecked() })
         } else {
-            return Result::Err(ParseDecimalError::Invalid);
+            None
         }
-        next = chars.next();
-        loop {
-            match next {
-                None => {
-                    exp_part_range.end = lit.len();
-                    break;
+    }
+
+    /// Convert the leading sequence of decimal digits in `self` (if any) into
+    /// an int and accumulate it into `coeff`.
+    // The function uses wrapping_mul and wrapping_add, so overflow can happen;
+    // it must be checked later!
+    fn accum_coeff(&mut self, coeff: &mut u128) -> usize {
+        let start_len = self.len();
+        // First, try chunks of 8 digits
+        while let Some(k) = self.read_u64() {
+            if chunk_contains_8_digits(k) {
+                *coeff = coeff
+                    .wrapping_mul(100000000)
+                    .wrapping_add(chunk_to_u64(k) as u128);
+                // safe because of call to self.read_u64 above
+                unsafe {
+                    self.skip_n(8);
                 }
-                Some((_, ch)) => {
-                    if !ch.is_ascii_digit() {
-                        return Result::Err(ParseDecimalError::Invalid);
-                    }
-                }
+            } else {
+                break;
             }
-            next = chars.next();
         }
-    } else {
-        return Result::Err(ParseDecimalError::Invalid);
+        // Handle remaining digits
+        while let Some(c) = self.first() {
+            let d = c.wrapping_sub(b'0');
+            if d < 10 {
+                *coeff = coeff.wrapping_mul(10).wrapping_add(d as u128);
+                // safe because of call to self.first above
+                unsafe {
+                    self.skip_1();
+                }
+            } else {
+                break;
+            }
+        }
+        start_len - self.len()
     }
-    if int_part_range.is_empty() && frac_part_range.is_empty() {
-        return Result::Err(ParseDecimalError::Invalid);
+
+    /// Convert the leading sequence of decimal digits in `self` (if any) into
+    /// an int and accumulate it into `exp`.
+    // The function uses wrapping_mul and wrapping_add, but overflow is
+    // prevented by limiting the result to a value which will cause an error
+    // later!
+    fn accum_exp(&mut self, exp: &mut isize) -> usize {
+        let start_len = self.len();
+        while let Some(c) = self.first() {
+            let d = c.wrapping_sub(b'0');
+            if d < 10 {
+                if *exp < 0x1000000 {
+                    *exp = exp.wrapping_mul(10).wrapping_add(d as isize);
+                }
+                // safe because of call to self.first above
+                unsafe {
+                    self.skip_1();
+                }
+            } else {
+                break;
+            }
+        }
+        start_len - self.len()
     }
-    Ok(DecLitParts {
-        num_sign: &lit[num_sign_range],
-        int_part: &lit[int_part_range],
-        frac_part: &lit[frac_part_range],
-        exp_sign: &lit[exp_sign_range],
-        exp_part: &lit[exp_part_range],
-    })
 }
 
 /// Convert a decimal number literal into a representation in the form
@@ -195,98 +229,155 @@ fn parse_decimal_literal(lit: &str) -> Result<DecLitParts, ParseDecimalError> {
 ///
 /// `[+|-].<frac>[<e|E>[+|-]<exp>]`.
 #[doc(hidden)]
-pub fn dec_repr_from_str(
-    lit: &str,
-) -> Result<(i128, isize), ParseDecimalError> {
-    let max_n_frac_digits = crate::MAX_N_FRAC_DIGITS as isize;
-    let parts = parse_decimal_literal(lit)?;
-    let exp: isize = if !parts.exp_part.is_empty() {
-        if parts.exp_sign == "-" {
-            -parts.exp_part.parse::<isize>().unwrap()
-        } else {
-            parts.exp_part.parse().unwrap()
+pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
+    let mut lit = AsciiDecLit::new(lit.as_ref());
+    let is_negative = match lit.first() {
+        None => {
+            return Err(ParseDecimalError::Empty);
         }
-    } else {
-        0
+        Some(&c) if c == b'-' => {
+            // safe because of match
+            unsafe { lit.skip_1() };
+            true
+        }
+        Some(&c) if c == b'+' => {
+            // safe because of match
+            unsafe { lit.skip_1() };
+            false
+        }
+        _ => false,
     };
-    let n_frac_digits = parts.frac_part.len() as isize;
-    if n_frac_digits - exp > max_n_frac_digits {
-        return Result::Err(ParseDecimalError::FracDigitLimitExceeded);
+    if lit.is_empty() {
+        return Err(ParseDecimalError::Invalid);
     }
-    let mut coeff: i128 = if !parts.int_part.is_empty() {
-        match parts.int_part.parse() {
-            Err(_) => {
-                return Err(ParseDecimalError::InternalOverflow);
+    lit.skip_leading_zeroes();
+    if lit.is_empty() {
+        // There must have been atleast one zero. Ignore sign.
+        return Ok((0, 0));
+    }
+    let mut coeff = 0_u128;
+    // Parse integral digits.
+    let n_int_digits = lit.accum_coeff(&mut coeff);
+    // Check for radix point and parse fractional digits.
+    let mut n_frac_digits = 0_usize;
+    if let Some(c) = lit.first() {
+        if *c == b'.' {
+            // safe because of condition above
+            unsafe { lit.skip_1() };
+            n_frac_digits = lit.accum_coeff(&mut coeff);
+        }
+    }
+    let n_digits = n_int_digits + n_frac_digits;
+    if n_digits == 0 {
+        return Err(ParseDecimalError::Invalid);
+    }
+    // check for overflow
+    // 1. 10^e > i128::MAX for e > 39
+    // 2. e = 39 && coeff < i128::MAX (overflow occured during accumulation)
+    // 3. coeff > i128::MAX
+    if n_digits > 39
+        || n_digits == 39 && coeff < i128::MAX as u128
+        || coeff > i128::MAX as u128
+    {
+        return Err(ParseDecimalError::InternalOverflow);
+    }
+    let mut exp = 0_isize;
+    // check for explicit exponent
+    if let Some(c) = lit.first() {
+        if *c == b'e' || *c == b'E' {
+            // safe because of condition above
+            unsafe { lit.skip_1() };
+            let exp_is_negative = match lit.first() {
+                None => {
+                    return Err(ParseDecimalError::Invalid);
+                }
+                Some(&c) if c == b'-' => {
+                    // safe because of match
+                    unsafe { lit.skip_1() };
+                    true
+                }
+                Some(&c) if c == b'+' => {
+                    // safe because of match
+                    unsafe { lit.skip_1() };
+                    false
+                }
+                _ => false,
+            };
+            let n_exp_digits = lit.accum_exp(&mut exp);
+            if exp_is_negative {
+                exp = -exp;
             }
-            Ok(i) => i,
+            if n_exp_digits > 2 {
+                return Err(ParseDecimalError::FracDigitLimitExceeded);
+            }
+        } else {
+            return Err(ParseDecimalError::Invalid);
         }
-    } else {
-        0
-    };
-    if n_frac_digits > 0 {
-        match checked_mul_pow_ten(coeff, n_frac_digits as u8) {
-            None => return Result::Err(ParseDecimalError::InternalOverflow),
-            Some(val) => coeff = val,
-        }
-        coeff += parts.frac_part.parse::<i128>().unwrap();
     }
-    if parts.num_sign == "-" {
-        Ok((-coeff, exp - n_frac_digits))
+    if !lit.is_empty() {
+        return Err(ParseDecimalError::Invalid);
+    }
+    exp -= n_frac_digits as isize;
+    if -exp > crate::MAX_N_FRAC_DIGITS as isize {
+        return Err(ParseDecimalError::FracDigitLimitExceeded);
+    }
+    if is_negative {
+        Ok((-(coeff as i128), exp))
     } else {
-        Ok((coeff, exp - n_frac_digits))
+        Ok((coeff as i128, exp))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dec_repr_from_str;
+    // use crate::str2dec;
 
     #[test]
     fn test_parse_int_lit() {
-        let res = dec_repr_from_str("1957945").unwrap();
+        let res = str_to_dec("1957945").unwrap();
         assert_eq!(res, (1957945, 0));
     }
 
     #[test]
     fn test_parse_dec_lit() {
-        let res = dec_repr_from_str("-17.5").unwrap();
+        let res = str_to_dec("-17.5").unwrap();
         assert_eq!(res, (-175, -1));
     }
 
     #[test]
     fn test_parse_frac_only_lit() {
-        let res = dec_repr_from_str("+.75").unwrap();
+        let res = str_to_dec("+.75").unwrap();
         assert_eq!(res, (75, -2));
     }
 
     #[test]
     fn test_parse_int_lit_neg_exp() {
-        let res = dec_repr_from_str("17e-5").unwrap();
+        let res = str_to_dec("17e-5").unwrap();
         assert_eq!(res, (17, -5));
     }
 
     #[test]
     fn test_parse_int_lit_pos_exp() {
-        let res = dec_repr_from_str("+217e3").unwrap();
+        let res = str_to_dec("+217e3").unwrap();
         assert_eq!(res, (217, 3));
     }
 
     #[test]
     fn test_parse_dec_lit_neg_exp() {
-        let res = dec_repr_from_str("-533.7e-2").unwrap();
+        let res = str_to_dec("-533.7e-2").unwrap();
         assert_eq!(res, (-5337, -3));
     }
 
     #[test]
     fn test_parse_dec_lit_pos_exp() {
-        let res = dec_repr_from_str("700004.002E13").unwrap();
+        let res = str_to_dec("700004.002E13").unwrap();
         assert_eq!(res, (700004002, 10));
     }
 
     #[test]
     fn test_err_empty_str() {
-        let res = dec_repr_from_str("");
+        let res = str_to_dec("");
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::Empty);
@@ -296,7 +387,7 @@ mod tests {
     fn test_err_invalid_lit() {
         let lits = [" ", "+", "-4.33.2", "2.87 e3", "+e3", ".4e3 "];
         for lit in lits {
-            let res = dec_repr_from_str(lit);
+            let res = str_to_dec(lit);
             assert!(res.is_err());
             let err = res.unwrap_err();
             assert_eq!(err, ParseDecimalError::Invalid);
@@ -305,8 +396,7 @@ mod tests {
 
     #[test]
     fn test_frac_limit_exceeded() {
-        let res =
-            dec_repr_from_str("0.172958873900163775420093721180000722643");
+        let res = str_to_dec("0.17295887390016377542");
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);
@@ -314,7 +404,7 @@ mod tests {
 
     #[test]
     fn test_frac_limit_exceeded_with_exp() {
-        let res = dec_repr_from_str("17.493e-36");
+        let res = str_to_dec("17.493e-36");
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);
@@ -323,7 +413,7 @@ mod tests {
     #[test]
     fn test_int_lit_max_val_exceeded() {
         let s = "170141183460469231731687303715884105728";
-        let res = dec_repr_from_str(s);
+        let res = str_to_dec(s);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);
@@ -332,7 +422,7 @@ mod tests {
     #[test]
     fn test_dec_lit_max_val_exceeded() {
         let s = "1701411834604692317316873037158841058.00";
-        let res = dec_repr_from_str(s);
+        let res = str_to_dec(s);
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::InternalOverflow);

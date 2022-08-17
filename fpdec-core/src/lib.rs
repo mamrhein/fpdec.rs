@@ -12,7 +12,7 @@
 
 use core::{cmp::Ordering, ops::Neg};
 
-pub use parser::{dec_repr_from_str, ParseDecimalError};
+pub use parser::{str_to_dec, ParseDecimalError};
 pub use powers_of_ten::{checked_mul_pow_ten, mul_pow_ten, ten_pow};
 pub use rounding::{
     i128_div_rounded, i128_mul_div_ten_pow_rounded, i128_shifted_div_rounded,
