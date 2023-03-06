@@ -16,11 +16,13 @@ categories = ["data-structures", "mathematics"]
 fpdec-core = { path = "fpdec-core", version = "0.5.0" }
 fpdec-macros = { path = "fpdec-macros", version = "0.5.0" }
 num-traits = { version = "0.2.0", optional = true }
+serde = { version = "1.0.152", optional = true, features = ["derive"] }
 
 [features]
 default = ["std"]
 std = []
 packed = []
+serde_derive = ["serde"]
 
 [workspace]
 members = [".", "fpdec-core", "fpdec-macros"]

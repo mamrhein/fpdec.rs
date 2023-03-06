@@ -62,17 +62,15 @@ extern crate alloc;
 pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]
 pub use binops::{
-    checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub,
-    checked_div::CheckedDiv, checked_mul::CheckedMul, checked_rem::CheckedRem,
-    div_rounded::DivRounded, mul_rounded::MulRounded,
+    checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub, checked_div::CheckedDiv,
+    checked_mul::CheckedMul, checked_rem::CheckedRem, div_rounded::DivRounded,
+    mul_rounded::MulRounded,
 };
 #[doc(inline)]
 pub use errors::*;
 use fpdec_core::i128_magnitude;
 #[doc(inline)]
-pub use fpdec_core::{
-    ParseDecimalError, Round, RoundingMode, MAX_N_FRAC_DIGITS,
-};
+pub use fpdec_core::{ParseDecimalError, Round, RoundingMode, MAX_N_FRAC_DIGITS};
 #[doc(inline)]
 pub use fpdec_macros::Dec;
 #[doc(inline)]
@@ -99,6 +97,7 @@ mod unops;
 #[must_use]
 #[derive(Copy, Clone)]
 #[cfg_attr(feature = "packed", repr(packed))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Decimal {
     coeff: i128,
     n_frac_digits: u8,
