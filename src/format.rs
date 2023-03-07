@@ -20,6 +20,42 @@ use fpdec_core::{i128_div_mod_floor, i128_div_rounded, ten_pow};
 
 use crate::{Decimal, MAX_N_FRAC_DIGITS};
 
+impl Into<String> for Decimal {
+    fn into(self) -> String {
+        if self.n_frac_digits == 0 {
+            format!("{}", self.coeff)
+        } else {
+            let (int, frac) =
+                i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
+            format!(
+                "{}.{:0width$}",
+                int,
+                frac,
+                width = self.n_frac_digits as usize
+            )
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_into_string {
+    use super::*;
+    use crate::Dec;
+
+    #[test]
+    fn test_into_string() {
+        let d = Decimal::MIN;
+        let s: String = d.into();
+        assert_eq!(s, format!("{}", i128::MIN));
+        let d = Decimal::MAX;
+        let s: String = d.into();
+        assert_eq!(s, format!("{}", i128::MAX));
+        let d = Dec!(1234567890123456789000.00700);
+        let s: String = d.into();
+        assert_eq!(s, "1234567890123456789000.00700");
+    }
+}
+
 impl fmt::Debug for Decimal {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.n_frac_digits == 0 {
