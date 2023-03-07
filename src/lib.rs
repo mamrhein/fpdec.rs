@@ -58,6 +58,9 @@
 
 extern crate alloc;
 
+#[cfg(feature = "serde_as_str")]
+use alloc::string::String;
+
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]
@@ -98,6 +101,12 @@ mod unops;
 /// [`MAX_N_FRAC_DIGITS`].
 #[must_use]
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde_as_str",
+    serde(into = "String"),
+    serde(try_from = "String")
+)]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
     coeff: i128,
@@ -221,5 +230,54 @@ pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
             *coeff /= 10;
             *n_frac_digits -= 1;
         }
+    }
+}
+
+#[cfg(feature = "serde")]
+#[cfg(test)]
+mod serde_tests {
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn test_min() {
+        let d = Decimal::MIN;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_neg_one() {
+        let d = Decimal::NEG_ONE;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_zero() {
+        let d = Decimal::ZERO;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_delta() {
+        let d = Decimal::DELTA;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_some() {
+        let d = Dec!(123456789012345678.90123);
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_max() {
+        let d = Decimal::MAX;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
     }
 }
