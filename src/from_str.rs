@@ -85,6 +85,15 @@ impl TryFrom<&str> for Decimal {
     }
 }
 
+impl TryFrom<String> for Decimal {
+    type Error = ParseDecimalError;
+
+    #[inline]
+    fn try_from(lit: String) -> Result<Self, Self::Error> {
+        Self::from_str(lit.as_str())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
