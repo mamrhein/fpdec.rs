@@ -7,6 +7,7 @@
 // $Source$
 // $Revision$
 
+use alloc::string::String;
 use core::{convert::TryFrom, str::FromStr};
 
 use fpdec_core::{checked_mul_pow_ten, str_to_dec};
@@ -97,6 +98,7 @@ impl TryFrom<String> for Decimal {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::string::ToString;
 
     #[test]
     fn test_from_int_lit() {

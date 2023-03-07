@@ -23,7 +23,7 @@ use crate::{Decimal, MAX_N_FRAC_DIGITS};
 impl Into<String> for Decimal {
     fn into(self) -> String {
         if self.n_frac_digits == 0 {
-            format!("{}", self.coeff)
+            format!("{}", self.coefficient())
         } else {
             let (int, frac) =
                 i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
@@ -31,7 +31,7 @@ impl Into<String> for Decimal {
                 "{}.{:0width$}",
                 int,
                 frac,
-                width = self.n_frac_digits as usize
+                width = self.n_frac_digits() as usize
             )
         }
     }
