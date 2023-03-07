@@ -202,19 +202,11 @@ mod tests {
     }
 
     #[test]
-    fn test_neg_corner_cases_ok() {
+    fn test_neg_corner_cases() {
         let x = Decimal::MAX;
-        let y = -x;
-        assert_eq!(x.coefficient(), -y.coefficient());
-        let z = -y;
-        assert_eq!(x.coefficient(), z.coefficient());
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_neg_corner_cases_fail() {
-        let x = Decimal::MIN;
-        let _y = -x;
+        let y = Decimal::MIN;
+        assert_eq!(x, -y);
+        assert_eq!(-x, y);
     }
 
     #[test]

@@ -46,7 +46,7 @@ mod test_into_string {
     fn test_into_string() {
         let d = Decimal::MIN;
         let s: String = d.into();
-        assert_eq!(s, format!("{}", i128::MIN));
+        assert_eq!(s, format!("{}", i128::MIN + 1));
         let d = Decimal::MAX;
         let s: String = d.into();
         assert_eq!(s, format!("{}", i128::MAX));

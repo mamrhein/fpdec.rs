@@ -184,15 +184,15 @@ impl Decimal {
         n_frac_digits: 0,
     };
 
-    /// Maximum value representable by `Decimal`
+    /// Maximum value representable by `Decimal` = 2¹²⁷ - 1
     pub const MAX: Self = Self {
         coeff: i128::MAX,
         n_frac_digits: 0,
     };
 
-    /// Minimum value representable by `Decimal`
+    /// Minimum value representable by `Decimal`  = -2¹²⁷ + 1
     pub const MIN: Self = Self {
-        coeff: i128::MIN,
+        coeff: i128::MIN + 1,
         n_frac_digits: 0,
     };
 
