@@ -273,10 +273,11 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
     }
     // check for overflow
     // 1. 10^e > i128::MAX for e > 39
-    // 2. e = 39 && coeff < i128::MAX (overflow occured during accumulation)
+    // 2. e = 39 && coeff < 10³⁸ (overflow occured during accumulation)
     // 3. coeff > i128::MAX
     if n_digits > 39
-        || n_digits == 39 && coeff < i128::MAX as u128
+        || n_digits == 39
+            && coeff < 100000000000000000000000000000000000000_u128
         || coeff > i128::MAX as u128
     {
         return Err(ParseDecimalError::InternalOverflow);

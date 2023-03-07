@@ -237,4 +237,22 @@ mod tests {
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::FracDigitLimitExceeded);
     }
+
+    #[test]
+    fn test_try_from_max_as_str() {
+        let lit = i128::MAX.to_string();
+        let res = Decimal::try_from(lit.as_str());
+        assert!(res.is_ok());
+        let d = res.unwrap();
+        assert_eq!(d, Decimal::MAX);
+    }
+
+    #[test]
+    fn test_try_from_min_as_string() {
+        let lit: String = (-i128::MAX).to_string();
+        let res = Decimal::try_from(lit);
+        assert!(res.is_ok());
+        let d = res.unwrap();
+        assert_eq!(d, Decimal::MIN);
+    }
 }
