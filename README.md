@@ -151,3 +151,26 @@ assert_eq!(z.to_string(), "113.2");
 let z: Decimal = x.div_rounded(y, 3);
 assert_eq!(z.to_string(), "2.705");
 ```
+
+## Crate features
+
+By default, only the feature `std` is enabled.
+
+### Ecosystem
+
+* **std** - When enabled, this will cause `fpdec` to use the standard
+  library, so that conversion to string, formatting and printing are
+  available. When disabled, the use of crate `alloc` together with a
+  system-specific allocator is needed to use that functionality.
+
+* **packed** - When enabled, the struct `Decimal` is marked with
+  `#[repr(packed)]`.
+
+### Optional dependencies
+
+* **num-traits** - When enabled, the trait `num-traits::Num` is implemented
+  for `Decimal`.
+
+* **serde-as-str** - When enabled, support for `serde` is enabled. This allows
+  `Decimal` instances to be serialzed as strings and to be deserialized from
+  strings via `serde`.
