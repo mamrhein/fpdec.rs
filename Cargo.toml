@@ -25,7 +25,7 @@ serde_json = { version = "1.0" }
 default = ["std"]
 std = []
 packed = []
-serde_as_str = ["dep:serde"]
+serde-as-str = ["dep:serde"]
 
 [workspace]
 members = [".", "fpdec-core", "fpdec-macros"]

@@ -58,7 +58,7 @@
 
 extern crate alloc;
 
-#[cfg(feature = "serde_as_str")]
+#[cfg(feature = "serde-as-str")]
 use alloc::string::String;
 
 #[doc(inline)]
@@ -102,11 +102,11 @@ mod unops;
 #[must_use]
 #[derive(Copy, Clone)]
 #[cfg_attr(
-    feature = "serde_as_str",
+    feature = "serde-as-str",
     derive(serde::Serialize, serde::Deserialize)
 )]
 #[cfg_attr(
-    feature = "serde_as_str",
+    feature = "serde-as-str",
     serde(into = "String"),
     serde(try_from = "String")
 )]
@@ -236,7 +236,7 @@ pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
     }
 }
 
-#[cfg(feature = "serde_as_str")]
+#[cfg(feature = "serde-as-str")]
 #[cfg(test)]
 mod serde_json_tests {
     use super::*;
