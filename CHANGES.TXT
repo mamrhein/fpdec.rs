@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.6.0     Added support for serde: serialize to / deserialize from String.
+
 0.5.4     Optimized conversion from string to Decimal.
 
 0.5.3     Some code hygiene based on rustc and clippy lints.
