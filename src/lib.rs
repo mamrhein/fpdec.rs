@@ -101,7 +101,10 @@ mod unops;
 /// [`MAX_N_FRAC_DIGITS`].
 #[must_use]
 #[derive(Copy, Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde_as_str",
+    derive(serde::Serialize, serde::Deserialize)
+)]
 #[cfg_attr(
     feature = "serde_as_str",
     serde(into = "String"),
@@ -233,9 +236,9 @@ pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
     }
 }
 
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde_as_str")]
 #[cfg(test)]
-mod serde_tests {
+mod serde_json_tests {
     use super::*;
     use serde_json;
 
