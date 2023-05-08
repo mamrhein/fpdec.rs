@@ -69,6 +69,12 @@ mod powers_of_ten;
 mod rounding;
 
 /// The maximum number of fractional decimal digits supported by `Decimal`.
+///
+/// A greater value will result in a compile-time error:
+///
+/// ```compile_fail
+/// assert!(!Decimal::is_zero(&Decimal::new_raw(1, 27)));
+/// ```
 pub const MAX_N_FRAC_DIGITS: u8 = 18;
 
 #[doc(hidden)]
