@@ -30,6 +30,8 @@ where
 
 #[cfg(test)]
 mod zero_tests {
+    use fpdec_core::MAX_N_FRAC_DIGITS;
+
     use super::*;
 
     #[test]
