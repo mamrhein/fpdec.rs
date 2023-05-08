@@ -51,3 +51,6 @@ jobs:
       - name: 🔍 run cargo clippy
         run: |
           cargo clippy --all-features
+      - name: 🎨 run cargo fmt
+        run: |
+          cargo fmt --all
