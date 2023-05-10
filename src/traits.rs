@@ -36,7 +36,7 @@ mod zero_tests {
     fn test_zero() {
         assert!(Decimal::is_zero(&Decimal::zero()));
         assert!(Decimal::is_zero(&Decimal::new_raw(0, 7)));
-        assert!(!Decimal::is_zero(&Decimal::new_raw(1, 27)));
+        assert!(!Decimal::is_zero(&Decimal::new_raw(1, 2)));
     }
 }
 
