@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.6.1     Added CI jobs for cargo check, test, clippy and fmt (thx to
+          Roms1383).
+
 0.6.0     Added support for serde: serialize to / deserialize from String.
 
 0.5.4     Optimized conversion from string to Decimal.
