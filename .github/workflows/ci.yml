@@ -31,14 +31,17 @@ jobs:
         uses: actions/checkout@v3
       - name: 🛠 setup cargo toolchain
         uses: dtolnay/rust-toolchain@stable
+      - name: 🛠 install cargo-hack
+        uses: baptiste0928/cargo-install@v2
+        with:
+          crate: cargo-hack
       - name: ♻️ cache Rust dependencies
         uses: Swatinem/rust-cache@v2
         with:
           shared-key: ubuntu-latest
       - name: 🛟 run cargo test
         run: |
-          cargo test
-          cargo test --all-features --doc
+          cargo hack test --feature-powerset --optional-deps num-traits
   lint:
     needs: test
     runs-on: ubuntu-latest
