@@ -1,7 +1,9 @@
 Version   Changes
 --------  --------------------------------------------------------------------
-0.6.1     Added CI jobs for cargo check, test, clippy and fmt (thx to
-          Roms1383).
+0.6.4     Code hygiene based on clippy hints.
+          Changed CI job to use cargo-hack.
+
+0.6.3     Added CI jobs for cargo check, test and clippy (thx to Roms1383).
 
 0.6.0     Added support for serde: serialize to / deserialize from String.
 

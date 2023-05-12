@@ -1,6 +1,6 @@
 [package]
 name = "fpdec-core"
-version = "0.6.0"
+version = "0.6.4"
 edition = "2021"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Common constants and functions for crate fpdec."
