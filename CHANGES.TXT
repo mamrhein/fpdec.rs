@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.7.0     Replaced impl Into<String> for Decimal by impl From<Decimal> for
+          String.
+
 0.6.4     Code hygiene based on clippy hints.
           Changed CI job to use cargo-hack.
 
