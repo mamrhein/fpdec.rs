@@ -32,16 +32,13 @@ pub enum ParseDecimalError {
 
 impl ParseDecimalError {
     #[doc(hidden)]
-    pub fn _description(&self) -> &str {
+    #[must_use]
+    pub const fn _description(&self) -> &str {
         match self {
-            ParseDecimalError::Empty => "Empty string.",
-            ParseDecimalError::Invalid => "Invalid decimal string literal.",
-            ParseDecimalError::FracDigitLimitExceeded => {
-                "Too many fractional digits."
-            }
-            ParseDecimalError::InternalOverflow => {
-                "Internal representation exceeded."
-            }
+            Self::Empty => "Empty string.",
+            Self::Invalid => "Invalid decimal string literal.",
+            Self::FracDigitLimitExceeded => "Too many fractional digits.",
+            Self::InternalOverflow => "Internal representation exceeded.",
         }
     }
 }
@@ -56,7 +53,7 @@ impl Display for ParseDecimalError {
 impl std::error::Error for ParseDecimalError {}
 
 /// Check whether an u64 is holding 8 decimal digits.
-fn chunk_contains_8_digits(chunk: u64) -> bool {
+const fn chunk_contains_8_digits(chunk: u64) -> bool {
     // Subtract b'0' from each byte.
     let x = chunk.wrapping_sub(0x3030303030303030);
     // Add 0x46 (= 0x7f - b'9') to each byte.
@@ -70,7 +67,7 @@ fn chunk_contains_8_digits(chunk: u64) -> bool {
 }
 
 /// Convert an u64 holding a sequence of 8 decimal digits into an u64.
-fn chunk_to_u64(mut chunk: u64) -> u64 {
+const fn chunk_to_u64(mut chunk: u64) -> u64 {
     // The following is adopted from Johnny Lee: Fast numeric string to int
     // [https://johnnylee-sde.github.io/Fast-numeric-string-to-int].
     chunk &= 0x0f0f0f0f0f0f0f0f;
@@ -91,15 +88,15 @@ struct AsciiDecLit<'a> {
 }
 
 impl<'a> AsciiDecLit<'a> {
-    fn new(bytes: &'a [u8]) -> Self {
+    const fn new(bytes: &'a [u8]) -> Self {
         Self { bytes }
     }
 
-    fn is_empty(&self) -> bool {
+    const fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
 
-    fn len(&self) -> usize {
+    const fn len(&self) -> usize {
         self.bytes.len()
     }
 
@@ -115,7 +112,7 @@ impl<'a> AsciiDecLit<'a> {
         self.skip_n(1)
     }
 
-    fn first(&self) -> Option<&u8> {
+    const fn first(&self) -> Option<&u8> {
         self.bytes.first()
     }
 
@@ -123,16 +120,13 @@ impl<'a> AsciiDecLit<'a> {
         Some(&b) == self.first()
     }
 
-    fn first_is_digit(&self) -> bool {
-        match self.first() {
-            Some(c) if c.wrapping_sub(b'0') < 10 => true,
-            _ => false,
-        }
+    const fn first_is_digit(&self) -> bool {
+        matches!(self.first(), Some(c) if c.wrapping_sub(b'0') < 10)
     }
 
     fn skip_leading_zeroes(&mut self) -> &mut Self {
         while self.first_eq(b'0') {
-            // safe because of condition above!
+            // Safety: safe because of condition above!
             unsafe {
                 self.skip_1();
             };
@@ -149,12 +143,9 @@ impl<'a> AsciiDecLit<'a> {
 
     // Try to read the next 8 bytes from self.
     fn read_u64(&self) -> Option<u64> {
-        if self.len() >= 8 {
-            // safe because of condition above!
-            Some(unsafe { self.read_u64_unchecked() })
-        } else {
-            None
-        }
+        (self.len() >= 8).then(||
+            // Safety: safe because of condition above!
+            unsafe { self.read_u64_unchecked() })
     }
 
     /// Convert the leading sequence of decimal digits in `self` (if any) into
@@ -169,7 +160,7 @@ impl<'a> AsciiDecLit<'a> {
                 *coeff = coeff
                     .wrapping_mul(100000000)
                     .wrapping_add(chunk_to_u64(k) as u128);
-                // safe because of call to self.read_u64 above
+                // Safety: safe because of call to self.read_u64 above
                 unsafe {
                     self.skip_n(8);
                 }
@@ -182,7 +173,7 @@ impl<'a> AsciiDecLit<'a> {
             let d = c.wrapping_sub(b'0');
             if d < 10 {
                 *coeff = coeff.wrapping_mul(10).wrapping_add(d as u128);
-                // safe because of call to self.first above
+                // Safety: safe because of call to self.first above
                 unsafe {
                     self.skip_1();
                 }
@@ -206,7 +197,7 @@ impl<'a> AsciiDecLit<'a> {
                 if *exp < 0x1000000 {
                     *exp = exp.wrapping_mul(10).wrapping_add(d as isize);
                 }
-                // safe because of call to self.first above
+                // Safety: safe because of call to self.first above
                 unsafe {
                     self.skip_1();
                 }
@@ -236,12 +227,12 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
             return Err(ParseDecimalError::Empty);
         }
         Some(&c) if c == b'-' => {
-            // safe because of match
+            // Safety: safe because of match
             unsafe { lit.skip_1() };
             true
         }
         Some(&c) if c == b'+' => {
-            // safe because of match
+            // Safety: safe because of match
             unsafe { lit.skip_1() };
             false
         }
@@ -262,7 +253,7 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
     let mut n_frac_digits = 0_usize;
     if let Some(c) = lit.first() {
         if *c == b'.' {
-            // safe because of condition above
+            // Safety: safe because of condition above
             unsafe { lit.skip_1() };
             n_frac_digits = lit.accum_coeff(&mut coeff);
         }
@@ -286,19 +277,19 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
     // check for explicit exponent
     if let Some(c) = lit.first() {
         if *c == b'e' || *c == b'E' {
-            // safe because of condition above
+            // Safety: safe because of condition above
             unsafe { lit.skip_1() };
             let exp_is_negative = match lit.first() {
                 None => {
                     return Err(ParseDecimalError::Invalid);
                 }
                 Some(&c) if c == b'-' => {
-                    // safe because of match
+                    // Safety: safe because of match
                     unsafe { lit.skip_1() };
                     true
                 }
                 Some(&c) if c == b'+' => {
-                    // safe because of match
+                    // Safety: safe because of match
                     unsafe { lit.skip_1() };
                     false
                 }

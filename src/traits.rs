@@ -15,7 +15,7 @@ use crate::{Decimal, ParseDecimalError};
 
 impl Zero for Decimal
 where
-    Decimal: Add<Output = Decimal>,
+    Self: Add<Output = Self>,
 {
     #[inline(always)]
     fn zero() -> Self {
@@ -67,7 +67,7 @@ mod one_tests {
 }
 
 impl Num for Decimal {
-    type FromStrRadixErr = <Decimal as FromStr>::Err;
+    type FromStrRadixErr = <Self as FromStr>::Err;
 
     fn from_str_radix(
         str: &str,
@@ -76,7 +76,7 @@ impl Num for Decimal {
         if radix != 10 {
             return Err(ParseDecimalError::Invalid);
         }
-        Decimal::from_str(str)
+        Self::from_str(str)
     }
 }
 

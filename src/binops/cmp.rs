@@ -76,7 +76,7 @@ impl Decimal {
     /// Returns true if self is equal to one.
     #[must_use]
     #[inline(always)]
-    pub fn eq_one(&self) -> bool {
+    pub const fn eq_one(&self) -> bool {
         self.coeff == ten_pow(self.n_frac_digits)
     }
 

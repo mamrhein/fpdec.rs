@@ -66,6 +66,7 @@ impl Rem<Self> for Decimal {
     type Output = Self;
 
     fn rem(self, rhs: Self) -> Self::Output {
+        #[allow(clippy::manual_assert)]
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }

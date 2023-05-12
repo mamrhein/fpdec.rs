@@ -104,9 +104,11 @@ impl DivRounded<Self> for Decimal {
     type Output = Self;
 
     fn div_rounded(self, rhs: Self, n_frac_digits: u8) -> Self::Output {
+        #[allow(clippy::manual_assert)]
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::MaxNFracDigitsExceeded);
         }
+        #[allow(clippy::manual_assert)]
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }

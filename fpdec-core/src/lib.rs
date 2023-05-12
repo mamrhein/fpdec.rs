@@ -73,6 +73,7 @@ pub const MAX_N_FRAC_DIGITS: u8 = 18;
 
 #[doc(hidden)]
 #[inline]
+#[must_use]
 pub fn adjust_coeffs(x: i128, p: u8, y: i128, q: u8) -> (i128, i128) {
     match p.cmp(&q) {
         Ordering::Equal => (x, y),
@@ -83,6 +84,7 @@ pub fn adjust_coeffs(x: i128, p: u8, y: i128, q: u8) -> (i128, i128) {
 
 #[doc(hidden)]
 #[inline]
+#[must_use]
 pub fn checked_adjust_coeffs(
     x: i128,
     p: u8,
@@ -101,7 +103,9 @@ pub fn checked_adjust_coeffs(
 /// as y and `0 <= abs(r) < abs(y)`.
 #[doc(hidden)]
 #[inline]
-pub fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
+#[must_use]
+#[allow(clippy::integer_division)]
+pub const fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
     let (q, r) = (x / y, x % y);
     if (r > 0 && y < 0) || (r < 0 && y > 0) {
         (q - 1, r + y)
@@ -117,6 +121,7 @@ pub fn i128_div_mod_floor(x: i128, y: i128) -> (i128, i128) {
 #[allow(clippy::unusual_byte_groupings)]
 #[doc(hidden)]
 #[inline]
+#[must_use]
 pub const fn u8(val: u8) -> u32 {
     let val = val as u32;
 
@@ -163,6 +168,7 @@ const fn less_than_5(val: u32) -> u32 {
 // 0 < val <= u16::MAX
 #[doc(hidden)]
 #[inline]
+#[must_use]
 pub const fn u16(val: u16) -> u32 {
     less_than_5(val as u32)
 }
@@ -170,6 +176,7 @@ pub const fn u16(val: u16) -> u32 {
 // 0 < val <= u32::MAX
 #[doc(hidden)]
 #[inline]
+#[must_use]
 pub const fn u32(mut val: u32) -> u32 {
     let mut log = 0;
     if val >= 100_000 {
@@ -182,6 +189,8 @@ pub const fn u32(mut val: u32) -> u32 {
 // 0 < val <= u64::MAX
 #[doc(hidden)]
 #[inline]
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
 pub const fn u64(mut val: u64) -> u32 {
     let mut log = 0;
     if val >= 10_000_000_000 {
@@ -198,6 +207,8 @@ pub const fn u64(mut val: u64) -> u32 {
 // 0 < val <= u128::MAX
 #[doc(hidden)]
 #[inline]
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
 pub const fn u128(mut val: u128) -> u32 {
     let mut log = 0;
     if val >= 100_000_000_000_000_000_000_000_000_000_000 {
@@ -216,6 +227,8 @@ pub const fn u128(mut val: u128) -> u32 {
 
 #[doc(hidden)]
 #[inline]
+#[must_use]
+#[allow(clippy::cast_possible_truncation)]
 pub const fn i128_magnitude(i: i128) -> u8 {
     // TODO: change after feature(int_log) got stable:
     // i.log10() as u8
@@ -252,17 +265,17 @@ fn u128_msb(mut i: u128) -> u8 {
 }
 
 #[inline(always)]
-fn u128_hi(u: u128) -> u128 {
+const fn u128_hi(u: u128) -> u128 {
     u >> 64
 }
 
 #[inline(always)]
-fn u128_lo(u: u128) -> u128 {
+const fn u128_lo(u: u128) -> u128 {
     u & 0xffffffffffffffff
 }
 
 #[inline(always)]
-fn u128_mul_u128(x: u128, y: u128) -> (u128, u128) {
+const fn u128_mul_u128(x: u128, y: u128) -> (u128, u128) {
     let xh = u128_hi(x);
     let xl = u128_lo(x);
     let yh = u128_hi(y);
@@ -282,6 +295,7 @@ fn u128_mul_u128(x: u128, y: u128) -> (u128, u128) {
 // D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
 // Exercise 16
 #[inline(always)]
+#[allow(clippy::integer_division)]
 fn u256_idiv_u64(xh: &mut u128, xl: &mut u128, y: u64) -> u128 {
     if y == 1 {
         return 0;
@@ -309,6 +323,7 @@ fn u256_idiv_u64(xh: &mut u128, xl: &mut u128, y: u64) -> u128 {
 // The link given above does not exist anymore, but the code can still be
 // found at https://github.com/hcs0/Hackers-Delight/blob/master/divlu.c.txt.
 #[inline(always)]
+#[allow(clippy::integer_division)]
 fn u256_idiv_u128_special(xh: &mut u128, xl: &mut u128, mut y: u128) -> u128 {
     debug_assert!(*xh < y);
     const B: u128 = 1 << 64;
@@ -377,6 +392,7 @@ fn u256_idiv_u128_special(xh: &mut u128, xl: &mut u128, mut y: u128) -> u128 {
 
 // Calculate x = x / y in place, where x = xh * 2^128 + xl, and return x % y.
 #[inline(always)]
+#[allow(clippy::cast_possible_truncation)]
 fn u256_idiv_u128(xh: &mut u128, xl: &mut u128, y: u128) -> u128 {
     if u128_hi(y) == 0 {
         return u256_idiv_u64(xh, xl, u128_lo(y) as u64);
@@ -395,6 +411,7 @@ fn u256_idiv_u128(xh: &mut u128, xl: &mut u128, y: u128) -> u128 {
 /// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or return
 /// `None` if |q| > i128::MAX.
 #[doc(hidden)]
+#[must_use]
 pub fn i128_shifted_div_mod_floor(
     x: i128,
     p: u8,
@@ -428,6 +445,7 @@ pub fn i128_shifted_div_mod_floor(
 /// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or return
 /// `None` if |q| > i128::MAX.
 #[doc(hidden)]
+#[must_use]
 pub fn i256_div_mod_floor(x1: i128, x2: i128, y: i128) -> Option<(i128, i128)> {
     debug_assert!(y > 0);
     let (mut xh, mut xl) = u128_mul_u128(x1.unsigned_abs(), x2.unsigned_abs());

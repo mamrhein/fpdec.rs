@@ -239,8 +239,9 @@ pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
 #[cfg(feature = "serde-as-str")]
 #[cfg(test)]
 mod serde_json_tests {
-    use super::*;
     use serde_json;
+
+    use super::*;
 
     #[test]
     fn test_min() {

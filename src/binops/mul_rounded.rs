@@ -58,6 +58,7 @@ impl MulRounded<Self> for Decimal {
 
     #[inline]
     fn mul_rounded(self, rhs: Self, n_frac_digits: u8) -> Self::Output {
+        #[allow(clippy::manual_assert)]
         if n_frac_digits > MAX_N_FRAC_DIGITS {
             panic!("{}", DecimalError::MaxNFracDigitsExceeded);
         }

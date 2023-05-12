@@ -18,6 +18,7 @@ impl Div<Self> for Decimal {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self::Output {
+        #[allow(clippy::manual_assert)]
         if rhs.eq_zero() {
             panic!("{}", DecimalError::DivisionByZero);
         }

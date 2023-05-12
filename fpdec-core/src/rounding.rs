@@ -56,8 +56,8 @@ impl Default for RoundingMode {
 #[cfg(feature = "std")]
 impl RoundingMode {
     /// Sets the default RoundingMode for the current thread.
-    pub fn set_default(mode: RoundingMode) {
-        DFLT_ROUNDING_MODE.with(|m| *m.borrow_mut() = mode)
+    pub fn set_default(mode: Self) {
+        DFLT_ROUNDING_MODE.with(|m| *m.borrow_mut() = mode);
     }
 }
 
@@ -184,6 +184,7 @@ fn round_quot(
 
 /// Divide 'divident' by 'divisor' and round result according to 'mode'.
 #[doc(hidden)]
+#[must_use]
 pub fn i128_div_rounded(
     mut divident: i128,
     mut divisor: i128,
@@ -200,6 +201,7 @@ pub fn i128_div_rounded(
 
 /// Divide 'divident * 10^p' by 'divisor' and round result according to 'mode'.
 #[doc(hidden)]
+#[must_use]
 pub fn i128_shifted_div_rounded(
     mut divident: i128,
     p: u8,
@@ -217,6 +219,7 @@ pub fn i128_shifted_div_rounded(
 
 /// Divide 'x * y' by '10^p' and round result according to 'mode'.
 #[doc(hidden)]
+#[must_use]
 pub fn i128_mul_div_ten_pow_rounded(
     x: i128,
     y: i128,

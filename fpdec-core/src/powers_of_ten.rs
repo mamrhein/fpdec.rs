@@ -51,13 +51,14 @@ const POWERS_OF_10: [i128; 39] = [
 
 #[doc(hidden)]
 #[inline(always)]
-pub fn ten_pow(n: u8) -> i128 {
+#[must_use]
+pub const fn ten_pow(n: u8) -> i128 {
     POWERS_OF_10[n as usize]
 }
 
 #[doc(hidden)]
 #[inline(always)]
-pub fn checked_ten_pow(n: u8) -> Option<i128> {
+pub const fn checked_ten_pow(n: u8) -> Option<i128> {
     if n > 38 {
         None
     } else {
@@ -67,12 +68,14 @@ pub fn checked_ten_pow(n: u8) -> Option<i128> {
 
 #[doc(hidden)]
 #[inline(always)]
-pub fn mul_pow_ten(val: i128, n: u8) -> i128 {
+#[must_use]
+pub const fn mul_pow_ten(val: i128, n: u8) -> i128 {
     val * ten_pow(n)
 }
 
 #[doc(hidden)]
 #[inline(always)]
+#[must_use]
 pub fn checked_mul_pow_ten(val: i128, n: u8) -> Option<i128> {
     val.checked_mul(checked_ten_pow(n)?)
 }

@@ -97,8 +97,9 @@ impl TryFrom<String> for Decimal {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use alloc::string::ToString;
+
+    use super::*;
 
     #[test]
     fn test_from_int_lit() {

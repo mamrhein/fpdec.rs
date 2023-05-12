@@ -151,7 +151,7 @@ impl Decimal {
     /// ```
     #[allow(clippy::integer_division)]
     #[inline]
-    pub fn trunc(&self) -> Self {
+    pub const fn trunc(&self) -> Self {
         match self.n_frac_digits {
             0 => *self,
             n => Self {
@@ -173,7 +173,7 @@ impl Decimal {
     /// assert_eq!(d.fract().to_string(), "-0.5");
     /// ```
     #[inline]
-    pub fn fract(&self) -> Self {
+    pub const fn fract(&self) -> Self {
         match self.n_frac_digits {
             0 => Self::ZERO,
             n => Self {
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn test_neg() {
-        let val = 1234567890i128;
+        let val = 1234567890_i128;
         let x: Decimal = Decimal::new_raw(val, 2);
         let y = -x;
         assert_eq!(x.coefficient(), -y.coefficient());
