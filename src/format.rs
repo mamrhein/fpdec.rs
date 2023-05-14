@@ -19,6 +19,8 @@ use core::{
 use fpdec_core::{i128_div_mod_floor, i128_div_rounded, ten_pow};
 
 use crate::{Decimal, MAX_N_FRAC_DIGITS};
+#[cfg(feature = "rkyv")]
+use crate::ArchivedDecimal;
 
 impl From<Decimal> for String {
     fn from(d: Decimal) -> Self {
@@ -56,23 +58,31 @@ mod test_into_string {
     }
 }
 
-impl fmt::Debug for Decimal {
-    fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.n_frac_digits == 0 {
-            write!(form, "Dec!({})", self.coefficient())
-        } else {
-            let (int, frac) =
-                i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
-            write!(
-                form,
-                "Dec!({}.{:0width$})",
-                int,
-                frac,
-                width = self.n_frac_digits as usize
-            )
+macro_rules! impl_debug {
+    ($ty:ty, $tag:literal) => {
+        impl fmt::Debug for $ty {
+            fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
+                if self.n_frac_digits == 0 {
+                    write!(form, concat!($tag, "({})"), self.coefficient())
+                } else {
+                    let (int, frac) =
+                        i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
+                    write!(
+                        form,
+                        concat!($tag, "({}.{:0width$})"),
+                        int,
+                        frac,
+                        width = self.n_frac_digits as usize
+                    )
+                }
+            }
         }
     }
 }
+
+impl_debug!(Decimal, "Dec!");
+#[cfg(feature = "rkyv")]
+impl_debug!(ArchivedDecimal, "ArchivedDecimal");
 
 #[cfg(test)]
 mod test_fmt_debug {

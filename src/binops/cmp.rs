@@ -12,49 +12,88 @@ use core::cmp::Ordering;
 use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
 use crate::Decimal;
+#[cfg(all(feature = "rkyv"))]
+use crate::ArchivedDecimal;
 
-impl PartialEq<Self> for Decimal {
-    fn eq(&self, other: &Self) -> bool {
-        match checked_adjust_coeffs(
-            self.coeff,
-            self.n_frac_digits,
-            other.coeff,
-            other.n_frac_digits,
-        ) {
-            (Some(a), Some(b)) => a == b,
-            _ => false,
+macro_rules! impl_partial_eq {
+    ($t:ty, $target:ty) => {
+        impl PartialEq<$t> for $target {
+            fn eq(&self, other: &$t) -> bool {
+                match checked_adjust_coeffs(
+                    self.coeff,
+                    self.n_frac_digits,
+                    other.coeff,
+                    other.n_frac_digits,
+                ) {
+                    (Some(a), Some(b)) => a == b,
+                    _ => false,
+                }
+            }
         }
+    }
+}
+
+impl_partial_eq!(Decimal, Decimal);
+#[cfg(all(feature = "rkyv"))]
+impl_partial_eq!(ArchivedDecimal, ArchivedDecimal);
+#[cfg(all(feature = "rkyv"))]
+impl_partial_eq!(Decimal, ArchivedDecimal);
+
+#[cfg(all(feature = "rkyv"))]
+impl PartialEq<ArchivedDecimal> for Decimal {
+    fn eq(&self, other: &ArchivedDecimal) -> bool {
+        other.eq(self)
     }
 }
 
 impl Eq for Decimal {}
 
-impl PartialOrd<Self> for Decimal {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        match checked_adjust_coeffs(
-            self.coeff,
-            self.n_frac_digits,
-            other.coeff,
-            other.n_frac_digits,
-        ) {
-            (Some(a), Some(b)) => a.partial_cmp(&b),
-            (None, Some(_)) => {
-                if self.coeff > 0 {
-                    Some(Ordering::Greater)
-                } else {
-                    Some(Ordering::Less)
+#[cfg(feature = "rkyv")]
+impl Eq for ArchivedDecimal {}
+
+macro_rules! impl_partial_ord {
+    ($t:ty, $target:ty) => {
+        impl PartialOrd<$t> for $target {
+            fn partial_cmp(&self, other: &$t) -> Option<Ordering> {
+                match checked_adjust_coeffs(
+                    self.coeff,
+                    self.n_frac_digits,
+                    other.coeff,
+                    other.n_frac_digits,
+                ) {
+                    (Some(a), Some(b)) => a.partial_cmp(&b),
+                    (None, Some(_)) => {
+                        if self.coeff > 0 {
+                            Some(Ordering::Greater)
+                        } else {
+                            Some(Ordering::Less)
+                        }
+                    }
+                    (Some(_), None) => {
+                        if other.coeff < 0 {
+                            Some(Ordering::Greater)
+                        } else {
+                            Some(Ordering::Less)
+                        }
+                    }
+                    // Should never happen:
+                    (None, None) => None,
                 }
             }
-            (Some(_), None) => {
-                if other.coeff < 0 {
-                    Some(Ordering::Greater)
-                } else {
-                    Some(Ordering::Less)
-                }
-            }
-            // Should never happen:
-            (None, None) => None,
         }
+    }
+}
+
+impl_partial_ord!(Decimal, Decimal);
+#[cfg(all(feature = "rkyv"))]
+impl_partial_ord!(ArchivedDecimal, ArchivedDecimal);
+#[cfg(all(feature = "rkyv"))]
+impl_partial_ord!(Decimal, ArchivedDecimal);
+
+#[cfg(all(feature = "rkyv"))]
+impl PartialOrd<ArchivedDecimal> for Decimal {
+    fn partial_cmp(&self, other: &ArchivedDecimal) -> Option<Ordering> {
+        other.partial_cmp(self).map(|o| o.reverse())
     }
 }
 
@@ -65,35 +104,51 @@ impl Ord for Decimal {
     }
 }
 
-impl Decimal {
-    /// Returns true if self is equal to zero.
-    #[must_use]
-    #[inline(always)]
-    pub const fn eq_zero(&self) -> bool {
-        self.coeff == 0
-    }
-
-    /// Returns true if self is equal to one.
-    #[must_use]
-    #[inline(always)]
-    pub const fn eq_one(&self) -> bool {
-        self.coeff == ten_pow(self.n_frac_digits)
-    }
-
-    /// Returns true if self is less than zero.
-    #[must_use]
-    #[inline(always)]
-    pub const fn is_negative(&self) -> bool {
-        self.coeff < 0
-    }
-
-    /// Returns true if self is greater than zero.
-    #[must_use]
-    #[inline(always)]
-    pub const fn is_positive(&self) -> bool {
-        self.coeff > 0
+#[cfg(all(feature = "rkyv"))]
+impl Ord for ArchivedDecimal {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
+
+macro_rules! impl_basics {
+    ($ty:ty) => {
+        impl $ty {
+            /// Returns true if self is equal to zero.
+            #[must_use]
+            #[inline(always)]
+            pub const fn eq_zero(&self) -> bool {
+                self.coeff == 0
+            }
+
+            /// Returns true if self is equal to one.
+            #[must_use]
+            #[inline(always)]
+            pub const fn eq_one(&self) -> bool {
+                self.coeff == ten_pow(self.n_frac_digits)
+            }
+
+            /// Returns true if self is less than zero.
+            #[must_use]
+            #[inline(always)]
+            pub const fn is_negative(&self) -> bool {
+                self.coeff < 0
+            }
+
+            /// Returns true if self is greater than zero.
+            #[must_use]
+            #[inline(always)]
+            pub const fn is_positive(&self) -> bool {
+                self.coeff > 0
+            }
+        }
+    }
+}
+
+impl_basics!(Decimal);
+#[cfg(feature = "rkyv")]
+impl_basics!(ArchivedDecimal);
 
 #[cfg(test)]
 mod cmp_decimals_tests {
@@ -424,5 +479,142 @@ mod cmp_decimals_and_ints_tests {
         assert_ne!(x, y);
         assert!(x <= y);
         assert!(y >= x);
+    }
+}
+
+#[cfg(feature = "rkyv")]
+#[cfg(test)]
+mod rkyv_cmp_decimals_tests {
+    use rkyv;
+
+    use super::*;
+
+    macro_rules! declare {
+        ($i:ident = $x:expr, $a:ident) => {
+            let $i = $x;
+            let bytes = rkyv::to_bytes::<_, 256>(&$i).unwrap();
+            let $a = rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
+        }
+    }
+
+    #[test]
+    fn test_eq_same_n_frac_digits() {
+        declare!(x = Decimal::new_raw(178, 1), a);
+        assert!(x.eq(a));
+        assert!(!(a.ne(&x)));
+    }
+
+    #[test]
+    fn test_eq_different_n_frac_digits() {
+        declare!(x = Decimal::new_raw(178, 1), x_a);
+        declare!(y = Decimal::new_raw(178000, 4), y_a);
+
+        assert!(x.eq(y_a));
+        assert!(x_a.eq(&y));
+
+        assert_eq!(x, *y_a);
+        assert_eq!(y, *x_a);
+        assert_eq!(*x_a, y);
+        assert_eq!(*y_a, x);
+
+        assert!(!(y.ne(x_a)));
+        assert!(!(y_a.ne(&x)));
+    }
+
+    #[test]
+    fn test_ne_same_n_frac_digits() {
+        declare!(x = Decimal::new_raw(-178000, 7), x_a);
+        declare!(y = Decimal::new_raw(178000, 7), y_a);
+
+        assert_ne!(x, *y_a);
+        assert_ne!(*x_a, y);
+
+        assert_eq!(x.partial_cmp(y_a), Some(Ordering::Less));
+        assert_eq!(x_a.partial_cmp(&y), Some(Ordering::Less));
+
+        assert_eq!(x_a.cmp(y_a), Ordering::Less);
+
+        assert!(x < *y_a);
+        assert!(*x_a < y);
+
+        assert!(*y_a > x);
+        assert!(y > *x_a);
+    }
+
+    #[test]
+    fn test_ne_different_n_frac_digits() {
+        declare!(x = Decimal::new_raw(178001, 7), x_a);
+        declare!(y = Decimal::new_raw(178, 4), y_a);
+
+        assert_ne!(x, *y_a);
+        assert_ne!(*x_a, y);
+
+        assert_eq!(x.partial_cmp(y_a), Some(Ordering::Greater));
+        assert_eq!(x_a.partial_cmp(&y), Some(Ordering::Greater));
+
+        assert!(x > *y_a);
+        assert!(*x_a > y);
+
+        assert!(*y_a < x);
+        assert!(y < *x_a);
+    }
+
+    #[test]
+    fn test_ne_lhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        declare!(x = Decimal::new_raw(coeff, 4), x_a);
+        declare!(y = Decimal::new_raw(coeff, 5), y_a);
+
+        assert_ne!(x, *y_a);
+        assert_ne!(*x_a, y);
+
+        assert_eq!(x.partial_cmp(y_a), Some(Ordering::Greater));
+        assert_eq!(x_a.partial_cmp(&y), Some(Ordering::Greater));
+
+        assert!(x > *y_a);
+        assert!(*x_a > y);
+
+        assert!(*y_a < x);
+        assert!(y < *x_a);
+    }
+
+    #[test]
+    fn test_ne_rhs_adj_coeff_overflow() {
+        let coeff = i128::MAX - 2;
+        declare!(x = Decimal::new_raw(coeff, 4), x_a);
+        declare!(y = Decimal::new_raw(coeff, 3), y_a);
+
+        assert_ne!(x, *y_a);
+        assert_ne!(*x_a, y);
+
+        assert_eq!(x.partial_cmp(y_a), Some(Ordering::Less));
+        assert_eq!(x_a.partial_cmp(&y), Some(Ordering::Less));
+
+        assert!(x < *y_a);
+        assert!(*x_a < y);
+
+        assert!(*y_a > x);
+        assert!(y > *x_a);
+    }
+
+    #[test]
+    fn test_eq_zero() {
+        declare!(zero1 = Decimal::ZERO, zero1_a);
+        assert!(ArchivedDecimal::eq_zero(zero1_a));
+
+        declare!(zero2 = Decimal::new_raw(0, 5), zero2_a);
+        assert!(ArchivedDecimal::eq_zero(zero2_a));
+    }
+
+    #[test]
+    fn test_eq_one() {
+        declare!(one1 = Decimal::ONE, one1_a);
+        assert!(ArchivedDecimal::eq_one(one1_a));
+
+        declare!(one2 = Decimal::new_raw(10000, 4), one2_a);
+        assert!(ArchivedDecimal::eq_one(one2_a));
+
+        declare!(one3 = Decimal::new_raw(ten_pow(17), 17), one3_a);
+        assert!(ArchivedDecimal::eq_one(one3_a));
     }
 }
