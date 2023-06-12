@@ -19,9 +19,7 @@
 #![allow(dead_code)]
 // activate some clippy lints
 #![warn(clippy::cast_possible_truncation)]
-// #![warn(clippy::cast_possible_wrap)]
 #![warn(clippy::cast_precision_loss)]
-// #![warn(clippy::cast_sign_loss)]
 #![warn(clippy::cognitive_complexity)]
 #![warn(clippy::decimal_literal_representation)]
 #![warn(clippy::enum_glob_use)]
@@ -38,7 +36,6 @@
 #![warn(clippy::missing_errors_doc)]
 #![warn(clippy::missing_panics_doc)]
 #![warn(clippy::multiple_crate_versions)]
-// #![warn(clippy::multiple_inherent_impl)]
 #![warn(clippy::must_use_candidate)]
 #![warn(clippy::needless_pass_by_value)]
 #![warn(clippy::print_stderr)]
