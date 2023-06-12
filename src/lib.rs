@@ -33,7 +33,7 @@
 #![warn(clippy::integer_division)]
 #![warn(clippy::manual_assert)]
 #![warn(clippy::match_same_arms)]
-// #![warn(clippy::mismatching_type_param_order)] TODO: enable when 1.62 stable
+#![warn(clippy::mismatching_type_param_order)]
 #![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::missing_errors_doc)]
 #![warn(clippy::missing_panics_doc)]
@@ -66,8 +66,9 @@ pub use as_integer_ratio::AsIntegerRatio;
 #[doc(inline)]
 pub use binops::{
     checked_add_sub::CheckedAdd, checked_add_sub::CheckedSub,
-    checked_div::CheckedDiv, checked_mul::CheckedMul, checked_rem::CheckedRem,
-    div_rounded::DivRounded, mul_rounded::MulRounded,
+    checked_div::CheckedDiv, checked_mul::CheckedMul,
+    checked_rem::CheckedRem, div_rounded::DivRounded,
+    mul_rounded::MulRounded,
 };
 #[doc(inline)]
 pub use errors::*;
@@ -88,10 +89,10 @@ mod format;
 mod from_float;
 mod from_int;
 mod from_str;
+#[cfg(feature = "num-traits")]
+mod num_traits;
 mod quantize;
 mod round;
-#[cfg(feature = "num-traits")]
-mod traits;
 mod unops;
 
 /// Represents a decimal number as a coefficient (`i128`) combined with a
@@ -123,7 +124,8 @@ impl Decimal {
     pub const fn new_raw(coeff: i128, n_frac_digits: u8) -> Self {
         debug_assert!(
             n_frac_digits <= MAX_N_FRAC_DIGITS,
-            "More than MAX_N_FRAC_DIGITS fractional decimal digits requested."
+            "More than MAX_N_FRAC_DIGITS fractional decimal digits \
+             requested."
         );
         Self {
             coeff,
