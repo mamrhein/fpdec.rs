@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.8.0     Added optional support for zero-copy serialization via 'rkyv' (thx
+          to den-mentiei).
+
 0.7.0     Replaced impl Into<String> for Decimal by impl From<Decimal> for
           String.
 
