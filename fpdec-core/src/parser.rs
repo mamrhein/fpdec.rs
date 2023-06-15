@@ -22,8 +22,8 @@ pub enum ParseDecimalError {
     Empty,
     /// The given string is not a valid decimal literal.
     Invalid,
-    /// The given decimal literal has more fractional digits than specified by
-    /// `MAX_N_FRAC_DIGITS`.
+    /// The given decimal literal has more fractional digits than specified
+    /// by `MAX_N_FRAC_DIGITS`.
     FracDigitLimitExceeded,
     /// The given decimal literal would exceed the internal representation of
     /// `Decimal`.
@@ -150,8 +150,8 @@ impl<'a> AsciiDecLit<'a> {
 
     /// Convert the leading sequence of decimal digits in `self` (if any) into
     /// an int and accumulate it into `coeff`.
-    // The function uses wrapping_mul and wrapping_add, so overflow can happen;
-    // it must be checked later!
+    // The function uses wrapping_mul and wrapping_add, so overflow can
+    // happen; it must be checked later!
     fn accum_coeff(&mut self, coeff: &mut u128) -> usize {
         let start_len = self.len();
         // First, try chunks of 8 digits

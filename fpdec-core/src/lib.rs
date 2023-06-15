@@ -32,7 +32,8 @@
 #![warn(clippy::integer_division)]
 #![warn(clippy::manual_assert)]
 #![warn(clippy::match_same_arms)]
-// #![warn(clippy::mismatching_type_param_order)] TODO: enable when 1.62 stable
+// #![warn(clippy::mismatching_type_param_order)] TODO: enable when 1.62
+// stable
 #![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::missing_errors_doc)]
 #![warn(clippy::missing_panics_doc)]
@@ -128,7 +129,8 @@ pub const fn u8(val: u8) -> u32 {
     // For better performance, avoid branches by assembling the solution
     // in the bits above the low 8 bits.
 
-    // Adding c1 to val gives 10 in the top bits for val < 10, 11 for val >= 10
+    // Adding c1 to val gives 10 in the top bits for val < 10, 11 for val >=
+    // 10
     const C1: u32 = 0b11_00000000 - 10; // 758
                                         // Adding c2 to val gives 01 in the top bits for val < 100, 10 for val >=
                                         // 100
@@ -239,7 +241,8 @@ pub const fn i128_magnitude(i: i128) -> u8 {
 /// The given u128 must not be zero!
 fn u128_msb(mut i: u128) -> u8 {
     debug_assert_ne!(i, 0);
-    const IDX_MAP: [u8; 16] = [0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];
+    const IDX_MAP: [u8; 16] =
+        [0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4];
     let mut n: u8 = 0;
     if i & 0xffffffffffffffff0000000000000000_u128 != 0 {
         n = 64;
@@ -327,7 +330,8 @@ fn u256_idiv_u64(xh: &mut u128, xl: &mut u128, y: u64) -> u128 {
 fn u256_idiv_u128_special(xh: &mut u128, xl: &mut u128, mut y: u128) -> u128 {
     debug_assert!(*xh < y);
     const B: u128 = 1 << 64;
-    // Normalize dividend and divisor, so that y > 2^127 (i.e. highest bit set)
+    // Normalize dividend and divisor, so that y > 2^127 (i.e. highest bit
+    // set)
     let n_bits = 127 - u128_msb(y);
     y <<= n_bits;
     let yn1 = u128_hi(y);
@@ -408,8 +412,8 @@ fn u256_idiv_u128(xh: &mut u128, xl: &mut u128, y: u128) -> u128 {
 
 /// Return `Some<(q, r)>` with `q = (x * 10^p) / y` and `r = (x * 10^p) % y`,
 /// so that `(x * 10^p) = q * y + r`, where q is rounded against floor so that
-/// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or return
-/// `None` if |q| > i128::MAX.
+/// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or
+/// return `None` if |q| > i128::MAX.
 #[doc(hidden)]
 #[must_use]
 pub fn i128_shifted_div_mod_floor(
@@ -417,7 +421,8 @@ pub fn i128_shifted_div_mod_floor(
     p: u8,
     y: i128,
 ) -> Option<(i128, i128)> {
-    let (mut xh, mut xl) = u128_mul_u128(x.unsigned_abs(), ten_pow(p) as u128);
+    let (mut xh, mut xl) =
+        u128_mul_u128(x.unsigned_abs(), ten_pow(p) as u128);
     let r = u256_idiv_u128(&mut xh, &mut xl, y.unsigned_abs());
     if xh != 0 || xl > i128::MAX as u128 {
         return None;
@@ -442,13 +447,18 @@ pub fn i128_shifted_div_mod_floor(
 
 /// Return `Some<(q, r)>` with `q = (x1 * x2) / y` and `r = (x1 * x2) % y`,
 /// so that `(x1 * x2) = q * y + r`, where q is rounded against floor so that
-/// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or return
-/// `None` if |q| > i128::MAX.
+/// r, if non-zero, has the same sign as y and `0 <= abs(r) < abs(y)`, or
+/// return `None` if |q| > i128::MAX.
 #[doc(hidden)]
 #[must_use]
-pub fn i256_div_mod_floor(x1: i128, x2: i128, y: i128) -> Option<(i128, i128)> {
+pub fn i256_div_mod_floor(
+    x1: i128,
+    x2: i128,
+    y: i128,
+) -> Option<(i128, i128)> {
     debug_assert!(y > 0);
-    let (mut xh, mut xl) = u128_mul_u128(x1.unsigned_abs(), x2.unsigned_abs());
+    let (mut xh, mut xl) =
+        u128_mul_u128(x1.unsigned_abs(), x2.unsigned_abs());
     let r = u256_idiv_u128(&mut xh, &mut xl, y.unsigned_abs());
     if xh != 0 || xl > i128::MAX as u128 {
         return None;

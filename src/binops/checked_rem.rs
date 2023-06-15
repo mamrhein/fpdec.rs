@@ -34,8 +34,12 @@ impl CheckedRem<Self> for Decimal {
         if rhs.eq_one() {
             return Some(self.fract());
         }
-        match rem(self.coeff, self.n_frac_digits, rhs.coeff, rhs.n_frac_digits)
-        {
+        match rem(
+            self.coeff,
+            self.n_frac_digits,
+            rhs.coeff,
+            rhs.n_frac_digits,
+        ) {
             Ok((coeff, n_frac_digits)) => Some(Self {
                 coeff,
                 n_frac_digits,

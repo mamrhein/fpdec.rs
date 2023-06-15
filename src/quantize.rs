@@ -16,9 +16,9 @@ pub trait Quantize<Rhs = Self> {
     /// The resulting type after applying `quantize`.
     type Output;
 
-    /// Returns an instance of `Self::Output` with its value set to the integer
-    /// multiple of `quant` nearest to `self`, according to the current
-    /// [RoundingMode](crate::RoundingMode).
+    /// Returns an instance of `Self::Output` with its value set to the
+    /// integer multiple of `quant` nearest to `self`, according to the
+    /// current [RoundingMode](crate::RoundingMode).
     ///
     /// # Panics
     ///

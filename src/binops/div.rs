@@ -10,8 +10,8 @@
 use core::ops::{Div, DivAssign};
 
 use crate::{
-    binops::div_rounded::checked_div_rounded, normalize, Decimal, DecimalError,
-    MAX_N_FRAC_DIGITS,
+    binops::div_rounded::checked_div_rounded, normalize, Decimal,
+    DecimalError, MAX_N_FRAC_DIGITS,
 };
 
 impl Div<Self> for Decimal {
@@ -100,7 +100,8 @@ mod div_decimal_tests {
         assert_eq!(z.n_frac_digits(), 0);
     }
 
-    // corner case where divident * shift exceeds i128::MAX, but result doesn't
+    // corner case where divident * shift exceeds i128::MAX, but result
+    // doesn't
     #[test]
     fn test_div_internal_overflow() {
         let x = Decimal::new_raw(i128::MAX - 1, 0);
@@ -268,7 +269,15 @@ mod div_integer_tests {
     gen_div_integer_tests!(test_div_u32, u32, 78125, 3, 20, 9, 256);
     gen_div_integer_tests!(test_div_i32, i32, -4, 9, -1000, 8, 25);
     gen_div_integer_tests!(test_div_u64, u64, 16384000, 0, 1, 17, 6103515625);
-    gen_div_integer_tests!(test_div_i64, i64, 244140625, 2, -488281250, 2, -2);
+    gen_div_integer_tests!(
+        test_div_i64,
+        i64,
+        244140625,
+        2,
+        -488281250,
+        2,
+        -2
+    );
     gen_div_integer_tests!(test_div_i128, i128, 5005, 4, 2002, 5, 4);
 
     #[test]

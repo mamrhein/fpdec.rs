@@ -112,7 +112,10 @@ mod checked_div_decimal_tests {
         let x = Decimal::new_raw(mul_pow_ten(17, 17), 0);
         let y = Decimal::new_raw(20498, 5);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coefficient(), 8293492048004683383744755585910820568_i128);
+        assert_eq!(
+            z.coefficient(),
+            8293492048004683383744755585910820568_i128
+        );
         assert_eq!(z.n_frac_digits(), 18);
     }
 
@@ -129,7 +132,10 @@ mod checked_div_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_div(y).unwrap();
-        assert_eq!(z.coefficient(), (&x).checked_div(y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_div(y).unwrap().coefficient()
+        );
         assert_eq!(z.coefficient(), x.checked_div(&y).unwrap().coefficient());
         assert_eq!(
             z.coefficient(),
@@ -259,8 +265,24 @@ mod checked_div_integer_tests {
     }
 
     gen_checked_div_integer_tests!(test_checked_div_u8, u8, 5, 2, -1, 3, -2);
-    gen_checked_div_integer_tests!(test_checked_div_i8, i8, 115, 0, 230, 0, 2);
-    gen_checked_div_integer_tests!(test_checked_div_u16, u16, 160, 4, 80, 5, 5);
+    gen_checked_div_integer_tests!(
+        test_checked_div_i8,
+        i8,
+        115,
+        0,
+        230,
+        0,
+        2
+    );
+    gen_checked_div_integer_tests!(
+        test_checked_div_u16,
+        u16,
+        160,
+        4,
+        80,
+        5,
+        5
+    );
     gen_checked_div_integer_tests!(
         test_checked_div_i16,
         i16,
@@ -270,7 +292,15 @@ mod checked_div_integer_tests {
         4,
         15625
     );
-    gen_checked_div_integer_tests!(test_checked_div_u32, u32, 40, 1, 10, 3, 25);
+    gen_checked_div_integer_tests!(
+        test_checked_div_u32,
+        u32,
+        40,
+        1,
+        10,
+        3,
+        25
+    );
     gen_checked_div_integer_tests!(
         test_checked_div_i32,
         i32,

@@ -174,3 +174,7 @@ By default, only the feature `std` is enabled.
 * **serde-as-str** - When enabled, support for `serde` is enabled. This allows
   `Decimal` instances to be serialzed as strings and to be deserialized from
   strings via `serde`.
+
+* **rkyv** - When enabled, support for `rkyv` is enabled. This allows
+  `Decimal` instances to be zero-copy serialized and deserialized via
+  `rkyv` archives.

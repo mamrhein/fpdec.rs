@@ -8,7 +8,8 @@
 // $Revision$
 
 use fpdec_core::{
-    i128_div_rounded, i128_mul_div_ten_pow_rounded, ten_pow, MAX_N_FRAC_DIGITS,
+    i128_div_rounded, i128_mul_div_ten_pow_rounded, ten_pow,
+    MAX_N_FRAC_DIGITS,
 };
 
 use crate::{Decimal, DecimalError};

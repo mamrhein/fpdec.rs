@@ -205,7 +205,8 @@ mod div_rounded_decimal_tests {
         assert_eq!(z.n_frac_digits(), 6);
     }
 
-    // corner case: shifting divident overflows, stepwise algorithm must be used
+    // corner case: shifting divident overflows, stepwise algorithm must be
+    // used
     #[test]
     fn test_div_rounded_stepwise() {
         let x = Decimal::new_raw(mul_pow_ten(13, 11), 1);
@@ -494,7 +495,8 @@ mod div_rounded_decimal_by_int_tests {
         assert_eq!(z.n_frac_digits(), 2);
     }
 
-    // corner case: shifting divident overflows, stepwise algorithm must be used
+    // corner case: shifting divident overflows, stepwise algorithm must be
+    // used
     #[test]
     fn test_div_rounded_stepwise() {
         let x = Decimal::new_raw(i128::MAX, 0);
@@ -543,7 +545,9 @@ mod div_rounded_int_by_decimal_tests {
 
     gen_div_rounded_int_by_decimal_tests!(test_u8, 2, -14, 3_u8, 5, -2142857);
     gen_div_rounded_int_by_decimal_tests!(test_i8, 0, -12, -3_i8, 5, 25000);
-    gen_div_rounded_int_by_decimal_tests!(test_u16, 2, -17, 3_u16, 5, -1764706);
+    gen_div_rounded_int_by_decimal_tests!(
+        test_u16, 2, -17, 3_u16, 5, -1764706
+    );
     gen_div_rounded_int_by_decimal_tests!(test_i16, 3, -12, -3_i16, 2, 25000);
     gen_div_rounded_int_by_decimal_tests!(
         test_u32,
@@ -706,7 +710,13 @@ mod div_rounded_int_by_int_tests {
     gen_div_rounded_int_by_int_tests!(test_i8, -12_i8, -3_i8, 4, 40000);
     gen_div_rounded_int_by_int_tests!(test_u16, 17_u16, 4_u16, 3, 4250);
     gen_div_rounded_int_by_int_tests!(test_i16, -22, -13_i16, 7, 16923077);
-    gen_div_rounded_int_by_int_tests!(test_u32, u32::MAX, 10_u32, 0, 429496730);
+    gen_div_rounded_int_by_int_tests!(
+        test_u32,
+        u32::MAX,
+        10_u32,
+        0,
+        429496730
+    );
     gen_div_rounded_int_by_int_tests!(test_i32, 12345_i32, -328_i32, 1, -376);
     gen_div_rounded_int_by_int_tests!(
         test_u64,

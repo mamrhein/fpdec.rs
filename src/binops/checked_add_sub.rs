@@ -93,9 +93,15 @@ mod checked_add_sub_decimal_tests {
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x.checked_add(y).unwrap();
-        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + y.coefficient() * 10000
+        );
         let z = y.checked_add(x).unwrap();
-        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + y.coefficient() * 10000
+        );
         let z = x.checked_add(Decimal::NEG_ONE).unwrap();
         assert_eq!(z.coefficient(), x.coefficient() - 100000);
     }
@@ -151,7 +157,10 @@ mod checked_add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_add(y).unwrap();
-        assert_eq!(z.coefficient(), (&x).checked_add(y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_add(y).unwrap().coefficient()
+        );
         assert_eq!(z.coefficient(), x.checked_add(&y).unwrap().coefficient());
         assert_eq!(
             z.coefficient(),
@@ -164,7 +173,10 @@ mod checked_add_sub_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_sub(y).unwrap();
-        assert_eq!(z.coefficient(), (&x).checked_sub(y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_sub(y).unwrap().coefficient()
+        );
         assert_eq!(z.coefficient(), x.checked_sub(&y).unwrap().coefficient());
         assert_eq!(
             z.coefficient(),
@@ -296,7 +308,10 @@ mod checked_add_sub_integer_tests {
         let i = 12345_i128;
         let r = d.checked_add(i).unwrap();
         assert_eq!(r.coefficient(), i * 100 + 1);
-        assert_eq!(r.coefficient(), (&d).checked_add(i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_add(i).unwrap().coefficient()
+        );
         assert_eq!(r.coefficient(), d.checked_add(&i).unwrap().coefficient());
         assert_eq!(
             r.coefficient(),
@@ -386,7 +401,10 @@ mod checked_add_sub_integer_tests {
         let i = 12345_i128;
         let r = d.checked_sub(i).unwrap();
         assert_eq!(r.coefficient(), -i * 100 + 501);
-        assert_eq!(r.coefficient(), (&d).checked_sub(i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_sub(i).unwrap().coefficient()
+        );
         assert_eq!(r.coefficient(), d.checked_sub(&i).unwrap().coefficient());
         assert_eq!(
             r.coefficient(),
