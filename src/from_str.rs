@@ -29,11 +29,12 @@ impl FromStr for Decimal {
     ///
     /// The function returns an error in these cases:
     ///
-    /// * An empty string has been given as `lit` -> `ParseDecimalError::Empty`
+    /// * An empty string has been given as `lit` ->
+    ///   `ParseDecimalError::Empty`
     /// * `lit` does not fit one of the two forms given above ->
     ///   `ParseDecimalError::Invalid`
-    /// * The number of fractional digits in `lit` minus the value of the signed
-    ///   exponent in `lit` exceeds [crate::MAX_N_FRAC_DIGITS] ->
+    /// * The number of fractional digits in `lit` minus the value of the
+    ///   signed exponent in `lit` exceeds [crate::MAX_N_FRAC_DIGITS] ->
     ///   `ParseDecimalError::FracDigitLimitExceeded`
     /// * The given decimal literal exceeds the internal representation of
     ///   `Decimal` -> ParseDecimalError::InternalOverflow

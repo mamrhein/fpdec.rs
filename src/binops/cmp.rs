@@ -11,9 +11,9 @@ use core::cmp::Ordering;
 
 use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
-use crate::Decimal;
 #[cfg(all(feature = "rkyv"))]
 use crate::ArchivedDecimal;
+use crate::Decimal;
 
 macro_rules! impl_partial_eq {
     ($t:ty, $target:ty) => {
@@ -30,7 +30,7 @@ macro_rules! impl_partial_eq {
                 }
             }
         }
-    }
+    };
 }
 
 impl_partial_eq!(Decimal, Decimal);
@@ -81,7 +81,7 @@ macro_rules! impl_partial_ord {
                 }
             }
         }
-    }
+    };
 }
 
 impl_partial_ord!(Decimal, Decimal);
@@ -143,7 +143,7 @@ macro_rules! impl_basics {
                 self.coeff > 0
             }
         }
-    }
+    };
 }
 
 impl_basics!(Decimal);
@@ -493,8 +493,9 @@ mod rkyv_cmp_decimals_tests {
         ($i:ident = $x:expr, $a:ident) => {
             let $i = $x;
             let bytes = rkyv::to_bytes::<_, 256>(&$i).unwrap();
-            let $a = rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
-        }
+            let $a =
+                rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
+        };
     }
 
     #[test]

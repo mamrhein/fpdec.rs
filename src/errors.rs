@@ -9,8 +9,8 @@
 
 use core::fmt::{Debug, Display, Formatter};
 
-/// An error which can be returned from converting numbers to `Decimal` or from
-/// binary operators on `Decimal`.
+/// An error which can be returned from converting numbers to `Decimal` or
+/// from binary operators on `Decimal`.
 ///
 /// This error is used as the error type for the `TryFrom` implementation of
 /// `Decimal`. It is also used when the implementations of the numerical

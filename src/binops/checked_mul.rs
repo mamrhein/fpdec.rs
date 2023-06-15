@@ -93,7 +93,10 @@ mod checked_mul_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x.checked_mul(y).unwrap();
-        assert_eq!(z.coefficient(), (&x).checked_mul(y).unwrap().coefficient());
+        assert_eq!(
+            z.coefficient(),
+            (&x).checked_mul(y).unwrap().coefficient()
+        );
         assert_eq!(z.coefficient(), x.checked_mul(&y).unwrap().coefficient());
         assert_eq!(
             z.coefficient(),
@@ -208,7 +211,10 @@ mod checked_mul_integer_tests {
         let i = 12345_i128;
         let r = d.checked_mul(i).unwrap();
         assert_eq!(r.coefficient(), i128::from(i) * coeff);
-        assert_eq!(r.coefficient(), (&d).checked_mul(i).unwrap().coefficient());
+        assert_eq!(
+            r.coefficient(),
+            (&d).checked_mul(i).unwrap().coefficient()
+        );
         assert_eq!(r.coefficient(), d.checked_mul(&i).unwrap().coefficient());
         assert_eq!(
             r.coefficient(),

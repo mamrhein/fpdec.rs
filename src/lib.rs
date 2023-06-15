@@ -114,7 +114,7 @@ mod unops;
     all(feature = "rkyv", not(feature = "packed")),
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
     archive(check_bytes),
-    archive_attr(derive(Copy, Clone)),
+    archive_attr(derive(Copy, Clone))
 )]
 #[cfg_attr(feature = "packed", repr(packed))]
 pub struct Decimal {
@@ -268,19 +268,29 @@ impl rkyv::Archive for Decimal {
     // Safety: Rkyv provides a valid pointer. Writes are unaligned,
     // which is a safe way to write the values as our type is packed.
     #[allow(unsafe_code)]
-    unsafe fn resolve(&self, _: usize, _: Self::Resolver, out: *mut Self::Archived) {
+    unsafe fn resolve(
+        &self,
+        _: usize,
+        _: Self::Resolver,
+        out: *mut Self::Archived,
+    ) {
         core::ptr::addr_of_mut!((*out).coeff).write_unaligned(self.coeff);
-        core::ptr::addr_of_mut!((*out).n_frac_digits).write_unaligned(self.n_frac_digits);
+        core::ptr::addr_of_mut!((*out).n_frac_digits)
+            .write_unaligned(self.n_frac_digits);
     }
 }
 
 #[cfg(all(feature = "rkyv", feature = "packed"))]
 impl<S: rkyv::Fallible + ?Sized> rkyv::Serialize<S> for Decimal {
-    fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> { Ok(()) }
+    fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(())
+    }
 }
 
 #[cfg(all(feature = "rkyv", feature = "packed"))]
-impl<D: rkyv::Fallible + ?Sized> rkyv::Deserialize<Decimal, D> for ArchivedDecimal {
+impl<D: rkyv::Fallible + ?Sized> rkyv::Deserialize<Decimal, D>
+    for ArchivedDecimal
+{
     fn deserialize(&self, _: &mut D) -> Result<Decimal, D::Error> {
         Ok(Decimal {
             coeff: self.coeff,
@@ -387,8 +397,11 @@ mod rkyv_tests {
     fn roundtrip(value: Decimal) -> Decimal {
         let bytes = rkyv::to_bytes::<_, 256>(&value)
             .expect("Scratch space size is not enough to serialize value");
-        let archived = rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
-        archived.deserialize(&mut rkyv::Infallible).expect("Deserialization is infallible")
+        let archived =
+            rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
+        archived
+            .deserialize(&mut rkyv::Infallible)
+            .expect("Deserialization is infallible")
     }
 
     #[test]

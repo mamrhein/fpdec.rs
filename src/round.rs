@@ -99,12 +99,12 @@ impl Round for Decimal {
                 })
             } else {
                 // shift back
-                coeff
-                    .checked_mul(ten_pow(-n_frac_digits as u8))
-                    .map(|coeff| Self {
+                coeff.checked_mul(ten_pow(-n_frac_digits as u8)).map(
+                    |coeff| Self {
                         coeff,
                         n_frac_digits: 0,
-                    })
+                    },
+                )
             }
         }
     }

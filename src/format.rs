@@ -18,9 +18,9 @@ use core::{
 
 use fpdec_core::{i128_div_mod_floor, i128_div_rounded, ten_pow};
 
-use crate::{Decimal, MAX_N_FRAC_DIGITS};
 #[cfg(feature = "rkyv")]
 use crate::ArchivedDecimal;
+use crate::{Decimal, MAX_N_FRAC_DIGITS};
 
 impl From<Decimal> for String {
     fn from(d: Decimal) -> Self {
@@ -65,8 +65,10 @@ macro_rules! impl_debug {
                 if self.n_frac_digits == 0 {
                     write!(form, concat!($tag, "({})"), self.coefficient())
                 } else {
-                    let (int, frac) =
-                        i128_div_mod_floor(self.coeff, ten_pow(self.n_frac_digits));
+                    let (int, frac) = i128_div_mod_floor(
+                        self.coeff,
+                        ten_pow(self.n_frac_digits),
+                    );
                     write!(
                         form,
                         concat!($tag, "({}.{:0width$})"),
@@ -77,7 +79,7 @@ macro_rules! impl_debug {
                 }
             }
         }
-    }
+    };
 }
 
 impl_debug!(Decimal, "Dec!");
@@ -159,8 +161,12 @@ impl fmt::Display for Decimal {
                 }
             };
             if prec > 0 {
-                tmp =
-                    format!("{}.{:0width$}", int, frac, width = prec as usize);
+                tmp = format!(
+                    "{}.{:0width$}",
+                    int,
+                    frac,
+                    width = prec as usize
+                );
             } else {
                 tmp = int.to_string();
             }

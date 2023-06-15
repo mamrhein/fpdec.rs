@@ -82,10 +82,16 @@ mod add_sub_decimal_tests {
         let x = Decimal::new_raw(1234567890, 5);
         let y = Decimal::new_raw(890, 1);
         let z = x + y;
-        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + y.coefficient() * 10000
+        );
         assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = y + x;
-        assert_eq!(z.coefficient(), x.coefficient() + y.coefficient() * 10000);
+        assert_eq!(
+            z.coefficient(),
+            x.coefficient() + y.coefficient() * 10000
+        );
         assert_eq!(z.n_frac_digits(), x.n_frac_digits());
         let z = x + Decimal::NEG_ONE;
         assert_eq!(

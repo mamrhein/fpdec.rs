@@ -51,7 +51,9 @@ pub(crate) fn rem(
                             Some(shifted_rem) => {
                                 rem = shifted_rem % divisor_coeff;
                             }
-                            None => return Err(DecimalError::InternalOverflow),
+                            None => {
+                                return Err(DecimalError::InternalOverflow)
+                            }
                         }
                         shift -= 1;
                     }
@@ -76,8 +78,12 @@ impl Rem<Self> for Decimal {
         if rhs.eq_one() {
             return self.fract();
         }
-        match rem(self.coeff, self.n_frac_digits, rhs.coeff, rhs.n_frac_digits)
-        {
+        match rem(
+            self.coeff,
+            self.n_frac_digits,
+            rhs.coeff,
+            rhs.n_frac_digits,
+        ) {
             Ok((coeff, n_frac_digits)) => Self::Output {
                 coeff,
                 n_frac_digits,
@@ -153,7 +159,10 @@ mod rem_decimal_tests {
         let x = Decimal::new_raw(i128::MAX / 30, 1);
         let y = Decimal::new_raw(i128::MAX / 500, 3);
         let r = x % y;
-        assert_eq!(r.coefficient(), 226854911280625642308916404954512874_i128);
+        assert_eq!(
+            r.coefficient(),
+            226854911280625642308916404954512874_i128
+        );
         assert_eq!(r.n_frac_digits(), y.n_frac_digits());
     }
 
@@ -323,7 +332,10 @@ mod rem_integer_tests {
         let x = i128::MAX / 30;
         let y = Decimal::new_raw(i128::MAX / 500, 2);
         let r = x % y;
-        assert_eq!(r.coefficient(), 226854911280625642308916404954512874_i128);
+        assert_eq!(
+            r.coefficient(),
+            226854911280625642308916404954512874_i128
+        );
         assert_eq!(r.n_frac_digits(), y.n_frac_digits());
     }
 

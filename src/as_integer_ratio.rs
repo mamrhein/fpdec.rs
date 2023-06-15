@@ -73,8 +73,8 @@ mod test_int_as_ratio {
 }
 
 // The following algorithm is a special adaptation of the binary "greatest
-// common divisor" algorithm devised by Josef Stein, presented as "Algorithm B"
-// in D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.5.2.
+// common divisor" algorithm devised by Josef Stein, presented as "Algorithm
+// B" in D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.5.2.
 
 /// Returns the greatest common divisor of `numer` and `10 ^ denom_exp`.
 ///

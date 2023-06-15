@@ -11,7 +11,8 @@
 use core::cell::RefCell;
 
 use crate::{
-    i128_div_mod_floor, i128_shifted_div_mod_floor, i256_div_mod_floor, ten_pow,
+    i128_div_mod_floor, i128_shifted_div_mod_floor, i256_div_mod_floor,
+    ten_pow,
 };
 
 /// Enum representing the different methods used when rounding a number.
@@ -46,8 +47,8 @@ thread_local!(
 impl Default for RoundingMode {
     /// Returns the default RoundingMode set for the current thread.
     ///
-    /// It is initially set to [RoundingMode::RoundHalfEven], but can be changed
-    /// using the fn [RoundingMode::set_default].
+    /// It is initially set to [RoundingMode::RoundHalfEven], but can be
+    /// changed using the fn [RoundingMode::set_default].
     fn default() -> Self {
         DFLT_ROUNDING_MODE.with(|m| *m.borrow())
     }
@@ -68,8 +69,8 @@ static DFLT_ROUNDING_MODE: RoundingMode = RoundingMode::RoundHalfEven;
 impl Default for RoundingMode {
     /// Returns the current default RoundingMode.
     ///
-    /// It is initially set to [RoundingMode::RoundHalfEven], but can be changed
-    /// using the fn [RoundingMode::set_default].
+    /// It is initially set to [RoundingMode::RoundHalfEven], but can be
+    /// changed using the fn [RoundingMode::set_default].
     fn default() -> Self {
         DFLT_ROUNDING_MODE
     }
@@ -80,14 +81,15 @@ pub trait Round
 where
     Self: Sized,
 {
-    /// Returns a new `Self` instance with its value rounded to `n_frac_digits`
-    /// fractional digits according to the current [RoundingMode].
+    /// Returns a new `Self` instance with its value rounded to
+    /// `n_frac_digits` fractional digits according to the current
+    /// [RoundingMode].
     fn round(self, n_frac_digits: i8) -> Self;
 
-    /// Returns a new `Self` instance with its value rounded to `n_frac_digits`
-    /// fractional digits according to the current `RoundingMode`, wrapped in
-    /// `Option::Some`, or `Option::None` if the result can not be
-    /// represented by `Self`.
+    /// Returns a new `Self` instance with its value rounded to
+    /// `n_frac_digits` fractional digits according to the current
+    /// `RoundingMode`, wrapped in `Option::Some`, or `Option::None` if
+    /// the result can not be represented by `Self`.
     fn checked_round(self, n_frac_digits: i8) -> Option<Self>;
 }
 
@@ -115,9 +117,9 @@ fn round_quot(
     match mode {
         RoundingMode::Round05Up => {
             // Round down unless last digit is 0 or 5:
-            // quotient not negativ and quotient divisible by 5 w/o remainder or
-            // quotient negativ and (quotient + 1) not divisible by 5 w/o rem.
-            // => add 1
+            // quotient not negativ and quotient divisible by 5 w/o remainder
+            // or quotient negativ and (quotient + 1) not
+            // divisible by 5 w/o rem. => add 1
             if quot >= 0 && quot % 5 == 0 || quot < 0 && (quot + 1) % 5 != 0 {
                 return quot + 1;
             }
@@ -155,7 +157,8 @@ fn round_quot(
             // remainder = |divisor| / 2 and quotient not even
             // => add 1
             let rem_doubled = rem << 1;
-            if rem_doubled > divisor || rem_doubled == divisor && quot % 2 != 0
+            if rem_doubled > divisor
+                || rem_doubled == divisor && quot % 2 != 0
             {
                 return quot + 1;
             }
@@ -199,7 +202,8 @@ pub fn i128_div_rounded(
     round_quot(quot, rem as u128, divisor as u128, mode)
 }
 
-/// Divide 'divident * 10^p' by 'divisor' and round result according to 'mode'.
+/// Divide 'divident * 10^p' by 'divisor' and round result according to
+/// 'mode'.
 #[doc(hidden)]
 #[must_use]
 pub fn i128_shifted_div_rounded(

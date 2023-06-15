@@ -116,8 +116,8 @@ impl TryFrom<f32> for Decimal {
     //noinspection DuplicatedCode
     /// Tries to convert a `f32` value `f` into a `Decimal`.
     ///
-    /// Returns the value representable as a `Decimal` which is nearest to `f`,
-    /// if such a value exists, wrapped in Result::Ok.
+    /// Returns the value representable as a `Decimal` which is nearest to
+    /// `f`, if such a value exists, wrapped in Result::Ok.
     ///
     /// Returns an error (wrapped in Result::Err) in the following cases:
     /// * `f` is infinite => `DecimalError::InfiniteValue`,
@@ -174,8 +174,8 @@ impl TryFrom<f64> for Decimal {
     //noinspection DuplicatedCode
     /// Tries to convert a `f64` value `f` into a `Decimal`.
     ///
-    /// Returns the value representable as a `Decimal` which is nearest to `f`,
-    /// if such a value exists, wrapped in Result::Ok.
+    /// Returns the value representable as a `Decimal` which is nearest to
+    /// `f`, if such a value exists, wrapped in Result::Ok.
     ///
     /// Returns an error (wrapped in Result::Err) in the following cases:
     /// * `f` is infinite => `DecimalError::InfiniteValue`,
