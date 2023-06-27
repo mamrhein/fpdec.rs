@@ -100,6 +100,14 @@ mod test_fmt_debug {
         let d = Dec!(1234567890002);
         assert_eq!(format!("{:?}", d), "Dec!(1234567890002)");
     }
+
+    #[test]
+    fn test_issue_6() {
+        let d = Decimal::new_raw(4247228607487600, 18);
+        let s = format!(concat!("Dec!", "({})"), d);
+        let t = format!("{d:?}");
+        assert_eq!(t, s);
+    }
 }
 
 impl fmt::Display for Decimal {
