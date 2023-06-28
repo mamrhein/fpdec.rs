@@ -28,9 +28,10 @@ impl From<Decimal> for String {
             format!("{}", d.coefficient())
         } else {
             let (int, frac) =
-                i128_div_mod_floor(d.coeff, ten_pow(d.n_frac_digits));
+                i128_div_mod_floor(d.coeff.abs(), ten_pow(d.n_frac_digits));
             format!(
-                "{}.{:0width$}",
+                "{}{}.{:0width$}",
+                if d.coeff >= 0 { "" } else { "-" },
                 int,
                 frac,
                 width = d.n_frac_digits() as usize
@@ -52,9 +53,9 @@ mod test_into_string {
         let d = Decimal::MAX;
         let s: String = d.into();
         assert_eq!(s, format!("{}", i128::MAX));
-        let d = Dec!(1234567890123456789000.00700);
+        let d = Dec!(-1234567890123456789000.00700);
         let s: String = d.into();
-        assert_eq!(s, "1234567890123456789000.00700");
+        assert_eq!(s, "-1234567890123456789000.00700");
     }
 }
 
@@ -66,12 +67,13 @@ macro_rules! impl_debug {
                     write!(form, concat!($tag, "({})"), self.coefficient())
                 } else {
                     let (int, frac) = i128_div_mod_floor(
-                        self.coeff,
+                        self.coeff.abs(),
                         ten_pow(self.n_frac_digits),
                     );
                     write!(
                         form,
-                        concat!($tag, "({}.{:0width$})"),
+                        concat!($tag, "({}{}.{:0width$})"),
+                        if self.coeff >= 0 { "" } else { "-" },
                         int,
                         frac,
                         width = self.n_frac_digits as usize
@@ -93,10 +95,10 @@ mod test_fmt_debug {
 
     #[test]
     fn test_fmt() {
-        let d = Dec!(1234567890.002);
-        assert_eq!(format!("{:?}", d), "Dec!(1234567890.002)");
-        let d = Dec!(-1230.000000000);
-        assert_eq!(format!("{:?}", d), "Dec!(-1230.000000000)");
+        let d = Dec!(-1234567890.002);
+        assert_eq!(format!("{:?}", d), "Dec!(-1234567890.002)");
+        let d = Dec!(1230.000000000);
+        assert_eq!(format!("{:?}", d), "Dec!(1230.000000000)");
         let d = Dec!(1234567890002);
         assert_eq!(format!("{:?}", d), "Dec!(1234567890002)");
     }
