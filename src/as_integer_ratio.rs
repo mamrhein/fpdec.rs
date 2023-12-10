@@ -121,7 +121,7 @@ impl AsIntegerRatio for Decimal {
             return (self.coeff, 1);
         }
         let gcd = gcd_special(self.coeff, self.n_frac_digits as u32);
-        (self.coeff / gcd, self.denominator())
+        (self.coeff / gcd, ten_pow(self.n_frac_digits) / gcd)
     }
 
     /// Returns the numerator from the pair of integers with the smallest
