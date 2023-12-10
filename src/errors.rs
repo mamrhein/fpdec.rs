@@ -55,3 +55,38 @@ impl Display for DecimalError {
 
 #[cfg(feature = "std")]
 impl std::error::Error for DecimalError {}
+
+/// An error which can be returned from converting `Decimal` values to ints
+/// or floats.
+///
+/// This error is used as the error type for the `TryFrom<Decimal>`
+/// implementation of the primitive int and float types.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TryFromDecimalError {
+    /// Given value does not represent an int.
+    NotAnIntValue,
+    /// Given value exceeds the range of the target value.
+    ValueOutOfRange,
+}
+
+impl TryFromDecimalError {
+    #[doc(hidden)]
+    #[must_use]
+    pub const fn _description(&self) -> &str {
+        match self {
+            Self::NotAnIntValue => "Given value does not represent an int.",
+            Self::ValueOutOfRange => {
+                "Given value exceeds the range of the target value."
+            }
+        }
+    }
+}
+
+impl Display for TryFromDecimalError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        Display::fmt(self._description(), f)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for TryFromDecimalError {}
