@@ -86,6 +86,7 @@ mod format;
 mod from_float;
 mod from_int;
 mod from_str;
+mod into_float;
 mod into_int;
 #[cfg(feature = "num-traits")]
 mod num_traits;
