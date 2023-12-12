@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.9.0     Added conversion of Decimal values to primitive ints and floats.
+
 0.8.0     Added optional support for zero-copy serialization via 'rkyv' (thx
           to den-mentiei).
 

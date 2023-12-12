@@ -25,7 +25,7 @@ Add `fpdec` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fpdec = "0.8"
+fpdec = "0.9"
 ```
 
 ## Usage
@@ -152,6 +152,36 @@ let z: Decimal = x.div_rounded(y, 3);
 assert_eq!(z.to_string(), "2.705");
 ```
 
+A `Decimal` value can be converted into a float, maybe rounded to the nearest 
+value representable by the target type:
+
+```rust
+# use fpdec::{Dec, Decimal};
+let d = Dec!(-33820900478.195);
+let f = f64::from(d);
+assert_eq!(f, -33820900478.19499969482421875_f64);
+let f = f32::from(Dec!(0.6));
+assert_eq!(f, 0.60000002384185791015625_f32);
+```
+
+Converting a `Decimal` value to a primitive int is more intricate. It is only 
+supported by try_from / try_into and only giving a value of the target type,
+if the given value represents an integral value fitting the range of values of
+the target type.
+
+```rust
+# use fpdec::{Dec, Decimal, TryFromDecimalError};
+let d = Dec!(3.7);
+let res = i32::try_from(d);
+assert!(res.is_err());
+assert_eq!(res.unwrap_err(), TryFromDecimalError::NotAnIntValue);
+let d = Decimal::MAX;
+let res = i128::try_from(d);
+assert_eq!(res.unwrap(), i128::MAX);
+let res = i64::try_from(d);
+assert!(res.is_err());
+assert_eq!(res.unwrap_err(), TryFromDecimalError::ValueOutOfRange);
+```
 ## Crate features
 
 By default, only the feature `std` is enabled.
