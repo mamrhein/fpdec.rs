@@ -7,13 +7,11 @@
 // $Source$
 // $Revision$
 
-use core::convert::TryInto;
-
 use fpdec_core::ten_pow;
 
 use crate::{Decimal, TryFromDecimalError};
 
-impl TryInto<i128> for Decimal {
+impl TryFrom<Decimal> for i128 {
     type Error = TryFromDecimalError;
 
     /// Tries to convert a `Decimal` value `d` into an `i128`.
@@ -26,13 +24,13 @@ impl TryInto<i128> for Decimal {
     ///   `TryFromDecimalError::NotAnIntValue`,
     /// * `d` exceeds the range of `ì128` values =>
     ///   `TryFromDecimalError::ValueOutOfRange`.
-    fn try_into(self) -> Result<i128, Self::Error> {
-        if self.n_frac_digits == 0 || self.coeff == 0 {
-            Ok(self.coeff)
+    fn try_from(d: Decimal) -> Result<Self, Self::Error> {
+        if d.n_frac_digits == 0 || d.coeff == 0 {
+            Ok(d.coeff)
         } else {
-            let t = ten_pow(self.n_frac_digits);
-            if self.coeff % t == 0_i128 {
-                Ok(self.coeff / t)
+            let t = ten_pow(d.n_frac_digits);
+            if d.coeff % t == 0_i128 {
+                Ok(d.coeff / t)
             } else {
                 Err(TryFromDecimalError::NotAnIntValue)
             }
@@ -46,19 +44,19 @@ mod tests_into_i128 {
 
     #[test]
     fn test_zero() {
-        let t = TryInto::<i128>::try_into(Decimal::ZERO);
-        assert_eq!(t.unwrap(), 0_i128);
+        let t: i128 = Decimal::ZERO.try_into().unwrap();
+        assert_eq!(t, 0_i128);
     }
 
     #[test]
     fn test_one() {
-        let t = TryInto::<i128>::try_into(Decimal::ONE);
+        let t = i128::try_from(Decimal::ONE);
         assert_eq!(t.unwrap(), 1_i128);
     }
 
     #[test]
     fn test_neg_one() {
-        let t = TryInto::<i128>::try_into(Decimal::NEG_ONE);
+        let t = i128::try_from(Decimal::NEG_ONE);
         assert_eq!(t.unwrap(), -1_i128);
     }
 
@@ -70,7 +68,7 @@ mod tests_into_i128 {
 
     #[test]
     fn test_delta() {
-        let t = TryInto::<i128>::try_into(Decimal::DELTA);
+        let t = i128::try_from(Decimal::DELTA);
         assert!(t.is_err());
         assert_eq!(t.unwrap_err(), TryFromDecimalError::NotAnIntValue);
     }
@@ -84,13 +82,13 @@ mod tests_into_i128 {
     }
 }
 
-macro_rules! impl_into_int {
+macro_rules! impl_int_from_dec {
     () => {
-        impl_into_int!(u8, i8, u16, i16, u32, i32, u64, i64, u128);
+        impl_int_from_dec!(u8, i8, u16, i16, u32, i32, u64, i64, u128);
     };
     ($($t:ty),*) => {
         $(
-        impl TryInto<$t> for Decimal {
+        impl TryFrom<Decimal> for $t {
             type Error = TryFromDecimalError;
 
             #[doc="Tries to convert a `Decimal` value `d` into an `"]
@@ -105,10 +103,10 @@ macro_rules! impl_into_int {
             #[doc=" * `d` exceeds the range of `"]
             #[doc=stringify!($t)]
             #[doc="` values => `TryFromDecimalError::ValueOutOfRange`."]
-            fn try_into(self) -> Result<$t, Self::Error> {
-                match TryInto::<i128>::try_into(self) {
+            fn try_from(d: Decimal) -> Result<Self, Self::Error> {
+                match i128::try_from(d) {
                     Ok(i) => {
-                        match <$t>::try_from(i) {
+                        match Self::try_from(i) {
                             Ok(i) => Ok(i),
                             Err(_) => Err(TryFromDecimalError::ValueOutOfRange),
                         }
@@ -121,7 +119,7 @@ macro_rules! impl_into_int {
     }
 }
 
-impl_into_int!();
+impl_int_from_dec!();
 
 #[cfg(test)]
 mod tests_into_int {
@@ -129,7 +127,7 @@ mod tests_into_int {
 
     #[test]
     fn test_zero() {
-        let t = TryInto::<i8>::try_into(Decimal::ZERO);
+        let t = i8::try_from(Decimal::ZERO);
         assert_eq!(t.unwrap(), 0_i8);
     }
 
@@ -150,16 +148,16 @@ mod tests_into_int {
 
     #[test]
     fn test_max() {
-        let t = TryInto::<u128>::try_into(Decimal::MAX);
+        let t = u128::try_from(Decimal::MAX);
         assert_eq!(t.unwrap(), i128::MAX as u128);
-        let t = TryInto::<u64>::try_into(Decimal::MAX);
+        let t = u64::try_from(Decimal::MAX);
         assert!(t.is_err());
         assert_eq!(t.unwrap_err(), TryFromDecimalError::ValueOutOfRange);
     }
 
     #[test]
     fn test_delta() {
-        let t = TryInto::<i16>::try_into(Decimal::DELTA);
+        let t: Result<i16, TryFromDecimalError> = Decimal::DELTA.try_into();
         assert!(t.is_err());
         assert_eq!(t.unwrap_err(), TryFromDecimalError::NotAnIntValue);
     }
@@ -167,7 +165,7 @@ mod tests_into_int {
     #[test]
     fn test_non_int() {
         let d = Decimal::new_raw(1, 1);
-        let t = TryInto::<u32>::try_into(d);
+        let t = u32::try_from(d);
         assert!(t.is_err());
         assert_eq!(t.unwrap_err(), TryFromDecimalError::NotAnIntValue);
     }
