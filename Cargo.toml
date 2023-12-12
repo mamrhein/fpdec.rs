@@ -27,6 +27,7 @@ default = ["std"]
 std = []
 packed = []
 serde-as-str = ["dep:serde"]
+num-traits = ["dep:num-traits"]
 rkyv = ["dep:rkyv"]
 
 [workspace]
