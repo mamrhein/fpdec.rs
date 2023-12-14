@@ -57,6 +57,7 @@ extern crate alloc;
 
 #[cfg(feature = "serde-as-str")]
 use alloc::string::String;
+use core::hash::{Hash, Hasher};
 
 #[doc(inline)]
 pub use as_integer_ratio::AsIntegerRatio;
@@ -224,6 +225,111 @@ impl Decimal {
     };
 }
 
+#[inline]
+pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
+    if *coeff == 0 {
+        *n_frac_digits = 0;
+    } else {
+        // eliminate trailing zeros in coeff
+        while *coeff % 10 == 0 && *n_frac_digits > 0 {
+            *coeff /= 10;
+            *n_frac_digits -= 1;
+        }
+    }
+}
+
+impl Default for Decimal {
+    /// Default value: Decimal::ZERO
+    #[inline(always)]
+    fn default() -> Self {
+        Self::ZERO
+    }
+}
+
+impl Hash for Decimal {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.as_integer_ratio().hash(state);
+    }
+}
+
+// Since core::hash::SipHasher is deprecated there is no 'default hasher' in
+// core
+#[cfg(feature = "std")]
+#[cfg(test)]
+mod hash_tests {
+    use std::collections::hash_map::DefaultHasher;
+
+    use super::*;
+
+    fn hash<T: Hash>(t: &T) -> u64 {
+        let mut h = DefaultHasher::new();
+        t.hash(&mut h);
+        h.finish()
+    }
+
+    #[test]
+    fn test_hash_equiv_values() {
+        assert_eq!(hash(&Dec!(3.4)), hash(&Dec!(3.400)));
+    }
+
+    #[test]
+    fn test_hash_equiv_ratio() {
+        let d = Dec!(338.5148);
+        let r = d.as_integer_ratio();
+        assert_eq!(hash(&d), hash(&r));
+    }
+}
+
+#[cfg(feature = "serde-as-str")]
+#[cfg(test)]
+mod serde_json_tests {
+    use serde_json;
+
+    use super::*;
+
+    #[test]
+    fn test_min() {
+        let d = Decimal::MIN;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_neg_one() {
+        let d = Decimal::NEG_ONE;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_zero() {
+        let d = Decimal::ZERO;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_delta() {
+        let d = Decimal::DELTA;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_some() {
+        let d = Dec!(123456789012345678.90123);
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+
+    #[test]
+    fn test_max() {
+        let d = Decimal::MAX;
+        let s = serde_json::to_value(d).unwrap();
+        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
+    }
+}
+
 #[cfg(feature = "rkyv")]
 impl ArchivedDecimal {
     /// Coefficient of `self`.
@@ -238,14 +344,6 @@ impl ArchivedDecimal {
     #[inline(always)]
     pub const fn n_frac_digits(self) -> u8 {
         self.n_frac_digits
-    }
-}
-
-impl Default for Decimal {
-    /// Default value: Decimal::ZERO
-    #[inline(always)]
-    fn default() -> Self {
-        Self::ZERO
     }
 }
 
@@ -323,69 +421,6 @@ impl<C: ?Sized> rkyv::CheckBytes<C> for ArchivedDecimal {
                 inner: alloc::boxed::Box::new(error),
             })?;
         Ok(&*value)
-    }
-}
-
-#[inline]
-pub(crate) fn normalize(coeff: &mut i128, n_frac_digits: &mut u8) {
-    if *coeff == 0 {
-        *n_frac_digits = 0;
-    } else {
-        // eliminate trailing zeros in coeff
-        while *coeff % 10 == 0 && *n_frac_digits > 0 {
-            *coeff /= 10;
-            *n_frac_digits -= 1;
-        }
-    }
-}
-
-#[cfg(feature = "serde-as-str")]
-#[cfg(test)]
-mod serde_json_tests {
-    use serde_json;
-
-    use super::*;
-
-    #[test]
-    fn test_min() {
-        let d = Decimal::MIN;
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
-    }
-
-    #[test]
-    fn test_neg_one() {
-        let d = Decimal::NEG_ONE;
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
-    }
-
-    #[test]
-    fn test_zero() {
-        let d = Decimal::ZERO;
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
-    }
-
-    #[test]
-    fn test_delta() {
-        let d = Decimal::DELTA;
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
-    }
-
-    #[test]
-    fn test_some() {
-        let d = Dec!(123456789012345678.90123);
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
-    }
-
-    #[test]
-    fn test_max() {
-        let d = Decimal::MAX;
-        let s = serde_json::to_value(d).unwrap();
-        assert_eq!(d, serde_json::from_value::<Decimal>(s).unwrap());
     }
 }
 
