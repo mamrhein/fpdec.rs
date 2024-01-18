@@ -82,10 +82,7 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
     let mut n_frac_digits = 0_u8;
     let (mut coeff, mut rem) = i128_div_mod_floor(divident, divisor);
     let mut magn_coeff = i128_magnitude(coeff);
-    while rem != 0
-        && n_frac_digits < MAX_N_FRAC_DIGITS
-        && magn_coeff < MAGN_I128_MAX - 1
-    {
+    while rem != 0 && n_frac_digits < MAX_N_FRAC_DIGITS && magn_coeff < MAGN_I128_MAX - 1 {
         // 0 < rem < divisor
         rem *= 10;
         // 0 < rem < 10 * divisor
@@ -202,6 +199,9 @@ impl TryFrom<f64> for Decimal {
             return Err(DecimalError::NotANumber);
         }
         let (significand, exponent, sign) = f64_decode(f);
+        if exponent >= i128::BITS as i16 {
+            return Err(DecimalError::InternalOverflow);
+        }
         if exponent < -126 {
             Ok(Self::ZERO)
         } else if exponent < 0 {
@@ -292,6 +292,11 @@ mod tests {
             (37.0005000033, 37000500003299997331, 18),
         ];
         check_from_float::<f64>(&test_data);
+
+        assert!(Decimal::try_from(
+            113078212145816600000000000000000000000000000000000000000000000000000000000.0f64
+        )
+        .is_err());
     }
 
     #[test]
