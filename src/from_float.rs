@@ -199,6 +199,9 @@ impl TryFrom<f64> for Decimal {
             return Err(DecimalError::NotANumber);
         }
         let (significand, exponent, sign) = f64_decode(f);
+        if exponent >= i128::BITS as i16 {
+            return Err(DecimalError::InternalOverflow);
+        }
         if exponent < -126 {
             Ok(Self::ZERO)
         } else if exponent < 0 {
@@ -211,7 +214,6 @@ impl TryFrom<f64> for Decimal {
             })
         } else {
             let numer = i128::from(sign) * i128::from(significand);
-            println!("e = {exponent}");
             let shift = 1_i128 << exponent as usize;
             match numer.checked_mul(shift) {
                 Some(coeff) => Ok(Self {
@@ -293,6 +295,11 @@ mod tests {
 
         assert!(Decimal::try_from(
             113078212145816600000000000000000000000000000000000000000000000000000000000.0f64
+        )
+        .is_err());
+
+        assert!(Decimal::try_from(
+            16666666666666666666666666666666666666666666666666666666666666666666666666662.11
         )
         .is_err());
     }
