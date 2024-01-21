@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.10.1    Fixed issue #9.
+
 0.10.0    Added impl Hash for Decimal.
 
 0.9.0     Added conversion of Decimal values to primitive ints and floats.
