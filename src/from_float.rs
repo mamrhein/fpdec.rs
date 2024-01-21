@@ -212,6 +212,8 @@ impl TryFrom<f64> for Decimal {
                 coeff,
                 n_frac_digits,
             })
+        } else if exponent >= i128::BITS as i16 {
+            Err(DecimalError::InternalOverflow)
         } else {
             let numer = i128::from(sign) * i128::from(significand);
             let shift = 1_i128 << exponent as usize;
@@ -295,12 +297,31 @@ mod tests {
     }
 
     #[test]
-    fn test_fail_overflow() {
-        let f = 5.839e38_f64;
-        let res = Decimal::try_from(f);
-        assert!(res.is_err());
-        let err = res.unwrap_err();
-        assert_eq!(err, DecimalError::InternalOverflow);
+    fn test_fail_overflow_from_f32() {
+        for f in [
+            3.401e38_f32,
+            313078212145816600000000000000000000000.0f32,
+            300666666666666666666666666666666666662.11,
+        ] {
+            let res = Decimal::try_from(f);
+            assert!(res.is_err());
+            let err = res.unwrap_err();
+            assert_eq!(err, DecimalError::InternalOverflow);
+        }
+    }
+
+    #[test]
+    fn test_fail_overflow_from_f64() {
+        for f in [
+            5.839e38_f64,
+            113078212145816600000000000000000000000000000000000000000000000000000000000.0f64,
+            16666666666666666666666666666666666666666666666666666666666666666666666666662.11,
+        ] {
+            let res = Decimal::try_from(f);
+            assert!(res.is_err());
+            let err = res.unwrap_err();
+            assert_eq!(err, DecimalError::InternalOverflow);
+        }
     }
 
     #[test]
