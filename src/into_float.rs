@@ -210,4 +210,11 @@ mod tests_into_f32 {
         let f = f32::from(d);
         assert_eq!(f, 170141183460469231731.687303715884105727_f32);
     }
+
+    #[test]
+    fn test_subtract_with_overflow_issue() {
+        let dec = fpdec_macros::Dec!(0.010101010101010101);
+        let v: f64 = dec.try_into().expect("Can convert");
+        assert_eq!(v, 0.010101010101010101);
+    }
 }
