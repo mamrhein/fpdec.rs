@@ -12,6 +12,7 @@ use crate::{AsIntegerRatio, Decimal};
 /// Return the number of significant bits in given i128.
 #[inline(always)]
 fn n_signif_bits(i: i128) -> u32 {
+    debug_assert_ne!(i, 0);
     let u = i.abs();
     u128::BITS - u.leading_zeros() - u.trailing_zeros()
 }
@@ -101,6 +102,14 @@ mod tests_into_f64 {
         let d = Decimal::new_raw(i128::MIN, 0);
         let f = f64::from(d);
         assert_eq!(f, -170141183460469231731687303715884105728_f64);
+    }
+
+    #[test]
+    // Issue #13: 'subtract with overflow ' panic
+    fn test_subtract_with_overflow_issue() {
+        let d = Decimal::new_raw(10101010101010101, 18);
+        let f = f64::from(d);
+        assert_eq!(f, 0.010101010101010101);
     }
 
     #[test]
