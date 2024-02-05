@@ -113,6 +113,22 @@ mod tests_into_f64 {
     }
 
     #[test]
+    // Issue #14: Wrong rounding in conversion of Decimal to f64
+    fn test_hard_to_round_1() {
+        let d = Decimal::new_raw(9802266554071127_i128, 16);
+        let f = f64::from(d);
+        assert_eq!(f, 0.9802266554071127_f64);
+    }
+
+    #[test]
+    // Issue #14: Wrong rounding in conversion of Decimal to f64
+    fn test_hard_to_round_2() {
+        let d = Decimal::new_raw(90071992547409905000000000001_i128, 13);
+        let f = f64::from(d);
+        assert_eq!(f, 9007199254740991_f64);
+    }
+
+    #[test]
     fn test_small_dec_1() {
         let d = Decimal::new_raw(12345678_i128, 3);
         let f = f64::from(d);
