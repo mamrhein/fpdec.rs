@@ -7,79 +7,77 @@
 // $Source$
 // $Revision$
 
-use crate::{AsIntegerRatio, Decimal};
+use core::mem::size_of;
 
-/// Return the number of significant bits in given i128.
+use crate::Decimal;
+
 #[inline(always)]
-fn n_signif_bits(i: i128) -> u32 {
-    debug_assert_ne!(i, 0);
-    let u = i.abs();
-    u128::BITS - u.leading_zeros() - u.trailing_zeros()
+fn n_signif_bits(v: u128) -> u32 {
+    u128::BITS - v.leading_zeros()
 }
 
-macro_rules! impl_into_float {
-    () => {
-        impl_into_float!(f32, f64);
-    };
-    ($($t:ty),*) => {
-        $(
-        impl From<Decimal> for $t {
-            #[doc="Converts a `Decimal` value `d` into an `"]
-            #[doc=stringify!($t)]
-            #[doc="`.\n\nReturns the value as `"]
-            #[doc=stringify!($t)]
-            #[doc="`, rounded to the nearest value representable as such."]
-            fn from(d: Decimal) -> Self {
-                if d.n_frac_digits == 0 || d.coeff == 0 {
-                    d.coeff as $t
-                } else {
-                    let (num, den) = d.as_integer_ratio();
-                    if n_signif_bits(num) <= <$t>::MANTISSA_DIGITS {
-                        // num is exactly representable as <T>
-                        num as $t / den as $t
-                    } else {
-                        let q = num / den;
-                        let r = num % den;
-                        let nsb = n_signif_bits(q);
-                        if nsb <= <$t>::MANTISSA_DIGITS {
-                            // q is exactly representable as <T>
-                            (q as $t) + (r as $t) / (den as $t)
-                        } else {
-                            // |q| >= 2^MANTISSA_DIGITS
-                            let mut signif = q.abs() as u128;
-                            let shr =
-                                signif.trailing_zeros()
-                                + nsb
-                                - <$t>::MANTISSA_DIGITS;
-                            debug_assert!(shr > 0);
-                            let mut rem = (r != 0_i128) as u32;
-                            rem |= match shr {
-                                1 => ((signif as u32 & 1) << 2),
-                                2 => ((signif as u32 & 3) << 1),
-                                _ => ((signif & ((1_u128 << shr) - 1))
-                                                    >> (shr - 3)) as u32,
-                            };
-                            signif >>= shr;
-                            debug_assert_eq!(
-                                u128::BITS - signif.leading_zeros(),
-                                <$t>::MANTISSA_DIGITS
-                            );
-                            if rem > 4 ||
-                                    rem == 4 && (signif as u32 & 1) == 1 {
-                                signif += 1
-                            }
-                            let f = signif as $t * (shr as $t).exp2();
-                            if q.is_positive() { f } else { -f }
-                        }
-                    }
-                }
-            }
-        }
-        )*
+trait Float: Sized {
+    type B: Sized;
+    const BITS: u32 = size_of::<Self::B>() as u32 * 8;
+    const FRACTION_BITS: u32;
+    const EXP_BIAS: i32;
+    fn from_bits(bits: u64) -> Self;
+
+    fn from_decimal(d: Decimal) -> Self {
+        const EXTRA_BITS: u32 = 3;
+        const MASK_EXTRA_BITS: [u128; 2] = [7, 3];
+        const TIE: u32 = 4;
+
+        let add_bits = Self::FRACTION_BITS + EXTRA_BITS;
+        let mut num = d.coeff.unsigned_abs();
+        let mut den = 10_u128.pow(d.n_frac_digits as u32);
+        let num_lz = num.leading_zeros();
+        let den_lz = den.leading_zeros();
+        let num_shl = (num_lz + add_bits).saturating_sub(den_lz);
+        let den_shl = den_lz.saturating_sub(num_lz).saturating_sub(add_bits);
+        num <<= num_shl;
+        den <<= den_shl;
+        let quot = num / den;
+        let rem = num % den;
+        let adj = (n_signif_bits(quot) == add_bits) as usize;
+        let mut rnd = ((quot & MASK_EXTRA_BITS[adj]) as u32) << adj as u32;
+        rnd |= (rem != 0) as u32;
+        let signif = (quot >> (EXTRA_BITS - adj as u32)) as u64;
+        let exp = den_lz as i32 - num_lz as i32 - adj as i32;
+        // signif has the hidden bit set, so we must subtract 1 from the
+        // biased exponent!
+        let mut bits = signif
+            + (((Self::EXP_BIAS + exp - 1) as u64) << Self::FRACTION_BITS);
+        bits += (rnd > TIE || rnd == TIE && (signif & 1) as u32 == 1) as u64;
+        bits |= ((d.coeff < 0) as u64) << (Self::BITS - 1);
+        Self::from_bits(bits)
     }
 }
 
-impl_into_float!();
+impl Float for f64 {
+    type B = u64;
+    const FRACTION_BITS: u32 = Self::MANTISSA_DIGITS - 1;
+    const EXP_BIAS: i32 = Self::MAX_EXP - 1;
+
+    #[inline(always)]
+    fn from_bits(bits: u64) -> Self {
+        Self::from_bits(bits)
+    }
+}
+
+impl From<Decimal> for f64 {
+    #[doc = "Converts a `Decimal` value `d` into an `f64`.\n"]
+    #[doc = "Returns the value as `f64`, rounded to the nearest "]
+    #[doc = "value representable as such."]
+    #[inline(always)]
+    fn from(d: Decimal) -> Self {
+        if d.n_frac_digits == 0 || d.coeff == 0 {
+            d.coeff as Self
+        } else {
+            <Self as Float>::from_decimal(d)
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests_into_f64 {
@@ -168,6 +166,31 @@ mod tests_into_f64 {
         let d = Decimal::new_raw(i128::MAX, 18);
         let f = f64::from(d);
         assert_eq!(f, 170141183460469231731.687303715884105727_f64);
+    }
+}
+
+impl Float for f32 {
+    type B = u32;
+    const FRACTION_BITS: u32 = Self::MANTISSA_DIGITS - 1;
+    const EXP_BIAS: i32 = Self::MAX_EXP - 1;
+
+    #[inline(always)]
+    fn from_bits(bits: u64) -> Self {
+        Self::from_bits(bits as u32)
+    }
+}
+
+impl From<Decimal> for f32 {
+    #[doc = "Converts a `Decimal` value `d` into an `f32`.\n"]
+    #[doc = "Returns the value as `f32`, rounded to the nearest "]
+    #[doc = "value representable as such."]
+    #[inline(always)]
+    fn from(d: Decimal) -> Self {
+        if d.n_frac_digits == 0 || d.coeff == 0 {
+            d.coeff as Self
+        } else {
+            <Self as Float>::from_decimal(d)
+        }
     }
 }
 
