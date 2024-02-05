@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.10.2    Fixed issues #13 and #14.
+
 0.10.1    Fixed issue #9.
 
 0.10.0    Added impl Hash for Decimal.
