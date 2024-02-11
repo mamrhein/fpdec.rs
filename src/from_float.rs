@@ -9,7 +9,7 @@
 
 use core::convert::TryFrom;
 
-use fpdec_core::{i128_div_mod_floor, i128_magnitude, MAX_N_FRAC_DIGITS};
+use fpdec_core::{i128_magnitude, MAX_N_FRAC_DIGITS};
 
 use crate::{normalize, Decimal, DecimalError};
 
@@ -80,7 +80,8 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
         return (0, 0);
     }
     let mut n_frac_digits = 0_u8;
-    let (mut coeff, mut rem) = i128_div_mod_floor(divident, divisor);
+    let (mut coeff, mut rem) =
+        (divident.abs() / divisor, divident.abs() % divisor);
     let mut magn_coeff = i128_magnitude(coeff);
     while rem != 0
         && n_frac_digits < MAX_N_FRAC_DIGITS
@@ -98,14 +99,15 @@ fn approx_rational(divident: i128, divisor: i128) -> (i128, u8) {
     }
     // round coeff (half to even):
     // remainder > divisor / 2 or
-    // remainder = divisor / 2 and quotient < 0
+    // remainder = divisor / 2 and coeff is odd
     // => add 1
     // here: 0 <= rem < divisor and divisor >= 2 => rem <= |divident| / 2,
     // therefor it's safe to use rem << 1
     rem <<= 1;
-    if rem > divisor || rem == divisor && coeff < 0 {
+    if rem > divisor || rem == divisor && (coeff & 1_i128) == 1_i128 {
         coeff += 1;
     }
+    coeff *= divident.signum();
     normalize(&mut coeff, &mut n_frac_digits);
     (coeff, n_frac_digits)
 }
@@ -298,7 +300,12 @@ mod tests {
 
     #[test]
     fn test_issue_15() {
-        let test_data = [(1e-22_f64, 0_i128, 0), (-1e-22_f64, 0_i128, 0)];
+        let test_data = [
+            (1e-22_f64, 0_i128, 0),
+            (-1e-22_f64, 0_i128, 0),
+            (1e-323_f64, 0_i128, 0),
+            (-1e-323_f64, 0_i128, 0),
+        ];
         check_from_float::<f64>(&test_data);
     }
 
