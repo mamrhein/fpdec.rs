@@ -297,6 +297,12 @@ mod tests {
     }
 
     #[test]
+    fn test_issue_15() {
+        let test_data = [(1e-22_f64, 0_i128, 0), (-1e-22_f64, 0_i128, 0)];
+        check_from_float::<f64>(&test_data);
+    }
+
+    #[test]
     fn test_fail_overflow_from_f32() {
         for f in [
             3.401e38_f32,
