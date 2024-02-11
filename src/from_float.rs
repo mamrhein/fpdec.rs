@@ -299,8 +299,24 @@ mod tests {
     }
 
     #[test]
-    fn test_issue_15() {
+    fn test_underflow_from_f32() {
         let test_data = [
+            (1e-19_f32, 0_i128, 0),
+            (-1e-19_f32, 0_i128, 0),
+            (1e-20_f32, 0_i128, 0),
+            (-1e-20_f32, 0_i128, 0),
+            (1e-45_f32, 0_i128, 0),
+            (-1e-45_f32, 0_i128, 0),
+        ];
+        check_from_float::<f32>(&test_data);
+    }
+
+    #[test]
+    // Covers test for issue #15
+    fn test_underflow_from_f64() {
+        let test_data = [
+            (1e-19_f64, 0_i128, 0),
+            (-1e-19_f64, 0_i128, 0),
             (1e-22_f64, 0_i128, 0),
             (-1e-22_f64, 0_i128, 0),
             (1e-323_f64, 0_i128, 0),
