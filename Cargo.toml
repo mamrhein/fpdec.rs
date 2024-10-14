@@ -1,6 +1,6 @@
 [package]
 name = "fpdec"
-version = "0.10.3"
+version = "0.11.0"
 edition = "2021"
 rust-version = "1.74.1"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]

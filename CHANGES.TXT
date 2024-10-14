@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.11.0    Added impl of num_traits::Signed for Decimal.
+          Set minimal rust version to 1.74.1.
+
 0.10.3    Fixed issue #15.
 
 0.10.2    Fixed issues #13 and #14.
