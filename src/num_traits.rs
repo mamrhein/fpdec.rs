@@ -9,7 +9,7 @@
 
 use core::{ops::Add, str::FromStr};
 
-use num_traits::{Num, One, Zero};
+use num_traits::{Num, One, Signed, Zero};
 
 use crate::{Decimal, ParseDecimalError};
 
@@ -69,7 +69,10 @@ mod one_tests {
 impl Num for Decimal {
     type FromStrRadixErr = <Self as FromStr>::Err;
 
-    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
+    fn from_str_radix(
+        str: &str,
+        radix: u32,
+    ) -> Result<Self, Self::FromStrRadixErr> {
         if radix != 10 {
             return Err(ParseDecimalError::Invalid);
         }
@@ -97,34 +100,59 @@ mod from_str_radix_tests {
     }
 }
 
-impl num_traits::Signed for Decimal {
+impl Signed for Decimal {
+    /// Returns the absolute value of the number.
+    #[inline(always)]
     fn abs(&self) -> Self {
         self.abs()
     }
 
+    /// The positive difference of two numbers.
+    ///
+    /// Returns `zero` if the number is less than or equal to `other`,
+    /// otherwise the difference between `self` and `other` is returned.
     fn abs_sub(&self, other: &Self) -> Self {
-        if other <= self {
+        if self <= other {
             Decimal::ZERO
         } else {
-            *self - other
+            self - other
         }
     }
 
+    /// Returns the sign of the number.
+    ///
+    /// * `0` if the number is zero
+    /// * `1` if the number is positive
+    /// * `-1` if the number is negative
+    #[inline(always)]
     fn signum(&self) -> Self {
-        use std::cmp::Ordering::*;
-
-        match self.cmp(&Decimal::ZERO) {
-            Less => -Decimal::ONE,
-            Equal => Decimal::ZERO,
-            Greater => Decimal::ONE,
-        }
+        Self::from(self.coeff.signum())
     }
 
+    /// Returns true if the number is positive and false if the number is zero
+    /// or negative.
+    #[inline(always)]
     fn is_positive(&self) -> bool {
-        *self > Decimal::ZERO
+        self.is_positive()
     }
 
+    /// Returns true if the number is negative and false if the number is zero
+    /// or positive.
+    #[inline(always)]
     fn is_negative(&self) -> bool {
-        *self < Decimal::ZERO
+        self.is_negative()
+    }
+}
+
+#[cfg(test)]
+mod signed_tests {
+    use super::*;
+
+    #[test]
+    fn test_abs_sub() {
+        let x = Decimal::new_raw(12345_i128, 2);
+        let y = Decimal::new_raw(12345_i128, 3);
+        assert_eq!(x.abs_sub(&y), x - y);
+        assert_eq!(y.abs_sub(&x), Decimal::ZERO);
     }
 }
