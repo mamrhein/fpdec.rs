@@ -69,10 +69,7 @@ mod one_tests {
 impl Num for Decimal {
     type FromStrRadixErr = <Self as FromStr>::Err;
 
-    fn from_str_radix(
-        str: &str,
-        radix: u32,
-    ) -> Result<Self, Self::FromStrRadixErr> {
+    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
         if radix != 10 {
             return Err(ParseDecimalError::Invalid);
         }
@@ -97,5 +94,37 @@ mod from_str_radix_tests {
         assert!(res.is_err());
         let err = res.unwrap_err();
         assert_eq!(err, ParseDecimalError::Invalid);
+    }
+}
+
+impl num_traits::Signed for Decimal {
+    fn abs(&self) -> Self {
+        self.abs()
+    }
+
+    fn abs_sub(&self, other: &Self) -> Self {
+        if other <= self {
+            Decimal::ZERO
+        } else {
+            *self - other
+        }
+    }
+
+    fn signum(&self) -> Self {
+        use std::cmp::Ordering::*;
+
+        match self.cmp(&Decimal::ZERO) {
+            Less => -Decimal::ONE,
+            Equal => Decimal::ZERO,
+            Greater => Decimal::ONE,
+        }
+    }
+
+    fn is_positive(&self) -> bool {
+        *self > Decimal::ZERO
+    }
+
+    fn is_negative(&self) -> bool {
+        *self < Decimal::ZERO
     }
 }
