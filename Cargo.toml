@@ -2,6 +2,7 @@
 name = "fpdec"
 version = "0.10.3"
 edition = "2021"
+rust-version = "1.74.1"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Decimal fixed-point arithmetic."
 readme = "README.md"
