@@ -7,7 +7,10 @@
 // $Source$
 // $Revision$
 
-use core::ops::{Mul, MulAssign};
+use core::{
+    iter::Product,
+    ops::{Mul, MulAssign},
+};
 
 use crate::{
     binops::mul_rounded::checked_mul_rounded, Decimal, DecimalError,
@@ -245,5 +248,27 @@ mod mul_assign_tests {
     fn test_mul_assign_neg_overflow() {
         let mut x = Decimal::new_raw(i128::MIN / 5 - 1, 1);
         x *= 5;
+    }
+}
+
+impl Product for Decimal {
+    fn product<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ONE, |sum, next| sum * next)
+    }
+}
+
+#[cfg(test)]
+mod product_tests {
+    use fpdec_macros::Dec;
+
+    use super::*;
+
+    #[test]
+    fn test_product() {
+        let product = [Dec!(1.5), Dec!(2), Dec!(3), Dec!(4)]
+            .into_iter()
+            .product::<Decimal>();
+
+        assert_eq!(product, Dec!(36));
     }
 }

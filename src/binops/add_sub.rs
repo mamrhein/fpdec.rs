@@ -9,6 +9,7 @@
 
 use core::{
     cmp::Ordering,
+    iter::Sum,
     ops::{Add, AddAssign, Sub, SubAssign},
 };
 
@@ -422,5 +423,27 @@ mod add_sub_assign_tests {
     fn test_sub_assign_neg_overflow() {
         let mut x = Decimal::new_raw(i128::MIN + 99999, 4);
         x -= Decimal::TEN;
+    }
+}
+
+impl Sum for Decimal {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |sum, next| sum + next)
+    }
+}
+
+#[cfg(test)]
+mod sum_tests {
+    use fpdec_macros::Dec;
+
+    use super::*;
+
+    #[test]
+    fn test_sum() {
+        let sum = [Dec!(1.3), Dec!(2), Dec!(3), Dec!(4.1)]
+            .into_iter()
+            .sum::<Decimal>();
+
+        assert_eq!(sum, Dec!(10.4));
     }
 }

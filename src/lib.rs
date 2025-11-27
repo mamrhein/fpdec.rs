@@ -89,7 +89,6 @@ mod from_int;
 mod from_str;
 mod into_float;
 mod into_int;
-mod iter;
 #[cfg(feature = "num-traits")]
 mod num_traits;
 mod quantize;
