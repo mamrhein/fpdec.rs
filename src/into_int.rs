@@ -24,6 +24,7 @@ impl TryFrom<Decimal> for i128 {
     ///   `TryFromDecimalError::NotAnIntValue`,
     /// * `d` exceeds the range of `ì128` values =>
     ///   `TryFromDecimalError::ValueOutOfRange`.
+    #[allow(clippy::integer_division)]
     fn try_from(d: Decimal) -> Result<Self, Self::Error> {
         if d.n_frac_digits == 0 || d.coeff == 0 {
             Ok(d.coeff)

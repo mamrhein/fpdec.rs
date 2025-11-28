@@ -210,6 +210,7 @@ mod test_fmt_display {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_fmt_decimal_without_rounding() {
         let d = Dec!(123456789.0002);
         assert_eq!(d.to_string(), "123456789.0002");

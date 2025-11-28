@@ -196,6 +196,7 @@ impl TryFrom<f64> for Decimal {
     /// assert_eq!(d.to_string(), "37.000500299999998788");
     /// # Ok(()) }
     /// ```
+    #[allow(clippy::cast_possible_truncation)]
     fn try_from(f: f64) -> Result<Self, Self::Error> {
         if f.is_infinite() {
             return Err(DecimalError::InfiniteValue);
@@ -251,6 +252,8 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cast_precision_loss)]
+    #[allow(clippy::integer_division)]
     fn test_decimal0_from_f32() {
         let test_data = [
             (i128::MIN as f32, i128::MIN, 0),
@@ -274,6 +277,8 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cast_precision_loss)]
+    #[allow(clippy::integer_division)]
     fn test_decimal0_from_f64() {
         let test_data = [
             (i128::MIN as f64, i128::MIN, 0),
@@ -329,7 +334,7 @@ mod tests {
     fn test_fail_overflow_from_f32() {
         for f in [
             3.401e38_f32,
-            313078212145816600000000000000000000000.0f32,
+            313078212145816600000000000000000000000.0_f32,
             300666666666666666666666666666666666662.11,
         ] {
             let res = Decimal::try_from(f);
@@ -343,7 +348,7 @@ mod tests {
     fn test_fail_overflow_from_f64() {
         for f in [
             5.839e38_f64,
-            113078212145816600000000000000000000000000000000000000000000000000000000000.0f64,
+            113078212145816600000000000000000000000000000000000000000000000000000000000.0_f64,
             16666666666666666666666666666666666666666666666666666666666666666666666666662.11,
         ] {
             let res = Decimal::try_from(f);

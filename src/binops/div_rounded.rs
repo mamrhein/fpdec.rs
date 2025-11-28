@@ -498,6 +498,7 @@ mod div_rounded_decimal_by_int_tests {
     // corner case: shifting divident overflows, stepwise algorithm must be
     // used
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_div_rounded_stepwise() {
         let x = Decimal::new_raw(i128::MAX, 0);
         let y = Decimal::new_raw(20, 0);
@@ -687,6 +688,7 @@ mod div_rounded_int_by_int_tests {
         ($func:ident, $i:expr, $j:expr, $r:expr,
          $res_coeff:expr) => {
             #[test]
+            #[allow(clippy::decimal_literal_representation)]
             fn $func() {
                 let i = $i;
                 let j = $j;

@@ -22,7 +22,6 @@
 #![warn(clippy::cast_precision_loss)]
 // #![warn(clippy::cast_sign_loss)]
 #![warn(clippy::cognitive_complexity)]
-#![warn(clippy::decimal_literal_representation)]
 #![warn(clippy::enum_glob_use)]
 #![warn(clippy::equatable_if_let)]
 #![warn(clippy::fallible_impl_from)]

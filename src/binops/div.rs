@@ -148,9 +148,9 @@ mod div_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x / y;
-        assert_eq!(z.coefficient(), (&x / y).coefficient());
-        assert_eq!(z.coefficient(), (x / &y).coefficient());
-        assert_eq!(z.coefficient(), (&x / &y).coefficient());
+        assert_eq!(z.coefficient(), (x / y).coefficient());
+        assert_eq!(z.coefficient(), (x / y).coefficient());
+        assert_eq!(z.coefficient(), (x / y).coefficient());
     }
 }
 

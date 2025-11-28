@@ -59,6 +59,7 @@ mod test_int_as_ratio {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_as_ratio() {
         gen_test_as_ratio!(u8);
         gen_test_as_ratio!(i8);
@@ -176,6 +177,7 @@ mod test_decimal_as_ratio {
     use super::*;
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_decimal_as_ratio() {
         let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.as_integer_ratio(), (0, 1));
@@ -192,6 +194,7 @@ mod test_decimal_as_ratio {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_decimal_numerator() {
         let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.numerator(), 0);
@@ -208,6 +211,7 @@ mod test_decimal_as_ratio {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_decimal_denominator() {
         let d = Decimal::new_raw(0, MAX_N_FRAC_DIGITS);
         assert_eq!(d.denominator(), 1);

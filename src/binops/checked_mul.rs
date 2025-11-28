@@ -75,6 +75,7 @@ mod checked_mul_decimal_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_checked_mul_pos_overflow() {
         let x = Decimal::new_raw(i128::MAX / 2 + 1, 4);
         let y = x.checked_mul(Decimal::TWO);
@@ -210,7 +211,7 @@ mod checked_mul_integer_tests {
         let d = Decimal::new_raw(coeff, 2);
         let i = 12345_i128;
         let r = d.checked_mul(i).unwrap();
-        assert_eq!(r.coefficient(), i128::from(i) * coeff);
+        assert_eq!(r.coefficient(), i * coeff);
         assert_eq!(
             r.coefficient(),
             (&d).checked_mul(i).unwrap().coefficient()

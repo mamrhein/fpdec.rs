@@ -88,6 +88,7 @@ mod mul_decimal_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_mul_pos_overflow() {
         let x = Decimal::new_raw(i128::MAX / 2 + 1, 4);
         let _y = x * Decimal::TWO;
@@ -102,6 +103,7 @@ mod mul_decimal_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_mul_neg_overflow() {
         let x = Decimal::new_raw(i128::MIN / 2 - 1, 3);
         let _y = x * Decimal::TWO;
@@ -112,9 +114,9 @@ mod mul_decimal_tests {
         let x = Decimal::new_raw(12345, 3);
         let y = Decimal::new_raw(12345, 1);
         let z = x * y;
-        assert_eq!(z.coefficient(), (&x * y).coefficient());
-        assert_eq!(z.coefficient(), (x * &y).coefficient());
-        assert_eq!(z.coefficient(), (&x * &y).coefficient());
+        assert_eq!(z.coefficient(), (x * y).coefficient());
+        assert_eq!(z.coefficient(), (x * y).coefficient());
+        assert_eq!(z.coefficient(), (x * y).coefficient());
     }
 }
 
@@ -198,15 +200,15 @@ mod mul_integer_tests {
         let r = d * i;
         assert_eq!(r.n_frac_digits(), d.n_frac_digits());
         assert_eq!(r.coefficient(), i * coeff);
-        assert_eq!(r.coefficient(), (&d * i).coefficient());
-        assert_eq!(r.coefficient(), (d * &i).coefficient());
-        assert_eq!(r.coefficient(), (&d * &i).coefficient());
+        assert_eq!(r.coefficient(), (d * i).coefficient());
+        assert_eq!(r.coefficient(), (d * i).coefficient());
+        assert_eq!(r.coefficient(), (d * i).coefficient());
         let z = i * d;
         assert_eq!(z.n_frac_digits(), r.n_frac_digits());
         assert_eq!(z.coefficient(), r.coefficient());
-        assert_eq!(z.coefficient(), (&i * d).coefficient());
-        assert_eq!(z.coefficient(), (i * &d).coefficient());
-        assert_eq!(z.coefficient(), (&i * &d).coefficient());
+        assert_eq!(z.coefficient(), (i * d).coefficient());
+        assert_eq!(z.coefficient(), (i * d).coefficient());
+        assert_eq!(z.coefficient(), (i * d).coefficient());
     }
 }
 
@@ -238,6 +240,7 @@ mod mul_assign_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_mul_assign_pos_overflow() {
         let mut x = Decimal::new_raw(i128::MAX / 2 + 1, 4);
         x *= 2;
@@ -245,6 +248,7 @@ mod mul_assign_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_mul_assign_neg_overflow() {
         let mut x = Decimal::new_raw(i128::MIN / 5 - 1, 1);
         x *= 5;

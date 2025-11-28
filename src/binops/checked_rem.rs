@@ -96,6 +96,7 @@ mod checked_rem_decimal_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_checked_rem_ovfl() {
         let x = Decimal::new_raw(i128::MAX / 3, 1);
         let y = Decimal::new_raw(i128::MAX / 5, 3);
@@ -169,6 +170,7 @@ mod checked_rem_integer_tests {
     macro_rules! gen_checked_rem_integer_tests {
         ($func:ident, $t:ty, $p:expr, $coeff:expr) => {
             #[test]
+                    #[allow(clippy::integer_division)]
             fn $func() {
                 let d = Decimal::new_raw($coeff, $p);
                 let i: $t = 127;

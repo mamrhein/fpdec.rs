@@ -12,17 +12,20 @@ use core::mem::size_of;
 use crate::Decimal;
 
 #[inline(always)]
-fn n_signif_bits(v: u128) -> u32 {
+const fn n_signif_bits(v: u128) -> u32 {
     u128::BITS - v.leading_zeros()
 }
 
 trait Float: Sized {
     type B: Sized;
+    #[allow(clippy::cast_possible_truncation)]
     const BITS: u32 = size_of::<Self::B>() as u32 * 8;
     const FRACTION_BITS: u32;
     const EXP_BIAS: i32;
     fn from_bits(bits: u64) -> Self;
 
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::integer_division)]
     fn from_decimal(d: Decimal) -> Self {
         const EXTRA_BITS: u32 = 3;
         const MASK_EXTRA_BITS: [u128; 2] = [7, 3];
@@ -70,6 +73,7 @@ impl From<Decimal> for f64 {
     #[doc = "Returns the value as `f64`, rounded to the nearest "]
     #[doc = "value representable as such."]
     #[inline(always)]
+    #[allow(clippy::cast_precision_loss)]
     fn from(d: Decimal) -> Self {
         if d.n_frac_digits == 0 || d.coeff == 0 {
             d.coeff as Self
@@ -107,7 +111,7 @@ mod tests_into_f64 {
     fn test_subtract_with_overflow_issue() {
         let d = Decimal::new_raw(10101010101010101, 18);
         let f = f64::from(d);
-        assert_eq!(f, 0.010101010101010101);
+        assert_eq!(f, 0.010_101_010_101_010_1);
     }
 
     #[test]
@@ -135,16 +139,16 @@ mod tests_into_f64 {
 
     #[test]
     fn test_small_dec_2() {
-        let d = Decimal::new_raw(9007199254740991_i128, 7);
+        let d = Decimal::new_raw(0x001F_FFFF_FFFF_FFFF_i128, 7);
         let f = f64::from(d);
         assert_eq!(f, 900719925.4740991_f64);
     }
 
     #[test]
     fn test_large_dec_1() {
-        let d = Decimal::new_raw(-36028797018963967_i128, 2);
+        let d = Decimal::new_raw(-0x007F_FFFF_FFFF_FFFF_i128, 2);
         let f = f64::from(d);
-        assert_eq!(f, -360287970189639.67_f64);
+        assert_eq!(f, -360287970189639.7_f64);
     }
 
     #[test]
@@ -175,6 +179,8 @@ impl Float for f32 {
     const EXP_BIAS: i32 = Self::MAX_EXP - 1;
 
     #[inline(always)]
+    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_possible_truncation)]
     fn from_bits(bits: u64) -> Self {
         Self::from_bits(bits as u32)
     }
@@ -185,6 +191,7 @@ impl From<Decimal> for f32 {
     #[doc = "Returns the value as `f32`, rounded to the nearest "]
     #[doc = "value representable as such."]
     #[inline(always)]
+    #[allow(clippy::cast_precision_loss)]
     fn from(d: Decimal) -> Self {
         if d.n_frac_digits == 0 || d.coeff == 0 {
             d.coeff as Self
@@ -226,7 +233,7 @@ mod tests_into_f32 {
 
     #[test]
     fn test_small_dec_2() {
-        let d = Decimal::new_raw(16777213_i128, 7);
+        let d = Decimal::new_raw(0x00FF_FFFD_i128, 7);
         let f = f32::from(d);
         assert_eq!(f, 1.6777213_f32);
     }
@@ -235,7 +242,7 @@ mod tests_into_f32 {
     fn test_large_dec_1() {
         let d = Decimal::new_raw(-134217933_i128, 2);
         let f = f32::from(d);
-        assert_eq!(f, -1342179.33_f32);
+        assert_eq!(f, -1342179.4_f32);
     }
 
     #[test]

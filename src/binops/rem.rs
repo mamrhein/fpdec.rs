@@ -146,6 +146,7 @@ mod rem_decimal_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_rem_rhs_shift_ovfl() {
         let x = Decimal::new_raw(i128::MAX, 2);
         let y = Decimal::new_raw(i128::MAX / 5, 1);
@@ -155,6 +156,7 @@ mod rem_decimal_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_rem_lhs_shift_ovfl() {
         let x = Decimal::new_raw(i128::MAX / 30, 1);
         let y = Decimal::new_raw(i128::MAX / 500, 3);
@@ -168,6 +170,7 @@ mod rem_decimal_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_rem_panic_ovfl() {
         let x = Decimal::new_raw(i128::MAX / 3, 1);
         let y = Decimal::new_raw(i128::MAX / 5, 3);
@@ -250,6 +253,7 @@ mod rem_integer_tests {
     macro_rules! gen_rem_integer_tests {
         ($func:ident, $t:ty, $p:expr, $coeff:expr) => {
             #[test]
+            #[allow(clippy::integer_division)]
             fn $func() {
                 let d = Decimal::new_raw($coeff, $p);
                 let i: $t = 127;
@@ -319,6 +323,7 @@ mod rem_integer_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_rem_rhs_shift_ovfl() {
         let x = Decimal::new_raw(i128::MAX, 2);
         let y = i128::MAX / 5;
@@ -328,6 +333,7 @@ mod rem_integer_tests {
     }
 
     #[test]
+    #[allow(clippy::integer_division)]
     fn test_rem_lhs_shift_ovfl() {
         let x = i128::MAX / 30;
         let y = Decimal::new_raw(i128::MAX / 500, 2);
@@ -341,6 +347,7 @@ mod rem_integer_tests {
 
     #[test]
     #[should_panic]
+    #[allow(clippy::integer_division)]
     fn test_rem_panic_ovfl() {
         let x = i128::MAX / 3;
         let y = Decimal::new_raw(i128::MAX / 5, 3);

@@ -226,12 +226,12 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
         None => {
             return Err(ParseDecimalError::Empty);
         }
-        Some(&c) if c == b'-' => {
+        Some(b'-') => {
             // Safety: safe because of match
             unsafe { lit.skip_1() };
             true
         }
-        Some(&c) if c == b'+' => {
+        Some(b'+') => {
             // Safety: safe because of match
             unsafe { lit.skip_1() };
             false
@@ -283,12 +283,12 @@ pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
                 None => {
                     return Err(ParseDecimalError::Invalid);
                 }
-                Some(&c) if c == b'-' => {
+                Some(b'-') => {
                     // Safety: safe because of match
                     unsafe { lit.skip_1() };
                     true
                 }
-                Some(&c) if c == b'+' => {
+                Some(b'+') => {
                     // Safety: safe because of match
                     unsafe { lit.skip_1() };
                     false

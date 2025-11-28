@@ -40,7 +40,7 @@ pub enum RoundingMode {
 #[cfg(feature = "std")]
 thread_local!(
     static DFLT_ROUNDING_MODE: RefCell<RoundingMode> =
-        RefCell::new(RoundingMode::RoundHalfEven)
+        const { RefCell::new(RoundingMode::RoundHalfEven) }
 );
 
 #[cfg(feature = "std")]

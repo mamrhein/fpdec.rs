@@ -85,13 +85,13 @@ mod tests {
     #[test]
     fn test_from_i128() {
         let numbers: [i128; 7] = [
-            -170141183460469231731687303715884105728,
+            -0x8000_0000_0000_0000_0000_0000_0000_0000,
             -3830009274,
             -1,
             0,
             1,
             2829773566410082,
-            170141183460469231731687303715884105727,
+            0x7FFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF,
         ];
         check_from_int::<i128>(&numbers);
     }
@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn test_from_u128_ok() {
         let numbers: [u128; 4] =
-            [0, 1, 2128255, 170141183460469231731687303715884105727u128];
+            [0, 1, 2128255, 0x7FFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF];
         for n in numbers {
             match Decimal::try_from(n) {
                 Err(_) => panic!("Misconfigured test case!"),
@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn test_from_u128_err() {
-        let i = 170141183460469231731687303715884105728u128;
+        let i = 0x8000_0000_0000_0000_0000_0000_0000_0000_u128;
         let res = Decimal::try_from(i);
         assert_eq!(res.unwrap_err(), DecimalError::InternalOverflow);
     }

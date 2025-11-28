@@ -11,7 +11,7 @@ use core::cmp::Ordering;
 
 use fpdec_core::{checked_adjust_coeffs, checked_mul_pow_ten, ten_pow};
 
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 use crate::ArchivedDecimal;
 use crate::Decimal;
 
@@ -34,12 +34,12 @@ macro_rules! impl_partial_eq {
 }
 
 impl_partial_eq!(Decimal, Decimal);
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl_partial_eq!(ArchivedDecimal, ArchivedDecimal);
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl_partial_eq!(Decimal, ArchivedDecimal);
 
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl PartialEq<ArchivedDecimal> for Decimal {
     fn eq(&self, other: &ArchivedDecimal) -> bool {
         other.eq(self)
@@ -53,6 +53,8 @@ impl Eq for ArchivedDecimal {}
 
 macro_rules! impl_partial_ord {
     ($t:ty, $target:ty) => {
+        #[allow(clippy::non_canonical_partial_ord_impl)]
+        // Safe in this case because impl of Ord::cmp uses calls partial_cmp
         impl PartialOrd<$t> for $target {
             fn partial_cmp(&self, other: &$t) -> Option<Ordering> {
                 match checked_adjust_coeffs(
@@ -85,12 +87,12 @@ macro_rules! impl_partial_ord {
 }
 
 impl_partial_ord!(Decimal, Decimal);
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl_partial_ord!(ArchivedDecimal, ArchivedDecimal);
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl_partial_ord!(Decimal, ArchivedDecimal);
 
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl PartialOrd<ArchivedDecimal> for Decimal {
     fn partial_cmp(&self, other: &ArchivedDecimal) -> Option<Ordering> {
         other.partial_cmp(self).map(|o| o.reverse())
@@ -104,7 +106,7 @@ impl Ord for Decimal {
     }
 }
 
-#[cfg(all(feature = "rkyv"))]
+#[cfg(feature = "rkyv")]
 impl Ord for ArchivedDecimal {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {

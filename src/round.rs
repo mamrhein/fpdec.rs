@@ -161,7 +161,7 @@ mod round_decimal_tests {
     #[test]
     #[should_panic]
     fn test_decimal_round_overflow() {
-        let d = Decimal::new_raw(170141183460469231731687303715884105727, 0);
+        let d = Decimal::new_raw(0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, 0);
         let _ = d.round(-8);
     }
 
@@ -179,10 +179,12 @@ mod round_decimal_tests {
         assert_eq!(d.checked_round(0).unwrap().coefficient(), 1234567891);
         let d = Decimal::new_raw(123455, 9);
         assert_eq!(d.checked_round(8).unwrap().coefficient(), 12346);
-        let d = Decimal::new_raw(170141183460469231731687303715884105727, 0);
+        let d =
+            Decimal::new_raw(0x7FFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF, 0);
         let res = d.checked_round(-1);
         assert!(res.is_none());
-        let d = Decimal::new_raw(170141183460469231731687303715884105727, 0);
+        let d =
+            Decimal::new_raw(0x7FFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF, 0);
         let res = d.checked_round(-1);
         assert!(res.is_none());
     }
