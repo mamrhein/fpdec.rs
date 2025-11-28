@@ -1,5 +1,9 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.12.0    Added impl of iter::Sum and iter::Product for Decimal (thx to
+          thomaseizinger).
+          Set minimal rust version to 1.78.
+
 0.11.0    Added impl of num_traits::Signed for Decimal.
           Set minimal rust version to 1.74.1.
 
