@@ -87,6 +87,7 @@ struct AsciiDecLit<'a> {
     bytes: &'a [u8],
 }
 
+#[allow(unsafe_code)]
 impl<'a> AsciiDecLit<'a> {
     const fn new(bytes: &'a [u8]) -> Self {
         Self { bytes }
@@ -120,6 +121,7 @@ impl<'a> AsciiDecLit<'a> {
         Some(&b) == self.first()
     }
 
+    #[allow(dead_code)]
     const fn first_is_digit(&self) -> bool {
         matches!(self.first(), Some(c) if c.wrapping_sub(b'0') < 10)
     }
@@ -220,6 +222,8 @@ impl<'a> AsciiDecLit<'a> {
 ///
 /// `[+|-].<frac>[<e|E>[+|-]<exp>]`.
 #[doc(hidden)]
+#[allow(clippy::cast_possible_wrap)]
+#[allow(unsafe_code)]
 pub fn str_to_dec(lit: &str) -> Result<(i128, isize), ParseDecimalError> {
     let mut lit = AsciiDecLit::new(lit.as_ref());
     let is_negative = match lit.first() {

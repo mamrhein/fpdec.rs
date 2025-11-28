@@ -51,6 +51,8 @@ impl FromStr for Decimal {
     /// assert_eq!(d.to_string(), "-1.3202070");
     /// # Ok(()) }
     /// ```
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_sign_loss)]
     fn from_str(lit: &str) -> Result<Self, Self::Err> {
         let (coeff, exponent) = str_to_dec(lit)?;
         if -exponent > MAX_N_FRAC_DIGITS as isize {
@@ -60,7 +62,6 @@ impl FromStr for Decimal {
             // 10 ^ 39 > int128::MAX
             return Result::Err(ParseDecimalError::InternalOverflow);
         }
-        #[allow(clippy::cast_possible_truncation)]
         if exponent < 0 {
             Ok(Self {
                 coeff,

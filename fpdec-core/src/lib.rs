@@ -10,17 +10,18 @@
 #![doc = include_str ! ("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
 // activate some rustc lints
+#![allow(dead_code)]
 #![deny(non_ascii_idents)]
+#![deny(unsafe_code)]
 #![warn(missing_debug_implementations)]
 #![warn(missing_docs)]
 #![warn(trivial_casts, trivial_numeric_casts)]
 #![warn(unused)]
-#![allow(dead_code)]
 // activate some clippy lints
 #![warn(clippy::cast_possible_truncation)]
-// #![warn(clippy::cast_possible_wrap)]
+#![warn(clippy::cast_possible_wrap)]
 #![warn(clippy::cast_precision_loss)]
-// #![warn(clippy::cast_sign_loss)]
+#![warn(clippy::cast_sign_loss)]
 #![warn(clippy::cognitive_complexity)]
 #![warn(clippy::enum_glob_use)]
 #![warn(clippy::equatable_if_let)]
@@ -31,13 +32,12 @@
 #![warn(clippy::integer_division)]
 #![warn(clippy::manual_assert)]
 #![warn(clippy::match_same_arms)]
-// #![warn(clippy::mismatching_type_param_order)] TODO: enable when 1.62
-// stable
+#![warn(clippy::mismatching_type_param_order)]
 #![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::missing_errors_doc)]
 #![warn(clippy::missing_panics_doc)]
 #![warn(clippy::multiple_crate_versions)]
-// #![warn(clippy::multiple_inherent_impl)]
+#![warn(clippy::multiple_inherent_impl)]
 #![warn(clippy::must_use_candidate)]
 #![warn(clippy::needless_pass_by_value)]
 #![warn(clippy::print_stderr)]
@@ -415,6 +415,8 @@ fn u256_idiv_u128(xh: &mut u128, xl: &mut u128, y: u128) -> u128 {
 /// return `None` if |q| > i128::MAX.
 #[doc(hidden)]
 #[must_use]
+#[allow(clippy::cast_sign_loss)]
+#[allow(clippy::cast_possible_wrap)]
 pub fn i128_shifted_div_mod_floor(
     x: i128,
     p: u8,
@@ -450,6 +452,7 @@ pub fn i128_shifted_div_mod_floor(
 /// return `None` if |q| > i128::MAX.
 #[doc(hidden)]
 #[must_use]
+#[allow(clippy::cast_possible_wrap)]
 pub fn i256_div_mod_floor(
     x1: i128,
     x2: i128,

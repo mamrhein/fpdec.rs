@@ -25,6 +25,8 @@ trait Float: Sized {
     fn from_bits(bits: u64) -> Self;
 
     #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_sign_loss)]
     #[allow(clippy::integer_division)]
     fn from_decimal(d: Decimal) -> Self {
         const EXTRA_BITS: u32 = 3;

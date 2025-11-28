@@ -16,7 +16,7 @@ use fpdec_core::{
 
 use crate::{Decimal, DecimalError};
 
-const MAGN_I128_MAX: u8 = 38;
+// const MAGN_I128_MAX: u8 = 38;
 
 /// Division giving a result rounded to fit a given number of fractional
 /// digits.

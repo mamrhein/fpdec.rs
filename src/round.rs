@@ -35,6 +35,8 @@ impl Round for Decimal {
     /// let r = d.round(-1);
     /// assert_eq!(r.to_string(), "30");
     /// ```
+    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_sign_loss)]
     fn round(self, n_frac_digits: i8) -> Self {
         if n_frac_digits >= self.n_frac_digits as i8 {
             self
@@ -82,6 +84,8 @@ impl Round for Decimal {
     /// # Option::None
     /// # } f();}
     /// ```
+    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_sign_loss)]
     fn checked_round(self, n_frac_digits: i8) -> Option<Self> {
         if n_frac_digits >= self.n_frac_digits as i8 {
             Some(self)

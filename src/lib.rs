@@ -10,18 +10,19 @@
 #![doc = include_str ! ("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
 // activate some rustc lints
+#![allow(dead_code)]
 #![deny(non_ascii_idents)]
 #![deny(unsafe_code)]
 #![warn(missing_debug_implementations)]
 #![warn(missing_docs)]
 #![warn(trivial_casts, trivial_numeric_casts)]
 #![warn(unused)]
-#![allow(dead_code)]
 // activate some clippy lints
 #![warn(clippy::cast_possible_truncation)]
+#![warn(clippy::cast_possible_wrap)]
 #![warn(clippy::cast_precision_loss)]
+#![warn(clippy::cast_sign_loss)]
 #![warn(clippy::cognitive_complexity)]
-#![warn(clippy::decimal_literal_representation)]
 #![warn(clippy::enum_glob_use)]
 #![warn(clippy::equatable_if_let)]
 #![warn(clippy::fallible_impl_from)]
@@ -172,6 +173,7 @@ impl Decimal {
     /// assert_eq!(d.magnitude(), 0);
     #[must_use]
     #[inline(always)]
+    #[allow(clippy::cast_possible_wrap)]
     pub const fn magnitude(self) -> i8 {
         i128_magnitude(self.coeff) as i8 - self.n_frac_digits as i8
     }

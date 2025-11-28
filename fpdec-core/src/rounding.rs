@@ -188,6 +188,7 @@ fn round_quot(
 /// Divide 'divident' by 'divisor' and round result according to 'mode'.
 #[doc(hidden)]
 #[must_use]
+#[allow(clippy::cast_sign_loss)]
 pub fn i128_div_rounded(
     mut divident: i128,
     mut divisor: i128,
@@ -206,6 +207,7 @@ pub fn i128_div_rounded(
 /// 'mode'.
 #[doc(hidden)]
 #[must_use]
+#[allow(clippy::cast_sign_loss)]
 pub fn i128_shifted_div_rounded(
     mut divident: i128,
     p: u8,
@@ -224,6 +226,7 @@ pub fn i128_shifted_div_rounded(
 /// Divide 'x * y' by '10^p' and round result according to 'mode'.
 #[doc(hidden)]
 #[must_use]
+#[allow(clippy::cast_sign_loss)]
 pub fn i128_mul_div_ten_pow_rounded(
     x: i128,
     y: i128,

@@ -16,6 +16,7 @@ use crate::{normalize, Decimal, DecimalError};
 /// Returns a normal f64 value f as (significand, exponent, sign) so that
 /// `f = sign * significand * 2 ^ exponent`.
 /// If f is signed zero or subnormal, (0, 0, 0) is returned.
+#[allow(clippy::cast_possible_wrap)]
 fn f64_decode(f: f64) -> (u64, i16, i8) {
     let bits = f.to_bits();
     // sign bit at pos 63
@@ -43,6 +44,7 @@ fn f64_decode(f: f64) -> (u64, i16, i8) {
 /// Returns a normal f32 value f as (significand, exponent, sign) so that
 /// `f = sign * significand * 2 ^ exponent`.
 /// If f is signed zero or subnormal, (0, 0, 0) is returned.
+#[allow(clippy::cast_possible_wrap)]
 fn f32_decode(f: f32) -> (u64, i16, i8) {
     let bits = f.to_bits();
     // sign bit at pos 31
@@ -138,6 +140,7 @@ impl TryFrom<f32> for Decimal {
     /// assert_eq!(d.to_string(), "37.000499725341796875");
     /// # Ok(()) }
     /// ```
+    #[allow(clippy::cast_sign_loss)]
     fn try_from(f: f32) -> Result<Self, Self::Error> {
         if f.is_infinite() {
             return Err(DecimalError::InfiniteValue);
@@ -197,6 +200,7 @@ impl TryFrom<f64> for Decimal {
     /// # Ok(()) }
     /// ```
     #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_sign_loss)]
     fn try_from(f: f64) -> Result<Self, Self::Error> {
         if f.is_infinite() {
             return Err(DecimalError::InfiniteValue);
