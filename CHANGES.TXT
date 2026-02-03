@@ -1,5 +1,8 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.14.0    Upgraded dependency 'rkyv' to version 0.8.
+          Set minimal Rust version to 1.81.
+
 0.13.2    Corrected keyword.
 
 0.13.1    Fixed documentation (issue #19).
