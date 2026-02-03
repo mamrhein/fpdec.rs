@@ -1,5 +1,9 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.13.1    Fixed documentation (issue #19).
+
+0.13.0    No changes. Published because of problems with upload of 0.12.
+
 0.12.0    Added impl of iter::Sum and iter::Product for Decimal (thx to
           thomaseizinger).
           Set minimal rust version to 1.78.
