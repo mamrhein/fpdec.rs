@@ -18,7 +18,7 @@ fpdec-core = { path = "fpdec-core", version = "0.13.0" }
 fpdec-macros = { path = "fpdec-macros", version = "0.13.0" }
 num-traits = { version = "0.2.0", optional = true }
 serde = { version = "1", optional = true, features = ["derive"] }
-rkyv = { version = "0.7", optional = true, features = ["validation", "strict"] }
+rkyv = { version = "0.8", optional = true }
 
 [dev-dependencies]
 serde_json = { version = "1.0" }
@@ -26,10 +26,9 @@ serde_json = { version = "1.0" }
 [features]
 default = ["std"]
 std = []
-packed = []
+packed = ["rkyv?/unaligned"]
 serde-as-str = ["dep:serde"]
-num-traits = ["dep:num-traits"]
-rkyv = ["dep:rkyv"]
 
 [workspace]
 members = [".", "fpdec-core", "fpdec-macros"]
+resolver = "2"

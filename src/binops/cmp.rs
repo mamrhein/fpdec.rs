@@ -20,9 +20,9 @@ macro_rules! impl_partial_eq {
         impl PartialEq<$t> for $target {
             fn eq(&self, other: &$t) -> bool {
                 match checked_adjust_coeffs(
-                    self.coeff,
+                    self.coeff.into(),
                     self.n_frac_digits,
-                    other.coeff,
+                    other.coeff.into(),
                     other.n_frac_digits,
                 ) {
                     (Some(a), Some(b)) => a == b,
@@ -58,9 +58,9 @@ macro_rules! impl_partial_ord {
         impl PartialOrd<$t> for $target {
             fn partial_cmp(&self, other: &$t) -> Option<Ordering> {
                 match checked_adjust_coeffs(
-                    self.coeff,
+                    self.coeff.into(),
                     self.n_frac_digits,
-                    other.coeff,
+                    other.coeff.into(),
                     other.n_frac_digits,
                 ) {
                     (Some(a), Some(b)) => a.partial_cmp(&b),
@@ -120,28 +120,32 @@ macro_rules! impl_basics {
             /// Returns true if self is equal to zero.
             #[must_use]
             #[inline(always)]
-            pub const fn eq_zero(&self) -> bool {
+            #[allow(clippy::missing_const_for_fn)] // false positive
+            pub fn eq_zero(&self) -> bool {
                 self.coeff == 0
             }
 
             /// Returns true if self is equal to one.
             #[must_use]
             #[inline(always)]
-            pub const fn eq_one(&self) -> bool {
+            #[allow(clippy::missing_const_for_fn)] // false positive
+            pub fn eq_one(&self) -> bool {
                 self.coeff == ten_pow(self.n_frac_digits)
             }
 
             /// Returns true if self is less than zero.
             #[must_use]
             #[inline(always)]
-            pub const fn is_negative(&self) -> bool {
+            #[allow(clippy::missing_const_for_fn)] // false positive
+            pub fn is_negative(&self) -> bool {
                 self.coeff < 0
             }
 
             /// Returns true if self is greater than zero.
             #[must_use]
             #[inline(always)]
-            pub const fn is_positive(&self) -> bool {
+            #[allow(clippy::missing_const_for_fn)] // false positive
+            pub fn is_positive(&self) -> bool {
                 self.coeff > 0
             }
         }
@@ -487,15 +491,15 @@ mod cmp_decimals_and_ints_tests {
 #[cfg(feature = "rkyv")]
 #[cfg(test)]
 mod rkyv_cmp_decimals_tests {
+    use rkyv::{access, rancor::Error, to_bytes};
 
     use super::*;
 
     macro_rules! declare {
         ($i:ident = $x:expr, $a:ident) => {
             let $i = $x;
-            let bytes = rkyv::to_bytes::<_, 256>(&$i).unwrap();
-            let $a =
-                rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
+            let bytes = to_bytes::<Error>(&$i).unwrap();
+            let $a = access::<ArchivedDecimal, Error>(&bytes).unwrap();
         };
     }
 

@@ -108,18 +108,15 @@ mod unops;
     serde(into = "String"),
     serde(try_from = "String")
 )]
-// Derived `Archive` implementation doesn't support packed structs.
-// More details: https://github.com/rkyv/rkyv/issues/198
-//
-// To overcome this, we use a manually written implementation for
-// cases when both `rkyv` and `packed` features are enabled.
+// rkyv::Archive doesn't support packed structs.
+// To overcome this, we activate feature rkyv/unaligned (see Cargo.toml) and
+// do not not use repr(packed) when both `rkyv` and `packed` are enabled.
 #[cfg_attr(
-    all(feature = "rkyv", not(feature = "packed")),
+    feature = "rkyv",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(check_bytes),
-    archive_attr(derive(Copy, Clone))
+    rkyv(derive(Debug))
 )]
-#[cfg_attr(feature = "packed", repr(packed))]
+#[cfg_attr(all(feature = "packed", not(feature = "rkyv")), repr(packed))]
 pub struct Decimal {
     coeff: i128,
     n_frac_digits: u8,
@@ -335,8 +332,8 @@ impl ArchivedDecimal {
     /// Coefficient of `self`.
     #[must_use]
     #[inline(always)]
-    pub const fn coefficient(self) -> i128 {
-        self.coeff
+    pub fn coefficient(self) -> i128 {
+        self.coeff.into()
     }
 
     /// Number of fractional decimal digits of `self`.
@@ -347,97 +344,18 @@ impl ArchivedDecimal {
     }
 }
 
-/// Represents an archived decimal number.
-///
-/// It is a mirror of `Decimal` used in conjunction with `rkyv` and
-/// `packed` features, accompanied with a manual `rkyv::Archive`
-/// implementation.
-#[cfg(all(feature = "rkyv", feature = "packed"))]
-#[derive(Copy, Clone)]
-#[repr(C, packed)]
-pub struct ArchivedDecimal {
-    coeff: i128,
-    n_frac_digits: u8,
-}
-
-#[cfg(all(feature = "rkyv", feature = "packed"))]
-impl rkyv::Archive for Decimal {
-    type Archived = ArchivedDecimal;
-    type Resolver = ();
-
-    // Safety: Rkyv provides a valid pointer. Writes are unaligned,
-    // which is a safe way to write the values as our type is packed.
-    #[allow(unsafe_code)]
-    unsafe fn resolve(
-        &self,
-        _: usize,
-        _: Self::Resolver,
-        out: *mut Self::Archived,
-    ) {
-        core::ptr::addr_of_mut!((*out).coeff).write_unaligned(self.coeff);
-        core::ptr::addr_of_mut!((*out).n_frac_digits)
-            .write_unaligned(self.n_frac_digits);
-    }
-}
-
-#[cfg(all(feature = "rkyv", feature = "packed"))]
-impl<S: rkyv::Fallible + ?Sized> rkyv::Serialize<S> for Decimal {
-    fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
-        Ok(())
-    }
-}
-
-#[cfg(all(feature = "rkyv", feature = "packed"))]
-impl<D: rkyv::Fallible + ?Sized> rkyv::Deserialize<Decimal, D>
-    for ArchivedDecimal
-{
-    fn deserialize(&self, _: &mut D) -> Result<Decimal, D::Error> {
-        Ok(Decimal {
-            coeff: self.coeff,
-            n_frac_digits: self.n_frac_digits,
-        })
-    }
-}
-
-#[cfg(all(feature = "rkyv", feature = "packed"))]
-impl<C: ?Sized> rkyv::CheckBytes<C> for ArchivedDecimal {
-    type Error = rkyv::bytecheck::StructCheckError;
-
-    // Safety: Rkyv provides a valid pointer.
-    #[allow(unsafe_code)]
-    #[inline]
-    unsafe fn check_bytes<'a>(
-        value: *const Self,
-        context: &mut C,
-    ) -> Result<&'a Self, Self::Error> {
-        i128::check_bytes(core::ptr::addr_of!((*value).coeff), context)
-            .map_err(|error| Self::Error {
-                field_name: "coeff",
-                inner: alloc::boxed::Box::new(error),
-            })?;
-        u8::check_bytes(core::ptr::addr_of!((*value).n_frac_digits), context)
-            .map_err(|error| Self::Error {
-                field_name: "n_frac_digits",
-                inner: alloc::boxed::Box::new(error),
-            })?;
-        Ok(&*value)
-    }
-}
-
 #[cfg(feature = "rkyv")]
 #[cfg(test)]
 mod rkyv_tests {
-    use rkyv::{self, Deserialize};
+    use rkyv::{access, deserialize, rancor::Error, to_bytes};
 
     use super::*;
 
     fn roundtrip(value: Decimal) -> Decimal {
-        let bytes = rkyv::to_bytes::<_, 256>(&value)
+        let bytes = to_bytes::<Error>(&value)
             .expect("Scratch space size is not enough to serialize value");
-        let archived =
-            rkyv::check_archived_root::<Decimal>(&bytes[..]).unwrap();
-        archived
-            .deserialize(&mut rkyv::Infallible)
+        let archived = access::<ArchivedDecimal, Error>(&bytes).unwrap();
+        deserialize::<Decimal, Error>(archived)
             .expect("Deserialization is infallible")
     }
 
