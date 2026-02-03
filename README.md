@@ -43,15 +43,14 @@ assert_eq!(d.to_string(), "297");
 ```rust
 # use fpdec::{Decimal, DecimalError};
 # use core::convert::TryFrom;
-let d = Decimal::try_from(83.25_f64)?;
+let d = Decimal::try_from(83.25_f64).unwrap();
 assert_eq!(d.to_string(), "83.25");
-# Ok::<(), DecimalError>(())
 ```
 
 ```rust
 # use fpdec::{Decimal, ParseDecimalError};
 # use core::str::FromStr;
-let d = Decimal::from_str("38.2070")?;
+let d = Decimal::from_str("38.2070").unwrap();
 assert_eq!(d.to_string(), "38.2070");
 # Ok::<(), ParseDecimalError>(())
 ```
