@@ -1,12 +1,13 @@
-This crate provides a fast implementation of `Decimal` fixed-point 
+This crate provides a fast implementation of `Decimal` floating-point 
 arithmetics.
 It is targeted at typical business applications, dealing with numbers 
 representing quantities, money and the like, not at scientific computations,
-for which the accuracy of floating point math is - in most cases - sufficient.
+for which the accuracy of binary floating point math is - in most cases -
+sufficient.
 ### Objectives
 * "Exact" representation of decimal numbers (no deviation as with binary
   floating point numbers)
-* No hidden rounding errors (as inherent to floating point math)
+* No hidden rounding errors (as inherent to binary floating point math)
 * Very fast operations (by mapping them to integer ops) 
 * Range of representable decimal numbers sufficient for typical business
   applications
@@ -18,15 +19,6 @@ the constant `MAX_N_FRAC_DIGITS` = 18.
 
 ### Status
 Work in progess, but most of the API is stable.
-
-## Getting started
-
-Add `fpdec` to your `Cargo.toml`:
-
-```toml
-[dependencies]
-fpdec = "0.12"
-```
 
 ## Usage
 
