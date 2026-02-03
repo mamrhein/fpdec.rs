@@ -44,7 +44,6 @@
 #![warn(clippy::print_stdout)]
 #![warn(clippy::semicolon_if_nothing_returned)]
 #![warn(clippy::str_to_string)]
-#![warn(clippy::string_to_string)]
 #![warn(clippy::undocumented_unsafe_blocks)]
 #![warn(clippy::unicode_not_nfc)]
 #![warn(clippy::unimplemented)]
@@ -298,6 +297,7 @@ const fn u128_mul_u128(x: u128, y: u128) -> (u128, u128) {
 // Exercise 16
 #[inline(always)]
 #[allow(clippy::integer_division)]
+#[allow(clippy::missing_const_for_fn)] // false positive
 fn u256_idiv_u64(xh: &mut u128, xl: &mut u128, y: u64) -> u128 {
     if y == 1 {
         return 0;

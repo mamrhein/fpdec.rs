@@ -110,10 +110,7 @@ fn round_quot(
     }
     // here: |divisor| >= 2 => rem <= |divident| / 2,
     // therefor it's safe to use rem << 1
-    let mode = match mode {
-        None => RoundingMode::default(),
-        Some(mode) => mode,
-    };
+    let mode = mode.unwrap_or_default();
     match mode {
         RoundingMode::Round05Up => {
             // Round down unless last digit is 0 or 5:

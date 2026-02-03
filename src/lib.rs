@@ -43,7 +43,6 @@
 #![warn(clippy::print_stdout)]
 #![warn(clippy::semicolon_if_nothing_returned)]
 #![warn(clippy::str_to_string)]
-#![warn(clippy::string_to_string)]
 #![warn(clippy::undocumented_unsafe_blocks)]
 #![warn(clippy::unicode_not_nfc)]
 #![warn(clippy::unimplemented)]
@@ -285,7 +284,6 @@ mod hash_tests {
 #[cfg(feature = "serde-as-str")]
 #[cfg(test)]
 mod serde_json_tests {
-    use serde_json;
 
     use super::*;
 

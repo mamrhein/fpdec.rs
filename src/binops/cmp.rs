@@ -487,7 +487,6 @@ mod cmp_decimals_and_ints_tests {
 #[cfg(feature = "rkyv")]
 #[cfg(test)]
 mod rkyv_cmp_decimals_tests {
-    use rkyv;
 
     use super::*;
 

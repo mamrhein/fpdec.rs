@@ -113,7 +113,7 @@ impl Signed for Decimal {
     /// otherwise the difference between `self` and `other` is returned.
     fn abs_sub(&self, other: &Self) -> Self {
         if self <= other {
-            Decimal::ZERO
+            Self::ZERO
         } else {
             self - other
         }
