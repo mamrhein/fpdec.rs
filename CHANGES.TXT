@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.13.2    Corrected keyword.
+
 0.13.1    Fixed documentation (issue #19).
 
 0.13.0    No changes. Published because of problems with upload of 0.12.
