@@ -10,7 +10,7 @@ homepage = "https://github.com/mamrhein/fpdec.rs"
 repository = "https://github.com/mamrhein/fpdec.rs"
 documentation = "https://docs.rs/fpdec/"
 license-file = "LICENSE.TXT"
-keywords = ["number", "decimal", "fixed-point", "arithmetics"]
+keywords = ["number", "decimal", "floating-point", "arithmetics"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
