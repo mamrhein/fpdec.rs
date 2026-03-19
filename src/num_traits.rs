@@ -126,7 +126,7 @@ impl Signed for Decimal {
     /// * `-1` if the number is negative
     #[inline(always)]
     fn signum(&self) -> Self {
-        Self::from(self.coeff.signum())
+        self.signum()
     }
 
     /// Returns true if the number is positive and false if the number is zero
