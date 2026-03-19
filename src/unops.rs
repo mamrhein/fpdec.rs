@@ -92,6 +92,16 @@ impl Decimal {
         }
     }
 
+    /// Returns the sign of the number.
+    ///
+    /// * `0` if the number is zero
+    /// * `1` if the number is positive
+    /// * `-1` if the number is negative
+    #[inline(always)]
+    pub fn signum(&self) -> Self {
+        Self::from(self.coefficient().signum())
+    }
+
     /// Returns the largest integral value <= `self`.
     ///
     /// # Examples
@@ -219,6 +229,13 @@ mod tests {
         let a = &x;
         let b = a.abs();
         assert_eq!(-a.coefficient(), b.coefficient());
+    }
+
+    #[test]
+    fn test_signum() {
+        assert_eq!(Decimal::new_raw(123, 0).signum(), Decimal::ONE);
+        assert_eq!(Decimal::new_raw(0, 0).signum(), Decimal::ZERO);
+        assert_eq!(Decimal::new_raw(-123, 0).signum(), Decimal::NEG_ONE);
     }
 
     #[test]
